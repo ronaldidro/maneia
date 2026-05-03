@@ -16,12 +16,12 @@ import { Role } from '@app/base/role.enum';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiBearerAuth()
+@Roles(Role.Admin)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @Roles(Role.Admin)
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
@@ -37,7 +37,6 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @Roles(Role.Admin)
   update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -46,7 +45,6 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @Roles(Role.Admin)
   remove(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.usersService.remove(id);
   }

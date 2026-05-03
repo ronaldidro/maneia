@@ -3,7 +3,8 @@ import { AuthService } from '@auth/auth.service';
 import { SignInDto } from '@auth/dto/sign-in.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { Public } from '@decorator/public.decorator';
-import type { Request as RequestDto } from 'express';
+import { User } from '@users/entities/user.entity';
+import { CurrentUser } from '@decorator/user.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -17,7 +18,7 @@ export class AuthController {
 
   @ApiBearerAuth()
   @Get('me')
-  getProfile(@Request() req: RequestDto) {
-    return req.user;
+  getProfile(@CurrentUser() user: User) {
+    return user;
   }
 }
