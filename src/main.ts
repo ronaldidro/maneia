@@ -1,0 +1,42 @@
+import { NestFactory, Reflector } from '@nestjs/core';
+import { AppModule } from '@app/app.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import { ErrorsInterceptor } from '@interceptor/errors-interceptor.interceptor';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    }),
+  );
+
+  const config = new DocumentBuilder()
+    .setTitle('MANEIA API')
+    .setDescription('The shared expenses API description')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+
+  SwaggerModule.setup('api', app, documentFactory);
+
+  app.useGlobalInterceptors(
+    new ErrorsInterceptor(),
+    new ClassSerializerInterceptor(app.get(Reflector)),
+  );
+
+  app.setGlobalPrefix('api');
+
+  await app.listen(configService.get<number>('PORT') ?? 3000);
+}
+bootstrap();
