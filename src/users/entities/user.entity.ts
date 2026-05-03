@@ -1,7 +1,8 @@
 import { Exclude } from 'class-transformer';
 import { BaseEntity } from '../../base/base.entity';
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { Role } from '../../base/role.enum';
+import { Group } from '../../groups/entities/group.entity';
 
 @Entity({ name: 'users' })
 export class User extends BaseEntity {
@@ -20,4 +21,7 @@ export class User extends BaseEntity {
 
   @Column({ type: 'enum', enum: Role })
   role: Role;
+
+  @OneToMany(() => Group, (group) => group.user)
+  groups: Group[];
 }

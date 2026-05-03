@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from '@users/users.module';
 import configOptions from '@config/config.options';
 import { AuthModule } from '@auth/auth.module';
+import { GroupsModule } from '@groups/groups.module';
 import databaseConfig from '@config/database.config';
 
 @Module({
@@ -17,6 +18,7 @@ import databaseConfig from '@config/database.config';
     }),
     UsersModule,
     AuthModule,
+    GroupsModule,
   ],
 })
 export class AppModule implements NestModule {
