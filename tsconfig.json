@@ -30,6 +30,7 @@
       "@auth/*": ["src/auth/*"],
       "@users/*": ["src/users/*"],
       "@groups/*": ["src/groups/*"],
+      "@memberships/*": ["src/memberships/*"],
       "@app/*": ["src/*"]
     }
   }

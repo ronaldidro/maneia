@@ -1,6 +1,7 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../base/base.entity';
 import { User } from '../../users/entities/user.entity';
+import { Membership } from '../../memberships/entities/membership.entity';
 
 @Entity({ name: 'groups' })
 export class Group extends BaseEntity {
@@ -9,4 +10,7 @@ export class Group extends BaseEntity {
 
   @ManyToOne(() => User, (user) => user.groups)
   user: User;
+
+  @OneToMany(() => Membership, (membership) => membership.group)
+  public memberships: Membership[];
 }

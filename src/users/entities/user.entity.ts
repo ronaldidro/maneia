@@ -3,6 +3,7 @@ import { BaseEntity } from '../../base/base.entity';
 import { Entity, Column, OneToMany } from 'typeorm';
 import { Role } from '../../base/role.enum';
 import { Group } from '../../groups/entities/group.entity';
+import { Membership } from '../../memberships/entities/membership.entity';
 
 @Entity({ name: 'users' })
 export class User extends BaseEntity {
@@ -24,4 +25,7 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Group, (group) => group.user)
   groups: Group[];
+
+  @OneToMany(() => Membership, (membership) => membership.user)
+  public memberships: Membership[];
 }

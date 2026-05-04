@@ -6,6 +6,7 @@ import { UsersModule } from '@users/users.module';
 import configOptions from '@config/config.options';
 import { AuthModule } from '@auth/auth.module';
 import { GroupsModule } from '@groups/groups.module';
+import { MembershipsModule } from '@memberships/memberships.module';
 import databaseConfig from '@config/database.config';
 
 @Module({
@@ -19,6 +20,7 @@ import databaseConfig from '@config/database.config';
     UsersModule,
     AuthModule,
     GroupsModule,
+    MembershipsModule,
   ],
 })
 export class AppModule implements NestModule {

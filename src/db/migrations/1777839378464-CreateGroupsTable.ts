@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateGroups1777839378464 implements MigrationInterface {
-  name = 'CreateGroups1777839378464';
+export class CreateGroupsTable1777839378464 implements MigrationInterface {
+  name = 'CreateGroupsTable1777839378464';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
