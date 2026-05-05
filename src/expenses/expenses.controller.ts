@@ -1,9 +1,18 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { ExpensesService } from '@expenses/expenses.service';
 import { CreateExpenseDto } from '@expenses/dto/create-expense.dto';
 import { User } from '@users/entities/user.entity';
 import { CurrentUser } from '@decorator/user.decorator';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { ExpensesQueryDto } from '@expenses/dto/expenses-query.dto';
 
 @ApiBearerAuth()
 @Controller('expenses')
@@ -19,8 +28,8 @@ export class ExpensesController {
   }
 
   @Get()
-  findAll(@CurrentUser() user: User) {
-    return this.expensesService.findAll(user);
+  findAll(@Query() expensesQuery: ExpensesQueryDto, @CurrentUser() user: User) {
+    return this.expensesService.findAll(expensesQuery, user);
   }
 
   @Get(':id')
