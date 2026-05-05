@@ -20,12 +20,20 @@ export class GroupsService {
   }
 
   async findAll(userId: string): Promise<Group[]> {
-    return await this.repository.find({ where: { user: { id: userId } } });
+    return await this.repository.find({
+      select: { id: true, name: true, createdAt: true },
+      where: { user: { id: userId } },
+    });
   }
 
   async findOne(id: string, userId: string): Promise<Group> {
-    const group = await this.repository.findOneBy({ id, user: { id: userId } });
+    const group = await this.repository.findOne({
+      select: { id: true, name: true, createdAt: true },
+      where: { id, user: { id: userId } },
+    });
+
     if (!group) throw new NotFoundException('Group not found');
+
     return group;
   }
 

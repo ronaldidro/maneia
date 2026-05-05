@@ -23,11 +23,28 @@ export class UsersService {
   }
 
   async findAll(): Promise<User[]> {
-    return await this.repository.find();
+    return await this.repository.find({
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        role: true,
+      },
+    });
   }
 
   async findOne(id: string): Promise<User | null> {
-    return await this.repository.findOneBy({ id });
+    return await this.repository.findOne({
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        role: true,
+      },
+      where: { id },
+    });
   }
 
   async findBy(key: keyof User, value: string): Promise<User | null> {

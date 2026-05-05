@@ -30,6 +30,8 @@ export class MembershipsService {
   async findAll(userId: string): Promise<Membership[]> {
     return await this.repository.find({
       select: {
+        id: true,
+        createdAt: true,
         group: { id: true, name: true },
         user: { id: true, firstName: true, lastName: true },
       },
@@ -39,9 +41,15 @@ export class MembershipsService {
   }
 
   async findOne(id: string, userId: string): Promise<Membership> {
-    const membership = await this.repository.findOneBy({
-      id,
-      group: { user: { id: userId } },
+    const membership = await this.repository.findOne({
+      select: {
+        id: true,
+        createdAt: true,
+        group: { id: true, name: true },
+        user: { id: true, firstName: true, lastName: true },
+      },
+      where: { id, group: { user: { id: userId } } },
+      relations: { user: true, group: true },
     });
 
     if (!membership) throw new NotFoundException('Membership not found');
