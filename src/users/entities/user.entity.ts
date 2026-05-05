@@ -36,4 +36,8 @@ export class User extends BaseEntity {
 
   @OneToMany(() => ExpenseDetail, (debt) => debt.user)
   debts: ExpenseDetail[];
+
+  get isAdmin(): boolean {
+    return this.role === Role.Admin;
+  }
 }

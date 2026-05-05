@@ -20,16 +20,16 @@ export class ExpensesController {
 
   @Get()
   findAll(@CurrentUser() user: User) {
-    return this.expensesService.findAll(user.id);
+    return this.expensesService.findAll(user);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string, @CurrentUser() user: User) {
-    return this.expensesService.findOne(id, user.id);
+    return this.expensesService.findOne(id, user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.expensesService.remove(id);
+  remove(@Param('id') id: string, @CurrentUser() user: User) {
+    return this.expensesService.remove(id, user);
   }
 }

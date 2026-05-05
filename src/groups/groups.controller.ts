@@ -27,7 +27,7 @@ export class GroupsController {
 
   @Get()
   findAll(@CurrentUser() user: User) {
-    return this.groupsService.findAll(user.id);
+    return this.groupsService.findAll(user);
   }
 
   @Get(':id')
@@ -35,7 +35,7 @@ export class GroupsController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @CurrentUser() user: User,
   ) {
-    return this.groupsService.findOne(id, user.id);
+    return this.groupsService.findOne(id, user);
   }
 
   @Patch(':id')
@@ -44,7 +44,7 @@ export class GroupsController {
     @Body() updateGroupDto: UpdateGroupDto,
     @CurrentUser() user: User,
   ) {
-    return this.groupsService.update(id, updateGroupDto, user.id);
+    return this.groupsService.update(id, updateGroupDto, user);
   }
 
   @Delete(':id')
@@ -52,6 +52,6 @@ export class GroupsController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @CurrentUser() user: User,
   ) {
-    return this.groupsService.remove(id, user.id);
+    return this.groupsService.remove(id, user);
   }
 }

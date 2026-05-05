@@ -23,12 +23,12 @@ export class MembershipsController {
     @Body() createMembershipDto: CreateMembershipDto,
     @CurrentUser() user: User,
   ) {
-    return this.membershipsService.create(createMembershipDto, user.id);
+    return this.membershipsService.create(createMembershipDto, user);
   }
 
   @Get()
   findAll(@CurrentUser() user: User) {
-    return this.membershipsService.findAll(user.id);
+    return this.membershipsService.findAll(user);
   }
 
   @Get(':id')
@@ -36,7 +36,7 @@ export class MembershipsController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @CurrentUser() user: User,
   ) {
-    return this.membershipsService.findOne(id, user.id);
+    return this.membershipsService.findOne(id, user);
   }
 
   @Delete(':id')
@@ -44,6 +44,6 @@ export class MembershipsController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @CurrentUser() user: User,
   ) {
-    return this.membershipsService.remove(id, user.id);
+    return this.membershipsService.remove(id, user);
   }
 }

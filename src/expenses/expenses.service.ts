@@ -4,15 +4,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Expense } from '@expenses/entities/expense.entity';
 import { DeleteResult, Repository } from 'typeorm';
 import { ExpenseDetail } from '@expenses/entities/expense-detail.entity';
+import { User } from '@users/entities/user.entity';
 
 @Injectable()
 export class ExpensesService {
   constructor(
     @InjectRepository(Expense)
-    private repository: Repository<Expense>,
+    private readonly repository: Repository<Expense>,
 
     @InjectRepository(ExpenseDetail)
-    private detailRepository: Repository<ExpenseDetail>,
+    private readonly detailRepository: Repository<ExpenseDetail>,
   ) {}
 
   async create(
@@ -37,7 +38,7 @@ export class ExpensesService {
     return await this.repository.save(expense);
   }
 
-  async findAll(userId: string): Promise<Expense[]> {
+  async findAll(user: User): Promise<Expense[]> {
     return await this.repository.find({
       select: {
         id: true,
@@ -46,12 +47,12 @@ export class ExpensesService {
         createdAt: true,
         details: { id: true, user: { firstName: true, lastName: true } },
       },
-      where: { user: { id: userId } },
+      where: this.userFilter(user),
       relations: { details: { user: true } },
     });
   }
 
-  async findOne(id: string, userId: string): Promise<Expense> {
+  async findOne(id: string, user: User): Promise<Expense> {
     const expense = await this.repository.findOne({
       select: {
         id: true,
@@ -64,7 +65,7 @@ export class ExpensesService {
           user: { firstName: true, lastName: true },
         },
       },
-      where: { id, user: { id: userId } },
+      where: { id, ...this.userFilter(user) },
       relations: { details: { user: true } },
     });
 
@@ -73,7 +74,13 @@ export class ExpensesService {
     return expense;
   }
 
-  async remove(id: string): Promise<DeleteResult> {
+  async remove(id: string, user: User): Promise<DeleteResult> {
+    await this.findOne(id, user);
+
     return await this.repository.delete(id);
+  }
+
+  private userFilter(user: User) {
+    return user.isAdmin ? {} : { user: { id: user.id } };
   }
 }
