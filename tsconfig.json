@@ -31,6 +31,7 @@
       "@users/*": ["src/users/*"],
       "@groups/*": ["src/groups/*"],
       "@memberships/*": ["src/memberships/*"],
+      "@expenses/*": ["src/expenses/*"],
       "@app/*": ["src/*"]
     }
   }

@@ -4,6 +4,8 @@ import { Entity, Column, OneToMany } from 'typeorm';
 import { Role } from '../../base/role.enum';
 import { Group } from '../../groups/entities/group.entity';
 import { Membership } from '../../memberships/entities/membership.entity';
+import { Expense } from '../../expenses/entities/expense.entity';
+import { ExpenseDetail } from '../../expenses/entities/expense-detail.entity';
 
 @Entity({ name: 'users' })
 export class User extends BaseEntity {
@@ -28,4 +30,10 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Membership, (membership) => membership.user)
   public memberships: Membership[];
+
+  @OneToMany(() => Expense, (expense) => expense.user)
+  expenses: Expense[];
+
+  @OneToMany(() => ExpenseDetail, (debt) => debt.user)
+  debts: ExpenseDetail[];
 }
