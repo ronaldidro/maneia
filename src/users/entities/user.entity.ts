@@ -1,4 +1,4 @@
-import { Exclude } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import { BaseEntity } from '../../base/base.entity';
 import { Entity, Column, OneToMany } from 'typeorm';
 import { Role } from '../../base/role.enum';
@@ -36,6 +36,11 @@ export class User extends BaseEntity {
 
   @OneToMany(() => ExpenseDetail, (debt) => debt.user)
   debts: ExpenseDetail[];
+
+  @Expose()
+  get fullName(): string {
+    return `${this.firstName} ${this.lastName}`;
+  }
 
   get isAdmin(): boolean {
     return this.role === Role.Admin;
