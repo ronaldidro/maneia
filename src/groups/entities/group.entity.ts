@@ -12,8 +12,10 @@ export class Group extends BaseEntity {
   @ManyToOne(() => User, (user) => user.groups)
   user: User;
 
-  @OneToMany(() => Membership, (membership) => membership.group)
-  public memberships: Membership[];
+  @OneToMany(() => Membership, (membership) => membership.group, {
+    cascade: true,
+  })
+  memberships: Membership[];
 
   @OneToMany(() => Expense, (expense) => expense.group)
   expenses: Expense[];

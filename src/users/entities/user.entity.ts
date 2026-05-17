@@ -29,7 +29,7 @@ export class User extends BaseEntity {
   groups: Group[];
 
   @OneToMany(() => Membership, (membership) => membership.user)
-  public memberships: Membership[];
+  memberships: Membership[];
 
   @OneToMany(() => Expense, (expense) => expense.user)
   expenses: Expense[];

@@ -3,21 +3,34 @@ import { CreateGroupDto } from '@groups/dto/create-group.dto';
 import { UpdateGroupDto } from '@groups/dto/update-group.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Group } from '@groups/entities/group.entity';
-import { DeleteResult, Repository, UpdateResult } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { User } from '@users/entities/user.entity';
+import { Membership } from '@memberships/entities/membership.entity';
 
 @Injectable()
 export class GroupsService {
   constructor(
     @InjectRepository(Group)
     private readonly repository: Repository<Group>,
+
+    @InjectRepository(Membership)
+    private readonly membershipRepository: Repository<Membership>,
   ) {}
 
   async create(createGroupDto: CreateGroupDto, userId: string): Promise<Group> {
-    return await this.repository.save({
-      ...createGroupDto,
+    const memberships = this.membershipRepository.create(
+      createGroupDto.members.map((id) => ({
+        user: { id },
+      })),
+    );
+
+    const group = this.repository.create({
+      name: createGroupDto.name,
       user: { id: userId },
+      memberships,
     });
+
+    return await this.repository.save(group);
   }
 
   async findAll(user: User): Promise<Group[]> {
@@ -60,19 +73,20 @@ export class GroupsService {
   ): Promise<UpdateResult> {
     await this.findOne(id, user);
 
-    return await this.repository.update(
-      { id, ...this.userFilter(user) },
-      updateGroupDto,
+    await this.membershipRepository.delete({ group: { id } });
+
+    await this.membershipRepository.save(
+      updateGroupDto.members!.map((userId) => ({
+        user: { id: userId },
+        group: { id },
+      })),
     );
+
+    return await this.repository.update({ id }, { name: updateGroupDto.name });
   }
 
-  async remove(id: string, user: User): Promise<DeleteResult> {
-    await this.findOne(id, user);
-
-    return await this.repository.softDelete({ id, ...this.userFilter(user) });
-  }
-
-  private userFilter(user: User) {
-    return user.isAdmin ? {} : { user: { id: user.id } };
+  async remove(id: string, user: User): Promise<Group> {
+    const group = await this.findOne(id, user);
+    return await this.repository.softRemove(group); // softRemove apply soft deletes to group and relations
   }
 }
