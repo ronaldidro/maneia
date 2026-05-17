@@ -1,3 +1,6 @@
+import { Transform } from 'class-transformer';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 import {
   CreateDateColumn,
   DeleteDateColumn,
@@ -9,6 +12,10 @@ export abstract class BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Transform(({ value }) => {
+    if (!value) return;
+    return format(value, 'dd MMMM yyyy', { locale: es });
+  })
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
 
