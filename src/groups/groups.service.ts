@@ -21,29 +21,32 @@ export class GroupsService {
   }
 
   async findAll(user: User): Promise<Group[]> {
-    return await this.repository.find({
-      select: {
-        id: true,
-        name: true,
-        createdAt: true,
-        user: { firstName: true, lastName: true },
-      },
-      where: this.userFilter(user),
-      relations: { user: true },
-    });
+    const builder = this.repository
+      .createQueryBuilder('group')
+      .select(['group.id', 'group.name', 'group.createdAt'])
+      .leftJoin('group.user', 'owner')
+      .addSelect(['owner.firstName', 'owner.lastName'])
+      .loadRelationCountAndMap('group.members', 'group.memberships');
+
+    if (!user.isAdmin) builder.where('owner.id = :userId', { userId: user.id });
+
+    return await builder.getMany();
   }
 
   async findOne(id: string, user: User): Promise<Group> {
-    const group = await this.repository.findOne({
-      select: {
-        id: true,
-        name: true,
-        createdAt: true,
-        user: { firstName: true, lastName: true },
-      },
-      where: { id, ...this.userFilter(user) },
-      relations: { user: true },
-    });
+    const builder = this.repository
+      .createQueryBuilder('group')
+      .select(['group.id', 'group.name'])
+      .leftJoin('group.memberships', 'membership')
+      .addSelect(['membership.id'])
+      .leftJoin('membership.user', 'member')
+      .addSelect(['member.id', 'member.firstName', 'member.lastName'])
+      .where('group.id = :id', { id });
+
+    if (!user.isAdmin)
+      builder.andWhere('group.user_id = :userId', { userId: user.id });
+
+    const group = await builder.getOne();
 
     if (!group) throw new NotFoundException('Group not found');
 
