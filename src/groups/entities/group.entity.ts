@@ -1,7 +1,7 @@
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../base/base.entity';
 import { User } from '../../users/entities/user.entity';
-import { Membership } from '../../memberships/entities/membership.entity';
+import { Membership } from './membership.entity';
 import { Expense } from '../../expenses/entities/expense.entity';
 
 @Entity({ name: 'groups' })

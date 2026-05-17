@@ -6,7 +6,6 @@ import { UsersModule } from '@users/users.module';
 import configOptions from '@config/config.options';
 import { AuthModule } from '@auth/auth.module';
 import { GroupsModule } from '@groups/groups.module';
-import { MembershipsModule } from '@memberships/memberships.module';
 import { ExpensesModule } from '@expenses/expenses.module';
 import databaseConfig from '@config/database.config';
 
@@ -21,7 +20,6 @@ import databaseConfig from '@config/database.config';
     UsersModule,
     AuthModule,
     GroupsModule,
-    MembershipsModule,
     ExpensesModule,
   ],
 })
