@@ -57,11 +57,7 @@ export class ExpensesService extends BasePaginate<Expense> {
         'expense.createdAt',
       ])
       .leftJoin('expense.user', 'payer')
-      .addSelect(['payer.firstName', 'payer.lastName'])
-      .leftJoin('expense.details', 'detail')
-      .addSelect(['detail.id'])
-      .leftJoin('detail.user', 'debtor')
-      .addSelect(['debtor.firstName', 'debtor.lastName']);
+      .addSelect(['payer.firstName', 'payer.lastName']);
 
     if (!user.isAdmin) builder.where('payer.id = :userId', { userId: user.id });
 
@@ -89,14 +85,14 @@ export class ExpensesService extends BasePaginate<Expense> {
         description: true,
         amount: true,
         createdAt: true,
+        group: { name: true },
         details: {
-          id: true,
           amount: true,
           user: { firstName: true, lastName: true },
         },
       },
       where,
-      relations: { details: { user: true } },
+      relations: { details: { user: true }, group: true },
     });
 
     if (!expense) throw new NotFoundException('Expense not found');
