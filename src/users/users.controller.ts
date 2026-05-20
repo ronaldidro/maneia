@@ -8,14 +8,14 @@ import {
   Delete,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import { UsersService } from '@users/users.service';
-import { CreateUserDto } from '@users/dto/create-user.dto';
-import { UpdateUserDto } from '@users/dto/update-user.dto';
-import { Roles } from '@decorator/roles.decorator';
-import { Role } from '@app/base/role.enum';
+import { UsersService } from '@/users/users.service';
+import { CreateUserDto } from '@/users/dto/create-user.dto';
+import { UpdateUserDto } from '@/users/dto/update-user.dto';
+import { Roles } from '@/decorator/roles.decorator';
+import { Role } from '@/base/role.enum';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { CurrentUser } from '@decorator/user.decorator';
-import { User } from '@users/entities/user.entity';
+import { CurrentUser } from '@/decorator/user.decorator';
+import { User } from '@/users/entities/user.entity';
 
 @ApiBearerAuth()
 @Controller('users')

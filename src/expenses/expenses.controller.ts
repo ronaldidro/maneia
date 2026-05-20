@@ -7,12 +7,12 @@ import {
   Delete,
   Query,
 } from '@nestjs/common';
-import { ExpensesService } from '@expenses/expenses.service';
-import { CreateExpenseDto } from '@expenses/dto/create-expense.dto';
-import { User } from '@users/entities/user.entity';
-import { CurrentUser } from '@decorator/user.decorator';
+import { ExpensesService } from '@/expenses/expenses.service';
+import { CreateExpenseDto } from '@/expenses/dto/create-expense.dto';
+import { User } from '@/users/entities/user.entity';
+import { CurrentUser } from '@/decorator/user.decorator';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { ExpensesQueryDto } from '@expenses/dto/expenses-query.dto';
+import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
 
 @ApiBearerAuth()
 @Controller('expenses')

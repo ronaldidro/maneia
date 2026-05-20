@@ -1,4 +1,4 @@
-import { IS_PUBLIC_KEY } from '@decorator/public.decorator';
+import { IS_PUBLIC_KEY } from '@/decorator/public.decorator';
 import {
   CanActivate,
   ExecutionContext,
@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '@users/users.service';
+import { UsersService } from '@/users/users.service';
 import { Request } from 'express';
 
 interface AuthToken {

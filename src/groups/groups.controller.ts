@@ -8,11 +8,11 @@ import {
   Delete,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import { GroupsService } from '@groups/groups.service';
-import { CreateGroupDto } from '@groups/dto/create-group.dto';
-import { UpdateGroupDto } from '@groups/dto/update-group.dto';
-import { CurrentUser } from '@decorator/user.decorator';
-import { User } from '@users/entities/user.entity';
+import { GroupsService } from '@/groups/groups.service';
+import { CreateGroupDto } from '@/groups/dto/create-group.dto';
+import { UpdateGroupDto } from '@/groups/dto/update-group.dto';
+import { CurrentUser } from '@/decorator/user.decorator';
+import { User } from '@/users/entities/user.entity';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiBearerAuth()

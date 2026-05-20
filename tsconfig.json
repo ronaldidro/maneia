@@ -13,7 +13,6 @@
     "target": "ES2023",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
@@ -22,17 +21,7 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@middleware/*": ["src/middleware/*"],
-      "@interceptor/*": ["src/interceptor/*"],
-      "@guard/*": ["src/guard/*"],
-      "@decorator/*": ["src/decorator/*"],
-      "@config/*": ["src/config/*"],
-      "@auth/*": ["src/auth/*"],
-      "@users/*": ["src/users/*"],
-      "@groups/*": ["src/groups/*"],
-      "@memberships/*": ["src/memberships/*"],
-      "@expenses/*": ["src/expenses/*"],
-      "@app/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
   }
 }

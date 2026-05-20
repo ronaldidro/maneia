@@ -1,10 +1,10 @@
-import { Body, Controller, Get, Post, Request } from '@nestjs/common';
-import { AuthService } from '@auth/auth.service';
-import { SignInDto } from '@auth/dto/sign-in.dto';
+import { Body, Controller, Get, Post } from '@nestjs/common';
+import { AuthService } from '@/auth/auth.service';
+import { SignInDto } from '@/auth/dto/sign-in.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { Public } from '@decorator/public.decorator';
-import { User } from '@users/entities/user.entity';
-import { CurrentUser } from '@decorator/user.decorator';
+import { Public } from '@/decorator/public.decorator';
+import { User } from '@/users/entities/user.entity';
+import { CurrentUser } from '@/decorator/user.decorator';
 
 @Controller('auth')
 export class AuthController {

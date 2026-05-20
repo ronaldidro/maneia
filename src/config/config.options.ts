@@ -1,4 +1,4 @@
-import { validate } from '@config/env.validation';
+import { validate } from '@/config/env.validation';
 import { ConfigModuleOptions } from '@nestjs/config';
 
 const loadEnv = () => ({

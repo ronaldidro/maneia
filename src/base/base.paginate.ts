@@ -1,5 +1,5 @@
 import { ObjectLiteral, SelectQueryBuilder } from 'typeorm';
-import { PaginationDto } from '@app/base/pagination.dto';
+import { PaginationDto } from '@/base/pagination.dto';
 
 export interface PaginatedResponse<T> {
   data: T[];

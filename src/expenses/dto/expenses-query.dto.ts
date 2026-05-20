@@ -1,4 +1,4 @@
-import { PaginationDto } from '@app/base/pagination.dto';
+import { PaginationDto } from '@/base/pagination.dto';
 import { IsDateString, IsOptional, IsString } from 'class-validator';
 
 export class ExpensesQueryDto extends PaginationDto {

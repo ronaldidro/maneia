@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateExpenseDto } from '@expenses/dto/create-expense.dto';
+import { CreateExpenseDto } from '@/expenses/dto/create-expense.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Expense } from '@expenses/entities/expense.entity';
+import { Expense } from '@/expenses/entities/expense.entity';
 import { DeleteResult, Repository } from 'typeorm';
-import { ExpenseDetail } from '@expenses/entities/expense-detail.entity';
-import { User } from '@users/entities/user.entity';
-import { ExpensesQueryDto } from '@expenses/dto/expenses-query.dto';
-import { BasePaginate, PaginatedResponse } from '@app/base/base.paginate';
+import { ExpenseDetail } from '@/expenses/entities/expense-detail.entity';
+import { User } from '@/users/entities/user.entity';
+import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
+import { BasePaginate, PaginatedResponse } from '@/base/base.paginate';
 
 @Injectable()
 export class ExpensesService extends BasePaginate<Expense> {

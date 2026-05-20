@@ -9,7 +9,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { CreateExpenseDetailDto } from '@expenses/dto/create-expense-detail.dto';
+import { CreateExpenseDetailDto } from '@/expenses/dto/create-expense-detail.dto';
 
 export class CreateExpenseDto {
   @IsNotEmpty()

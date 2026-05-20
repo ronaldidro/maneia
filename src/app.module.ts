@@ -1,13 +1,13 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { LoggerMiddleware } from '@middleware/logger.middleware';
+import { LoggerMiddleware } from '@/middleware/logger.middleware';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersModule } from '@users/users.module';
-import configOptions from '@config/config.options';
-import { AuthModule } from '@auth/auth.module';
-import { GroupsModule } from '@groups/groups.module';
-import { ExpensesModule } from '@expenses/expenses.module';
-import databaseConfig from '@config/database.config';
+import { UsersModule } from '@/users/users.module';
+import configOptions from '@/config/config.options';
+import { AuthModule } from '@/auth/auth.module';
+import { GroupsModule } from '@/groups/groups.module';
+import { ExpensesModule } from '@/expenses/expenses.module';
+import databaseConfig from '@/config/database.config';
 
 @Module({
   imports: [
