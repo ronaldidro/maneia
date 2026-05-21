@@ -32,10 +32,11 @@ export class ExpensesService extends BasePaginate<Expense> {
     );
 
     const expense = this.repository.create({
-      description: createExpenseDto.description,
-      amount: createExpenseDto.amount.toString(),
       user: { id: userId },
       group: { id: createExpenseDto.group },
+      expensedAt: createExpenseDto.expensedAt,
+      description: createExpenseDto.description,
+      amount: createExpenseDto.amount.toString(),
       details,
     });
 
@@ -54,7 +55,7 @@ export class ExpensesService extends BasePaginate<Expense> {
         'expense.id',
         'expense.description',
         'expense.amount',
-        'expense.createdAt',
+        'expense.expensedAt',
       ])
       .leftJoin('expense.user', 'payer')
       .addSelect(['payer.firstName', 'payer.lastName']);
@@ -67,11 +68,12 @@ export class ExpensesService extends BasePaginate<Expense> {
       });
 
     if (startDate)
-      builder.andWhere('expense.createdAt >= :startDate', { startDate });
+      builder.andWhere('expense.expensedAt >= :startDate', { startDate });
 
-    if (endDate) builder.andWhere('expense.createdAt <= :endDate', { endDate });
+    if (endDate)
+      builder.andWhere('expense.expensedAt <= :endDate', { endDate });
 
-    builder.orderBy('expense.createdAt', 'DESC');
+    builder.orderBy('expense.expensedAt', 'DESC');
 
     return await this.paginate(builder, query);
   }
@@ -84,9 +86,10 @@ export class ExpensesService extends BasePaginate<Expense> {
         id: true,
         description: true,
         amount: true,
-        createdAt: true,
+        expensedAt: true,
         group: { name: true },
         details: {
+          id: true,
           amount: true,
           user: { firstName: true, lastName: true },
         },

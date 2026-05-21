@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import {
   ArrayNotEmpty,
   IsArray,
+  IsDateString,
   IsNotEmpty,
   IsNumber,
   IsString,
@@ -12,6 +13,10 @@ import {
 import { CreateExpenseDetailDto } from '@/expenses/dto/create-expense-detail.dto';
 
 export class CreateExpenseDto {
+  @IsNotEmpty()
+  @IsDateString()
+  expensedAt: string;
+
   @IsNotEmpty()
   @IsString()
   description: string;
