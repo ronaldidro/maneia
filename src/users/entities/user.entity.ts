@@ -3,7 +3,7 @@ import { BaseEntity } from '../../base/base.entity';
 import { Entity, Column, OneToMany } from 'typeorm';
 import { Role } from '../../base/role.enum';
 import { Group } from '../../groups/entities/group.entity';
-import { Membership } from '../../groups/entities/membership.entity';
+import { Membership } from '../../memberships/entities/membership.entity';
 import { Expense } from '../../expenses/entities/expense.entity';
 import { ExpenseDetail } from '../../expenses/entities/expense-detail.entity';
 
