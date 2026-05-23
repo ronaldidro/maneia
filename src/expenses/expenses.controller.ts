@@ -32,6 +32,11 @@ export class ExpensesController {
     return this.expensesService.findAll(expensesQuery, user);
   }
 
+  @Get('summary')
+  findSummary(@CurrentUser() user: User) {
+    return this.expensesService.summary(user);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string, @CurrentUser() user: User) {
     return this.expensesService.findOne(id, user);
