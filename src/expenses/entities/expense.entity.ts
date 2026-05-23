@@ -23,6 +23,9 @@ export class Expense extends BaseEntity {
   @Column({ type: 'timestamp' })
   expensedAt: Date;
 
+  @Column()
+  splitted: boolean;
+
   @ManyToOne(() => User, (user) => user.expenses)
   user: User;
 

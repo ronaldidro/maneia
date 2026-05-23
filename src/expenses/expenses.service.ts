@@ -36,6 +36,7 @@ export class ExpensesService extends BasePaginate<Expense> {
       group: { id: createExpenseDto.group },
       expensedAt: createExpenseDto.expensedAt,
       description: createExpenseDto.description,
+      splitted: createExpenseDto.splitted,
       amount: createExpenseDto.amount.toString(),
       details,
     });
@@ -58,7 +59,11 @@ export class ExpensesService extends BasePaginate<Expense> {
         'expense.expensedAt',
       ])
       .leftJoin('expense.user', 'payer')
-      .addSelect(['payer.firstName', 'payer.lastName']);
+      .addSelect(['payer.firstName', 'payer.lastName'])
+      .leftJoin('expense.details', 'detail')
+      .addSelect(['detail.id'])
+      .leftJoin('detail.user', 'debtor')
+      .addSelect(['debtor.firstName', 'debtor.lastName']);
 
     if (!user.isAdmin) builder.where('payer.id = :userId', { userId: user.id });
 

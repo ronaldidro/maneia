@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateExpensesTables1779334607282 implements MigrationInterface {
-  name = 'CreateExpensesTables1779334607282';
+export class CreateExpensesTables1779492500760 implements MigrationInterface {
+  name = 'CreateExpensesTables1779492500760';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
@@ -11,7 +11,7 @@ export class CreateExpensesTables1779334607282 implements MigrationInterface {
       `CREATE INDEX "IDX_19ea630c0f02100bbcd37e9d68" ON "expense-details" ("expense_id", "user_id") `,
     );
     await queryRunner.query(
-      `CREATE TABLE "expenses" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "description" character varying NOT NULL, "amount" numeric(12,2) NOT NULL, "expensed_at" TIMESTAMP NOT NULL, "user_id" uuid, "group_id" uuid, CONSTRAINT "PK_94c3ceb17e3140abc9282c20610" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "expenses" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "description" character varying NOT NULL, "amount" numeric(12,2) NOT NULL, "expensed_at" TIMESTAMP NOT NULL, "splitted" boolean NOT NULL, "user_id" uuid, "group_id" uuid, CONSTRAINT "PK_94c3ceb17e3140abc9282c20610" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE INDEX "IDX_1e483e66e0156fbd0e1ca5cb33" ON "expenses" ("group_id", "user_id") `,

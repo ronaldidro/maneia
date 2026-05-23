@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import {
   ArrayNotEmpty,
   IsArray,
+  IsBoolean,
   IsDateString,
   IsNotEmpty,
   IsNumber,
@@ -28,6 +29,10 @@ export class CreateExpenseDto {
   @IsNotEmpty()
   @IsUUID()
   group: string;
+
+  @IsNotEmpty()
+  @IsBoolean()
+  splitted: boolean;
 
   @IsArray()
   @ArrayNotEmpty()
