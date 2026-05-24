@@ -94,8 +94,10 @@ export class ExpensesService extends BasePaginate<Expense | ExpenseDetail> {
         id: true,
         description: true,
         amount: true,
+        splitted: true,
         expensedAt: true,
         group: { name: true },
+        user: { id: true, firstName: true, lastName: true },
         details: {
           id: true,
           amount: true,
@@ -103,7 +105,7 @@ export class ExpensesService extends BasePaginate<Expense | ExpenseDetail> {
         },
       },
       where: { id },
-      relations: { details: { user: true }, group: true },
+      relations: { details: { user: true }, group: true, user: true },
     });
 
     if (!expense) throw new NotFoundException('Expense not found');
