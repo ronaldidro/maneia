@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateExpenseDto } from '@/expenses/dto/create-expense.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Expense } from '@/expenses/entities/expense.entity';
@@ -10,7 +14,7 @@ import { BasePaginate, PaginatedResponse } from '@/base/base.paginate';
 import { ExpenseSummaryDto } from '@/expenses/dto/expense-summary.dto';
 
 @Injectable()
-export class ExpensesService extends BasePaginate<Expense> {
+export class ExpensesService extends BasePaginate<Expense | ExpenseDetail> {
   constructor(
     @InjectRepository(Expense)
     private readonly repository: Repository<Expense>,
@@ -48,7 +52,7 @@ export class ExpensesService extends BasePaginate<Expense> {
   async findAll(
     query: ExpensesQueryDto,
     user: User,
-  ): Promise<PaginatedResponse<Expense>> {
+  ): Promise<PaginatedResponse<Expense | ExpenseDetail>> {
     const { search, startDate, endDate } = query;
 
     const builder = this.repository
@@ -84,9 +88,7 @@ export class ExpensesService extends BasePaginate<Expense> {
     return await this.paginate(builder, query);
   }
 
-  async findOne(id: string, user: User): Promise<Expense> {
-    const where = user.isAdmin ? { id } : { id, user: { id: user.id } };
-
+  async findOne(id: string): Promise<Expense> {
     const expense = await this.repository.findOne({
       select: {
         id: true,
@@ -100,7 +102,7 @@ export class ExpensesService extends BasePaginate<Expense> {
           user: { firstName: true, lastName: true },
         },
       },
-      where,
+      where: { id },
       relations: { details: { user: true }, group: true },
     });
 
@@ -109,7 +111,40 @@ export class ExpensesService extends BasePaginate<Expense> {
     return expense;
   }
 
-  async summary(user: User): Promise<ExpenseSummaryDto> {
+  async findDetails(
+    query: ExpensesQueryDto,
+    user: User,
+  ): Promise<PaginatedResponse<Expense | ExpenseDetail>> {
+    const { search, startDate, endDate } = query;
+
+    const builder = this.detailRepository
+      .createQueryBuilder('detail')
+      .select(['detail.id', 'detail.amount'])
+      .leftJoin('detail.expense', 'expense')
+      .addSelect(['expense.id', 'expense.description', 'expense.expensedAt'])
+      .leftJoin('expense.user', 'payer')
+      .addSelect(['payer.firstName', 'payer.lastName']);
+
+    if (!user.isAdmin)
+      builder.where('detail.user_id = :userId', { userId: user.id });
+
+    if (search)
+      builder.andWhere('expense.description ILIKE :search', {
+        search: `%${search}%`,
+      });
+
+    if (startDate)
+      builder.andWhere('expense.expensedAt >= :startDate', { startDate });
+
+    if (endDate)
+      builder.andWhere('expense.expensedAt <= :endDate', { endDate });
+
+    builder.orderBy('expense.expensedAt', 'DESC');
+
+    return await this.paginate(builder, query);
+  }
+
+  async findSummary(user: User): Promise<ExpenseSummaryDto> {
     const totalExpenses = this.repository
       .createQueryBuilder('expense')
       .select('COALESCE(SUM(expense.amount),0)', 'amount')
@@ -150,7 +185,10 @@ export class ExpensesService extends BasePaginate<Expense> {
   }
 
   async remove(id: string, user: User): Promise<DeleteResult> {
-    await this.findOne(id, user);
+    const expense = await this.findOne(id);
+
+    if (expense.user.id !== user.id)
+      throw new ForbiddenException('Expense invalid');
 
     return await this.repository.delete(id);
   }

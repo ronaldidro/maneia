@@ -32,14 +32,22 @@ export class ExpensesController {
     return this.expensesService.findAll(expensesQuery, user);
   }
 
+  @Get('details')
+  findDetails(
+    @Query() expensesQuery: ExpensesQueryDto,
+    @CurrentUser() user: User,
+  ) {
+    return this.expensesService.findDetails(expensesQuery, user);
+  }
+
   @Get('summary')
   findSummary(@CurrentUser() user: User) {
-    return this.expensesService.summary(user);
+    return this.expensesService.findSummary(user);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string, @CurrentUser() user: User) {
-    return this.expensesService.findOne(id, user);
+  findOne(@Param('id') id: string) {
+    return this.expensesService.findOne(id);
   }
 
   @Delete(':id')
