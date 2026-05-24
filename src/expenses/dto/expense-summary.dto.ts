@@ -1,12 +1,13 @@
-class ExpenseSummaryDetailDto {
-  id: string;
+export class ExpenseSummaryDetailDto {
   fullName: string;
   amount: number;
 }
 
 export class ExpenseSummaryDto {
   user: string;
-  total: number;
+  expenses: number;
   amount: number;
+  debts: number;
   debtors: ExpenseSummaryDetailDto[];
+  creditors: ExpenseSummaryDetailDto[];
 }

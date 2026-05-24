@@ -11,7 +11,10 @@ import { ExpenseDetail } from '@/expenses/entities/expense-detail.entity';
 import { User } from '@/users/entities/user.entity';
 import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
 import { BasePaginate, PaginatedResponse } from '@/base/base.paginate';
-import { ExpenseSummaryDto } from '@/expenses/dto/expense-summary.dto';
+import {
+  ExpenseSummaryDetailDto,
+  ExpenseSummaryDto,
+} from '@/expenses/dto/expense-summary.dto';
 
 @Injectable()
 export class ExpensesService extends BasePaginate<Expense | ExpenseDetail> {
@@ -147,42 +150,70 @@ export class ExpensesService extends BasePaginate<Expense | ExpenseDetail> {
   }
 
   async findSummary(user: User): Promise<ExpenseSummaryDto> {
-    const totalExpenses = this.repository
+    const totalExpensesBuilder = this.repository
       .createQueryBuilder('expense')
       .select('COALESCE(SUM(expense.amount),0)', 'amount')
       .where('expense.user_id = :id', { id: user.id })
       .getRawOne<{ amount: string }>();
 
-    const totalDetails = this.detailRepository
+    const totalDebtsBuilder = this.detailRepository
+      .createQueryBuilder('detail')
+      .select('COALESCE(SUM(detail.amount),0)', 'amount')
+      .where('detail.user_id = :id', { id: user.id })
+      .getRawOne<{ amount: string }>();
+
+    const debtorsBuilder = this.detailRepository
       .createQueryBuilder('detail')
       .select('SUM(detail.amount)', 'amount')
-      .leftJoin('detail.user', 'user')
-      .addSelect("CONCAT(user.first_name, ' ', user.last_name)", 'fullName')
+      .leftJoin('detail.user', 'debtor')
+      .addSelect("CONCAT(debtor.first_name, ' ', debtor.last_name)", 'fullName')
       .leftJoin('detail.expense', 'expense')
       .where('expense.user_id = :id', { id: user.id })
-      .groupBy('user.id')
+      .groupBy('debtor.id')
       .getRawMany<{
         id: string;
         fullName: string;
         amount: string;
       }>();
 
-    const [total, details] = await Promise.all([totalExpenses, totalDetails]);
+    const creditorsBuilder = this.detailRepository
+      .createQueryBuilder('detail')
+      .select('SUM(detail.amount)', 'amount')
+      .leftJoin('detail.expense', 'expense')
+      .leftJoin('expense.user', 'creditor')
+      .addSelect(
+        "CONCAT(creditor.first_name, ' ', creditor.last_name)",
+        'fullName',
+      )
+      .where('detail.user_id = :id', { id: user.id })
+      .groupBy('creditor.id')
+      .getRawMany<{
+        id: string;
+        fullName: string;
+        amount: string;
+      }>();
 
-    const debtors = details.map((item) => ({
-      id: item.id,
-      fullName: item.fullName,
-      amount: Number(item.amount),
-    }));
+    const [totalExpenses, totalDebts, debtors, creditors] = await Promise.all([
+      totalExpensesBuilder,
+      totalDebtsBuilder,
+      debtorsBuilder,
+      creditorsBuilder,
+    ]);
 
-    const totalDebt = debtors.reduce((sum, item) => sum + item.amount, 0);
-    const totalPaid = Number(total?.amount);
+    const debtorMapper = this.mapSummaryDetails(debtors);
+    const creditorMapper = this.mapSummaryDetails(creditors);
+
+    const totalDebt = debtorMapper.reduce((sum, item) => sum + item.amount, 0);
+    const totalPaid = Number(totalExpenses?.amount);
+    const userExpenses = Number((totalPaid - totalDebt).toFixed(2));
 
     return {
-      user: `${user.firstName} ${user.lastName}`,
-      total: totalPaid,
-      amount: totalPaid - totalDebt,
-      debtors,
+      user: user.fullName,
+      expenses: totalPaid,
+      amount: userExpenses,
+      debts: Number(totalDebts?.amount),
+      debtors: debtorMapper,
+      creditors: creditorMapper,
     };
   }
 
@@ -193,5 +224,19 @@ export class ExpensesService extends BasePaginate<Expense | ExpenseDetail> {
       throw new ForbiddenException('Expense invalid');
 
     return await this.repository.delete(id);
+  }
+
+  private mapSummaryDetails(
+    rows: {
+      id: string;
+      fullName: string;
+      amount: string;
+    }[],
+  ): ExpenseSummaryDetailDto[] {
+    return rows.map((item) => ({
+      id: item.id,
+      fullName: item.fullName,
+      amount: Number(item.amount),
+    }));
   }
 }
