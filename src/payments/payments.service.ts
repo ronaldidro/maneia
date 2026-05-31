@@ -63,7 +63,7 @@ export class PaymentsService extends BasePaginate<Payment> {
         'payment.createdAt',
       ])
       .leftJoin('payment.user', 'user')
-      .addSelect(['user.firstName', 'user.lastName'])
+      .addSelect(['user.id', 'user.firstName', 'user.lastName'])
       .leftJoin('payment.payer', 'payer')
       .addSelect(['payer.firstName', 'payer.lastName']);
 
