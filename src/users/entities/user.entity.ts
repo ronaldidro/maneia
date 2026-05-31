@@ -6,6 +6,7 @@ import { Group } from '../../groups/entities/group.entity';
 import { Membership } from '../../memberships/entities/membership.entity';
 import { Expense } from '../../expenses/entities/expense.entity';
 import { ExpenseDetail } from '../../expenses/entities/expense-detail.entity';
+import { Payment } from '../../payments/entities/payment.entity';
 
 @Entity({ name: 'users' })
 export class User extends BaseEntity {
@@ -36,6 +37,12 @@ export class User extends BaseEntity {
 
   @OneToMany(() => ExpenseDetail, (debt) => debt.user)
   debts: ExpenseDetail[];
+
+  @OneToMany(() => Payment, (payment) => payment.user)
+  createdPayments: Payment[];
+
+  @OneToMany(() => Payment, (payment) => payment.payer)
+  receivedPayments: Payment[];
 
   @Expose()
   get fullName(): string {

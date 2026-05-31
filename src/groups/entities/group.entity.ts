@@ -3,6 +3,7 @@ import { BaseEntity } from '../../base/base.entity';
 import { User } from '../../users/entities/user.entity';
 import { Membership } from '../../memberships/entities/membership.entity';
 import { Expense } from '../../expenses/entities/expense.entity';
+import { Payment } from '../../payments/entities/payment.entity';
 
 @Entity({ name: 'groups' })
 export class Group extends BaseEntity {
@@ -19,4 +20,7 @@ export class Group extends BaseEntity {
 
   @OneToMany(() => Expense, (expense) => expense.group)
   expenses: Expense[];
+
+  @OneToMany(() => Payment, (payment) => payment.group)
+  payments: Payment[];
 }
