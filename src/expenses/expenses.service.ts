@@ -10,6 +10,7 @@ import { DeleteResult, Repository } from 'typeorm';
 import { ExpenseDetail } from '@/expenses/entities/expense-detail.entity';
 import { User } from '@/users/entities/user.entity';
 import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
+import { DetailsQueryDto } from '@/expenses/dto/details-query.dto';
 import { BasePaginate, PaginatedResponse } from '@/base/base.paginate';
 import {
   ExpenseSummaryDetailDto,
@@ -40,12 +41,10 @@ export class ExpensesService extends BasePaginate<Expense | ExpenseDetail> {
     );
 
     const expense = this.repository.create({
+      ...createExpenseDto,
+      amount: createExpenseDto.amount.toString(),
       user: { id: userId },
       group: { id: createExpenseDto.group },
-      expensedAt: createExpenseDto.expensedAt,
-      description: createExpenseDto.description,
-      splitted: createExpenseDto.splitted,
-      amount: createExpenseDto.amount.toString(),
       details,
     });
 
@@ -149,6 +148,23 @@ export class ExpensesService extends BasePaginate<Expense | ExpenseDetail> {
     return await this.paginate(builder, query);
   }
 
+  async findDetailsSum(
+    query: DetailsQueryDto,
+    userId: string,
+  ): Promise<string> {
+    const builder = this.detailRepository
+      .createQueryBuilder('detail')
+      .select('COALESCE(SUM(detail.amount),0)', 'amount')
+      .leftJoin('detail.expense', 'expense')
+      .where('detail.user_id = :debtorId', { debtorId: query.debtor })
+      .andWhere('expense.user_id = :userId', { userId })
+      .andWhere('expense.group_id = :groupId', { groupId: query.group });
+
+    const result = await builder.getRawOne<{ amount: string }>();
+
+    return Number(result?.amount).toFixed(2);
+  }
+
   async findSummary(user: User): Promise<ExpenseSummaryDto> {
     const totalExpensesBuilder = this.repository
       .createQueryBuilder('expense')
@@ -220,7 +236,7 @@ export class ExpensesService extends BasePaginate<Expense | ExpenseDetail> {
   async remove(id: string, user: User): Promise<DeleteResult> {
     const expense = await this.findOne(id);
 
-    if (expense.user.id !== user.id)
+    if (!user.isAdmin && expense.user.id !== user.id)
       throw new ForbiddenException('Expense invalid');
 
     return await this.repository.delete(id);
