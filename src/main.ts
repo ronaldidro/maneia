@@ -42,6 +42,10 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
+  console.log('date', new Date());
+  console.log('date string', new Date().toISOString());
+  console.log('time zone', Intl.DateTimeFormat().resolvedOptions().timeZone);
+
   await app.listen(configService.get<number>('PORT') ?? 3000);
 }
 bootstrap();
