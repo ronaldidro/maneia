@@ -12,6 +12,7 @@ const databaseConfig = (config: ConfigService): TypeOrmModuleOptions => ({
   entities: [__dirname + '/../**/**/*.entity{.ts,.js}'],
   migrations: [__dirname + '/../db/migrations/*{.ts,.js}'],
   logging: process.env.NODE_ENV === 'dev',
+  ssl: { rejectUnauthorized: false },
   namingStrategy: new SnakeNamingStrategy(),
 });
 

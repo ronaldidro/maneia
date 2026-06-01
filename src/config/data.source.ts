@@ -16,6 +16,7 @@ export const dataSourceOptions: DataSourceOptions & SeederOptions = {
   migrations: [__dirname + '/../db/migrations/*{.ts,.js}'],
   seeds: [__dirname + '/../db/seeds/*.js'],
   logging: process.env.NODE_ENV === 'dev',
+  ssl: { rejectUnauthorized: false },
   namingStrategy: new SnakeNamingStrategy(),
 };
 
