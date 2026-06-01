@@ -182,32 +182,28 @@ export class ExpensesService extends BasePaginate<Expense | ExpenseDetail> {
       .createQueryBuilder('detail')
       .select('SUM(detail.amount)', 'amount')
       .leftJoin('detail.user', 'debtor')
+      .addSelect('debtor.firstName', 'firstName')
+      .addSelect('debtor.lastName', 'lastName')
       .addSelect("CONCAT(debtor.first_name, ' ', debtor.last_name)", 'fullName')
       .leftJoin('detail.expense', 'expense')
       .where('expense.user_id = :id', { id: user.id })
       .groupBy('debtor.id')
-      .getRawMany<{
-        id: string;
-        fullName: string;
-        amount: string;
-      }>();
+      .getRawMany<ExpenseSummaryDetailDto>();
 
     const creditorsBuilder = this.detailRepository
       .createQueryBuilder('detail')
       .select('SUM(detail.amount)', 'amount')
       .leftJoin('detail.expense', 'expense')
       .leftJoin('expense.user', 'creditor')
+      .addSelect('creditor.firstName', 'firstName')
+      .addSelect('creditor.lastName', 'lastName')
       .addSelect(
         "CONCAT(creditor.first_name, ' ', creditor.last_name)",
         'fullName',
       )
       .where('detail.user_id = :id', { id: user.id })
       .groupBy('creditor.id')
-      .getRawMany<{
-        id: string;
-        fullName: string;
-        amount: string;
-      }>();
+      .getRawMany<ExpenseSummaryDetailDto>();
 
     const [totalExpenses, totalDebts, debtors, creditors] = await Promise.all([
       totalExpensesBuilder,
@@ -216,20 +212,17 @@ export class ExpensesService extends BasePaginate<Expense | ExpenseDetail> {
       creditorsBuilder,
     ]);
 
-    const debtorMapper = this.mapSummaryDetails(debtors);
-    const creditorMapper = this.mapSummaryDetails(creditors);
-
-    const totalDebt = debtorMapper.reduce((sum, item) => sum + item.amount, 0);
+    const totalDebt = debtors.reduce((sum, item) => sum + item.amount, 0);
     const totalPaid = Number(totalExpenses?.amount);
     const userExpenses = Number((totalPaid - totalDebt).toFixed(2));
 
     return {
-      user: user.fullName,
+      user: user.firstName,
       expenses: totalPaid,
       amount: userExpenses,
       debts: Number(totalDebts?.amount),
-      debtors: debtorMapper,
-      creditors: creditorMapper,
+      debtors,
+      creditors,
     };
   }
 
@@ -240,19 +233,5 @@ export class ExpensesService extends BasePaginate<Expense | ExpenseDetail> {
       throw new ForbiddenException('Expense invalid');
 
     return await this.repository.delete(id);
-  }
-
-  private mapSummaryDetails(
-    rows: {
-      id: string;
-      fullName: string;
-      amount: string;
-    }[],
-  ): ExpenseSummaryDetailDto[] {
-    return rows.map((item) => ({
-      id: item.id,
-      fullName: item.fullName,
-      amount: Number(item.amount),
-    }));
   }
 }

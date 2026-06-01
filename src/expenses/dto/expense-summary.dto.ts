@@ -1,4 +1,6 @@
 export class ExpenseSummaryDetailDto {
+  firstName: string;
+  lastName: string;
   fullName: string;
   amount: number;
 }
