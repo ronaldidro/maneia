@@ -8,7 +8,7 @@ export class CreatePaymentsTable1780168998298 implements MigrationInterface {
       `CREATE TYPE "public"."payments_method_enum" AS ENUM('transfer', 'cash', 'yape')`,
     );
     await queryRunner.query(
-      `CREATE TABLE "payments" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "description" character varying NOT NULL, "amount" numeric(12,2) NOT NULL, "debt" numeric(12,2) NOT NULL, "method" "public"."payments_method_enum" NOT NULL, "group_id" uuid, "user_id" uuid, "payer_id" uuid, CONSTRAINT "PK_197ab7af18c93fbb0c9b28b4a59" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "payments" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP WITH TIME ZONE, "description" character varying NOT NULL, "amount" numeric(12,2) NOT NULL, "debt" numeric(12,2) NOT NULL, "method" "public"."payments_method_enum" NOT NULL, "group_id" uuid, "user_id" uuid, "payer_id" uuid, CONSTRAINT "PK_197ab7af18c93fbb0c9b28b4a59" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE INDEX "IDX_02f8e8d4094492641ad95010ca" ON "payments" ("payer_id") `,

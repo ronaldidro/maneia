@@ -20,7 +20,7 @@ export class Expense extends BaseEntity {
     if (!value) return;
     return format(value, 'dd MMMM yyyy', { locale: es });
   })
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamptz' })
   expensedAt: Date;
 
   @Column()
