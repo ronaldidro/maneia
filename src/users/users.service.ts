@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from '@/users/dto/create-user.dto';
 import { UpdateUserDto } from '@/users/dto/update-user.dto';
+import { UsersQueryDto } from '@/users/dto/users-query.dto';
 import { User } from '@/users/entities/user.entity';
 import { DeleteResult, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -25,7 +26,11 @@ export class UsersService {
     return await this.repository.save(user);
   }
 
-  async findAll(): Promise<User[]> {
+  async findAll(query: UsersQueryDto): Promise<User[]> {
+    let where = {};
+
+    if (query.role) where = { role: query.role };
+
     return await this.repository.find({
       select: {
         id: true,
@@ -34,6 +39,7 @@ export class UsersService {
         email: true,
         role: true,
       },
+      where,
     });
   }
 

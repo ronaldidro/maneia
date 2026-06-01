@@ -7,10 +7,12 @@ import {
   Param,
   Delete,
   ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from '@/users/users.service';
 import { CreateUserDto } from '@/users/dto/create-user.dto';
 import { UpdateUserDto } from '@/users/dto/update-user.dto';
+import { UsersQueryDto } from '@/users/dto/users-query.dto';
 import { Roles } from '@/decorator/roles.decorator';
 import { Role } from '@/base/role.enum';
 import { ApiBearerAuth } from '@nestjs/swagger';
@@ -29,8 +31,8 @@ export class UsersController {
   }
 
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Query() usersQuery: UsersQueryDto) {
+    return this.usersService.findAll(usersQuery);
   }
 
   @Get(':id')
