@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { format } from 'date-fns-tz';
+import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
   CreateDateColumn,
@@ -12,12 +12,9 @@ export abstract class BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Transform(({ value }: { value: string }) => {
+  @Transform(({ value }: { value: Date }) => {
     if (!value) return;
-    return format(value, 'dd MMMM yyyy', {
-      timeZone: 'America/Lima',
-      locale: es,
-    });
+    return format(value, 'dd MMMM yyyy', { locale: es });
   })
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;

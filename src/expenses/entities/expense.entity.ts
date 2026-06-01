@@ -16,7 +16,7 @@ export class Expense extends BaseEntity {
   @Column({ type: 'numeric', precision: 12, scale: 2 })
   amount: string;
 
-  @Transform(({ value }) => {
+  @Transform(({ value }: { value: Date }) => {
     if (!value) return;
     return format(value, 'dd MMMM yyyy', { locale: es });
   })
