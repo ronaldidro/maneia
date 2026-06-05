@@ -10,5 +10,6 @@ import { SummaryModule } from '@/summary/summary.module';
   imports: [TypeOrmModule.forFeature([Expense, ExpenseDetail]), SummaryModule],
   controllers: [ExpensesController],
   providers: [ExpensesService],
+  exports: [ExpensesService],
 })
 export class ExpensesModule {}
