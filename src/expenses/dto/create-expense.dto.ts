@@ -11,7 +11,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { CreateExpenseDetailDto } from '@/expenses/dto/create-expense-detail.dto';
+import { CreateDetailDto } from '@/details/dto/create-detail.dto';
 
 export class CreateExpenseDto {
   @IsNotEmpty()
@@ -37,6 +37,6 @@ export class CreateExpenseDto {
   @IsArray()
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
-  @Type(() => CreateExpenseDetailDto)
-  details: CreateExpenseDetailDto[];
+  @Type(() => CreateDetailDto)
+  details: CreateDetailDto[];
 }

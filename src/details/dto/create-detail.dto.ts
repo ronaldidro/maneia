@@ -1,6 +1,6 @@
 import { IsUUID, IsNumber, Min, IsNotEmpty } from 'class-validator';
 
-export class CreateExpenseDetailDto {
+export class CreateDetailDto {
   @IsNotEmpty()
   @IsUUID()
   user: string;
