@@ -14,33 +14,37 @@ import { User } from '@/users/entities/user.entity';
 import { CurrentUser } from '@/decorator/user.decorator';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
+import { SummaryService } from '@/summary/summary.service';
 
 @ApiBearerAuth()
 @Controller('expenses')
 export class ExpensesController {
-  constructor(private readonly expensesService: ExpensesService) {}
+  constructor(
+    private readonly service: ExpensesService,
+    private readonly summaryService: SummaryService,
+  ) {}
 
   @Post()
   create(
     @Body() createExpenseDto: CreateExpenseDto,
     @CurrentUser() user: User,
   ) {
-    return this.expensesService.create(createExpenseDto, user.id);
+    return this.service.create(createExpenseDto, user.id);
   }
 
   @Get()
   findAll(@Query() expensesQuery: ExpensesQueryDto, @CurrentUser() user: User) {
-    return this.expensesService.findAll(expensesQuery, user);
+    return this.service.findAll(expensesQuery, user);
   }
 
   @Get('summary')
   findSummary(@CurrentUser() user: User) {
-    return this.expensesService.findSummary(user);
+    return this.summaryService.findAll(user);
   }
 
   @Get(':id')
   findOne(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.expensesService.findOne(id);
+    return this.service.findOne(id);
   }
 
   @Delete(':id')
@@ -48,6 +52,6 @@ export class ExpensesController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @CurrentUser() user: User,
   ) {
-    return this.expensesService.remove(id, user);
+    return this.service.remove(id, user);
   }
 }
