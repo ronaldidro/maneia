@@ -212,7 +212,11 @@ export class ExpensesService extends BasePaginate<Expense | ExpenseDetail> {
       creditorsBuilder,
     ]);
 
-    const totalDebt = debtors.reduce((sum, item) => sum + item.amount, 0);
+    const totalDebt = debtors.reduce(
+      (sum, item) => sum + Number(item.amount),
+      0,
+    );
+
     const totalPaid = Number(totalExpenses?.amount);
     const userExpenses = Number((totalPaid - totalDebt).toFixed(2));
 
