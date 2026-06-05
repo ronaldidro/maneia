@@ -14,7 +14,6 @@ import { User } from '@/users/entities/user.entity';
 import { CurrentUser } from '@/decorator/user.decorator';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
-import { DetailsQueryDto } from '@/expenses/dto/details-query.dto';
 
 @ApiBearerAuth()
 @Controller('expenses')
@@ -32,22 +31,6 @@ export class ExpensesController {
   @Get()
   findAll(@Query() expensesQuery: ExpensesQueryDto, @CurrentUser() user: User) {
     return this.expensesService.findAll(expensesQuery, user);
-  }
-
-  @Get('details')
-  findDetails(
-    @Query() expensesQuery: ExpensesQueryDto,
-    @CurrentUser() user: User,
-  ) {
-    return this.expensesService.findDetails(expensesQuery, user);
-  }
-
-  @Get('details/sum')
-  findDebtSum(
-    @Query() detailsQuery: DetailsQueryDto,
-    @CurrentUser() user: User,
-  ) {
-    return this.expensesService.findDetailsSum(detailsQuery, user.id);
   }
 
   @Get('summary')

@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsUUID } from 'class-validator';
 
-export class DetailsQueryDto {
+export class DetailsSumQueryDto {
   @IsNotEmpty()
   @IsUUID()
   debtor: string;

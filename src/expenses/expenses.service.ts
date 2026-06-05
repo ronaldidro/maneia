@@ -10,7 +10,6 @@ import { DeleteResult, Repository } from 'typeorm';
 import { ExpenseDetail } from '@/expenses/entities/expense-detail.entity';
 import { User } from '@/users/entities/user.entity';
 import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
-import { DetailsQueryDto } from '@/expenses/dto/details-query.dto';
 import { BasePaginate, PaginatedResponse } from '@/base/base.paginate';
 import {
   ExpenseSummaryDetailDto,
@@ -18,7 +17,7 @@ import {
 } from '@/expenses/dto/expense-summary.dto';
 
 @Injectable()
-export class ExpensesService extends BasePaginate<Expense | ExpenseDetail> {
+export class ExpensesService extends BasePaginate<Expense> {
   constructor(
     @InjectRepository(Expense)
     private readonly repository: Repository<Expense>,
@@ -54,7 +53,7 @@ export class ExpensesService extends BasePaginate<Expense | ExpenseDetail> {
   async findAll(
     query: ExpensesQueryDto,
     user: User,
-  ): Promise<PaginatedResponse<Expense | ExpenseDetail>> {
+  ): Promise<PaginatedResponse<Expense>> {
     const { search, startDate, endDate } = query;
 
     const builder = this.repository
@@ -113,56 +112,6 @@ export class ExpensesService extends BasePaginate<Expense | ExpenseDetail> {
     if (!expense) throw new NotFoundException('Expense not found');
 
     return expense;
-  }
-
-  async findDetails(
-    query: ExpensesQueryDto,
-    user: User,
-  ): Promise<PaginatedResponse<Expense | ExpenseDetail>> {
-    const { search, startDate, endDate } = query;
-
-    const builder = this.detailRepository
-      .createQueryBuilder('detail')
-      .select(['detail.id', 'detail.amount'])
-      .leftJoin('detail.expense', 'expense')
-      .addSelect(['expense.id', 'expense.description', 'expense.expensedAt'])
-      .leftJoin('expense.user', 'payer')
-      .addSelect(['payer.firstName', 'payer.lastName']);
-
-    if (!user.isAdmin)
-      builder.where('detail.user_id = :userId', { userId: user.id });
-
-    if (search)
-      builder.andWhere('expense.description ILIKE :search', {
-        search: `%${search}%`,
-      });
-
-    if (startDate)
-      builder.andWhere('expense.expensedAt >= :startDate', { startDate });
-
-    if (endDate)
-      builder.andWhere('expense.expensedAt <= :endDate', { endDate });
-
-    builder.orderBy('expense.expensedAt', 'DESC');
-
-    return await this.paginate(builder, query);
-  }
-
-  async findDetailsSum(
-    query: DetailsQueryDto,
-    userId: string,
-  ): Promise<string> {
-    const builder = this.detailRepository
-      .createQueryBuilder('detail')
-      .select('COALESCE(SUM(detail.amount),0)', 'amount')
-      .leftJoin('detail.expense', 'expense')
-      .where('detail.user_id = :debtorId', { debtorId: query.debtor })
-      .andWhere('expense.user_id = :userId', { userId })
-      .andWhere('expense.group_id = :groupId', { groupId: query.group });
-
-    const result = await builder.getRawOne<{ amount: string }>();
-
-    return Number(result?.amount).toFixed(2);
   }
 
   async findSummary(user: User): Promise<ExpenseSummaryDto> {
