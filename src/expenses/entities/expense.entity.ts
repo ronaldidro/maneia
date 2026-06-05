@@ -5,7 +5,7 @@ import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../base/base.entity';
 import { Group } from '../../groups/entities/group.entity';
 import { User } from '../../users/entities/user.entity';
-import { ExpenseDetail } from './expense-detail.entity';
+import { ExpenseDetail } from '../../details/entities/expense-detail.entity';
 
 @Entity({ name: 'expenses' })
 @Index(['group', 'user'])

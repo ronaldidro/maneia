@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ExpenseDetail } from '@/expenses/entities/expense-detail.entity';
+import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
 import { BasePaginate, PaginatedResponse } from '@/base/base.paginate';
 import { User } from '@/users/entities/user.entity';
 import { DetailsSumQueryDto } from '@/details/dto/details-sum-query.dto';

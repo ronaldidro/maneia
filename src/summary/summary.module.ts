@@ -1,6 +1,6 @@
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Module } from '@nestjs/common';
-import { ExpenseDetail } from '@/expenses/entities/expense-detail.entity';
+import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
 import { Expense } from '@/expenses/entities/expense.entity';
 import { SummaryService } from '@/summary/summary.service';
 

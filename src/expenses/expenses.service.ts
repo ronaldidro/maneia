@@ -7,7 +7,7 @@ import { CreateExpenseDto } from '@/expenses/dto/create-expense.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Expense } from '@/expenses/entities/expense.entity';
 import { DeleteResult, Repository } from 'typeorm';
-import { ExpenseDetail } from '@/expenses/entities/expense-detail.entity';
+import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
 import { User } from '@/users/entities/user.entity';
 import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
 import { BasePaginate, PaginatedResponse } from '@/base/base.paginate';

@@ -5,7 +5,7 @@ import { Role } from '../../base/role.enum';
 import { Group } from '../../groups/entities/group.entity';
 import { Membership } from '../../memberships/entities/membership.entity';
 import { Expense } from '../../expenses/entities/expense.entity';
-import { ExpenseDetail } from '../../expenses/entities/expense-detail.entity';
+import { ExpenseDetail } from '../../details/entities/expense-detail.entity';
 import { Payment } from '../../payments/entities/payment.entity';
 
 @Entity({ name: 'users' })

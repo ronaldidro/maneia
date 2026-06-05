@@ -14,7 +14,7 @@ import { CreatePaymentDto } from '@/payments/dto/create-payment.dto';
 import { PaymentsQueryDto } from '@/payments/dto/payments-query.dto';
 import { Payment } from '@/payments/entities/payment.entity';
 import { Expense } from '@/expenses/entities/expense.entity';
-import { ExpenseDetail } from '@/expenses/entities/expense-detail.entity';
+import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@/users/entities/user.entity';
 import { BasePaginate, PaginatedResponse } from '@/base/base.paginate';
