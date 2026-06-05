@@ -7,10 +7,10 @@ import { User } from '@/users/entities/user.entity';
 import {
   ExpenseSummaryDetailDto,
   ExpenseSummaryDto,
-} from '@/summary/dto/summary.dto';
+} from '@/summaries/dto/summary.dto';
 
 @Injectable()
-export class SummaryService {
+export class SummariesService {
   constructor(
     @InjectRepository(Expense)
     private readonly repository: Repository<Expense>,

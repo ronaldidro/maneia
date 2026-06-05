@@ -14,14 +14,14 @@ import { User } from '@/users/entities/user.entity';
 import { CurrentUser } from '@/decorator/user.decorator';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
-import { SummaryService } from '@/summary/summary.service';
+import { SummariesService } from '@/summaries/summaries.service';
 
 @ApiBearerAuth()
 @Controller('expenses')
 export class ExpensesController {
   constructor(
     private readonly service: ExpensesService,
-    private readonly summaryService: SummaryService,
+    private readonly summariesService: SummariesService,
   ) {}
 
   @Post()
@@ -39,7 +39,7 @@ export class ExpensesController {
 
   @Get('summary')
   findSummary(@CurrentUser() user: User) {
-    return this.summaryService.findAll(user);
+    return this.summariesService.findAll(user);
   }
 
   @Get(':id')
