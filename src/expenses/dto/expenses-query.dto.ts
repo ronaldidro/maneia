@@ -1,16 +1,3 @@
-import { PaginationDto } from '@/base/pagination.dto';
-import { IsDateString, IsOptional, IsString } from 'class-validator';
+import { PaginatedQueryDto } from '@/common/dto/pagination.dto';
 
-export class ExpensesQueryDto extends PaginationDto {
-  @IsOptional()
-  @IsString()
-  search?: string;
-
-  @IsOptional()
-  @IsDateString()
-  startDate?: string;
-
-  @IsOptional()
-  @IsDateString()
-  endDate?: string;
-}
+export class ExpensesQueryDto extends PaginatedQueryDto {}
