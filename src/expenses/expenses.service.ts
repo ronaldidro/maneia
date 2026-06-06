@@ -58,6 +58,7 @@ export class ExpensesService extends Pageable<Expense> {
         'expense.id',
         'expense.description',
         'expense.amount',
+        'expense.splitted',
         'expense.expensedAt',
       ])
       .leftJoin('expense.user', 'payer')
