@@ -1,4 +1,4 @@
-import { BaseEntity } from '../../base/base.entity';
+import { BaseEntity } from '../../common/base.entity';
 import { Expense } from '../../expenses/entities/expense.entity';
 import { User } from '../../users/entities/user.entity';
 import { Column, Entity, Index, ManyToOne } from 'typeorm';

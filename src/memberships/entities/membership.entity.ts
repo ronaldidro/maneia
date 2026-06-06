@@ -1,5 +1,5 @@
 import { Entity, ManyToOne, Unique } from 'typeorm';
-import { BaseEntity } from '../../base/base.entity';
+import { BaseEntity } from '../../common/base.entity';
 import { User } from '../../users/entities/user.entity';
 import { Group } from '../../groups/entities/group.entity';
 

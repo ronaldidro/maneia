@@ -1,5 +1,5 @@
 import { Exclude, Expose } from 'class-transformer';
-import { BaseEntity } from '../../base/base.entity';
+import { BaseEntity } from '../../common/base.entity';
 import { Entity, Column, OneToMany } from 'typeorm';
 import { Role } from '../../common/enum/role.enum';
 import { Group } from '../../groups/entities/group.entity';
