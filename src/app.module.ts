@@ -10,15 +10,14 @@ import { ExpensesModule } from '@/expenses/expenses.module';
 import { MembershipsModule } from '@/memberships/memberships.module';
 import { PaymentsModule } from '@/payments/payments.module';
 import { DetailsModule } from '@/details/details.module';
-import databaseConfig from '@/config/database.config';
+import getDbConfig from '@/db/config';
 
 @Module({
   imports: [
     ConfigModule.forRoot(configOptions),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) =>
-        databaseConfig(configService),
+      useFactory: getDbConfig,
     }),
     UsersModule,
     AuthModule,

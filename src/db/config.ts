@@ -2,7 +2,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import type { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
-const databaseConfig = (config: ConfigService): TypeOrmModuleOptions => ({
+const getDbConfig = (config: ConfigService): TypeOrmModuleOptions => ({
   type: 'postgres',
   host: config.get<string>('database.host'),
   port: config.get<number>('database.port'),
@@ -16,4 +16,4 @@ const databaseConfig = (config: ConfigService): TypeOrmModuleOptions => ({
   namingStrategy: new SnakeNamingStrategy(),
 });
 
-export default databaseConfig;
+export default getDbConfig;

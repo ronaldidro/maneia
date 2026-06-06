@@ -18,16 +18,16 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "typeorm": "npm run build && npx typeorm-ts-node-commonjs -d ./src/config/data.source.ts",
+    "typeorm": "npm run build && npx typeorm-ts-node-commonjs -d ./src/db/data.source.ts",
     "make:migration": "npm run typeorm migration:generate",
     "migrate": "npm run typeorm migration:run",
     "migrate:status": "npm run typeorm migration:show",
     "migrate:rollback": "npm run typeorm migration:revert",
     "migrate:fresh": "npm run typeorm schema:drop",
     "seed:create": "npm run build && npx typeorm-extension seed:create -n",
-    "seed:run": "npm run build && npx typeorm-extension -d ./src/config/data.source.ts seed:run",
-    "db:create": "npm run build && npx typeorm-extension -d ./src/config/data.source.ts db:create",
-    "db:drop": "npm run build && npx typeorm-extension -d ./src/config/data.source.ts db:drop"
+    "seed:run": "npm run build && npx typeorm-extension -d ./src/db/data.source.ts seed:run",
+    "db:create": "npm run build && npx typeorm-extension -d ./src/db/data.source.ts db:create",
+    "db:drop": "npm run build && npx typeorm-extension -d ./src/db/data.source.ts db:drop"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
