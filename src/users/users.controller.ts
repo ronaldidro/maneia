@@ -14,7 +14,7 @@ import { CreateUserDto } from '@/users/dto/create-user.dto';
 import { UpdateUserDto } from '@/users/dto/update-user.dto';
 import { UsersQueryDto } from '@/users/dto/users-query.dto';
 import { Roles } from '@/decorator/roles.decorator';
-import { Role } from '@/base/role.enum';
+import { Role } from '@/common/enum/role.enum';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { CurrentUser } from '@/decorator/user.decorator';
 import { User } from '@/users/entities/user.entity';

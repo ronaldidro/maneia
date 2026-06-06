@@ -23,10 +23,10 @@ import databaseConfig from '@/config/database.config';
     UsersModule,
     AuthModule,
     GroupsModule,
-    ExpensesModule,
     MembershipsModule,
-    PaymentsModule,
+    ExpensesModule,
     DetailsModule,
+    PaymentsModule,
   ],
 })
 export class AppModule implements NestModule {

@@ -1,7 +1,7 @@
 import { Exclude, Expose } from 'class-transformer';
 import { BaseEntity } from '../../base/base.entity';
 import { Entity, Column, OneToMany } from 'typeorm';
-import { Role } from '../../base/role.enum';
+import { Role } from '../../common/enum/role.enum';
 import { Group } from '../../groups/entities/group.entity';
 import { Membership } from '../../memberships/entities/membership.entity';
 import { Expense } from '../../expenses/entities/expense.entity';

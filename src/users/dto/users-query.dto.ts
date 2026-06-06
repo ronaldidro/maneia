@@ -1,5 +1,5 @@
 import { PaginationDto } from '@/base/pagination.dto';
-import { Role } from '@/base/role.enum';
+import { Role } from '@/common/enum/role.enum';
 import { IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
 
 export class UsersQueryDto extends PaginationDto {

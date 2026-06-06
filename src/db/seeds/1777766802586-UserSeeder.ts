@@ -1,8 +1,8 @@
-import { User } from '@/users/entities/user.entity';
 import { DataSource } from 'typeorm';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 import * as bcrypt from 'bcrypt';
-import { Role } from '@/base/role.enum';
+import { User } from '@/users/entities/user.entity';
+import { Role } from '@/common/enum/role.enum';
 
 export class UserSeeder1777766802586 implements Seeder {
   track = false;
