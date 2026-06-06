@@ -10,10 +10,10 @@ import { DeleteResult, Repository } from 'typeorm';
 import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
 import { User } from '@/users/entities/user.entity';
 import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
-import { BasePaginate, PaginatedResponse } from '@/base/base.paginate';
+import { Pageable, PaginatedResponse } from '@/common/pageable';
 
 @Injectable()
-export class ExpensesService extends BasePaginate<Expense> {
+export class ExpensesService extends Pageable<Expense> {
   constructor(
     @InjectRepository(Expense)
     private readonly repository: Repository<Expense>,

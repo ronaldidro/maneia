@@ -2,13 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
-import { BasePaginate, PaginatedResponse } from '@/base/base.paginate';
+import { Pageable, PaginatedResponse } from '@/common/pageable';
 import { User } from '@/users/entities/user.entity';
 import { DetailsSumQueryDto } from '@/details/dto/details-sum-query.dto';
 import { DetailsQueryDto } from '@/details/dto/details-query.dto';
 
 @Injectable()
-export class DetailsService extends BasePaginate<ExpenseDetail> {
+export class DetailsService extends Pageable<ExpenseDetail> {
   constructor(
     @InjectRepository(ExpenseDetail)
     private readonly repository: Repository<ExpenseDetail>,

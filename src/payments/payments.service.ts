@@ -5,10 +5,10 @@ import { PaymentsQueryDto } from '@/payments/dto/payments-query.dto';
 import { Payment } from '@/payments/entities/payment.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@/users/entities/user.entity';
-import { BasePaginate, PaginatedResponse } from '@/base/base.paginate';
+import { Pageable, PaginatedResponse } from '@/common/pageable';
 
 @Injectable()
-export class PaymentsService extends BasePaginate<Payment> {
+export class PaymentsService extends Pageable<Payment> {
   constructor(
     @InjectRepository(Payment)
     private readonly repository: Repository<Payment>,

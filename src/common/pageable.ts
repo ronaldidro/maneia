@@ -10,7 +10,7 @@ export interface PaginatedResponse<T> {
   };
 }
 
-export abstract class BasePaginate<T extends ObjectLiteral> {
+export abstract class Pageable<T extends ObjectLiteral> {
   protected async paginate(
     builder: SelectQueryBuilder<T>,
     query: PaginationDto,
