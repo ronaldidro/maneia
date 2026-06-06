@@ -1,21 +1,9 @@
-import { PaginationDto } from '@/base/pagination.dto';
+import { QueryDto } from '@/common/dto/query.dto';
 import { Role } from '@/common/enum/role.enum';
-import { IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional } from 'class-validator';
 
-export class UsersQueryDto extends PaginationDto {
-  @IsOptional()
-  @IsString()
-  search?: string;
-
+export class UsersQueryDto extends QueryDto {
   @IsOptional()
   @IsEnum(Role)
   role?: Role;
-
-  @IsOptional()
-  @IsDateString()
-  startDate?: string;
-
-  @IsOptional()
-  @IsDateString()
-  endDate?: string;
 }
