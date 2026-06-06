@@ -1,4 +1,4 @@
-import { PayMethod } from '@/base/payment.enum';
+import { PayMethod } from '@/payments/enum/payment.enum';
 import {
   IsEnum,
   IsNotEmpty,

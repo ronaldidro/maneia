@@ -2,7 +2,7 @@ import { Column, Entity, Index, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../../base/base.entity';
 import { Group } from '../../groups/entities/group.entity';
 import { User } from '../../users/entities/user.entity';
-import { PayMethod } from '../../base/payment.enum';
+import { PayMethod } from '../enum/payment.enum';
 import { Expose } from 'class-transformer';
 
 @Entity({ name: 'payments' })
