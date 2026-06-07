@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Repository, UpdateResult } from 'typeorm';
+import { Brackets, Repository, UpdateResult } from 'typeorm';
 import { CreatePaymentDto } from '@/payments/dto/create-payment.dto';
 import { PaymentsQueryDto } from '@/payments/dto/payments-query.dto';
 import { Payment } from '@/payments/entities/payment.entity';
@@ -36,6 +36,8 @@ export class PaymentsService extends Pageable<Payment> {
     query: PaymentsQueryDto,
     user: User,
   ): Promise<PaginatedResponse<Payment>> {
+    const { search, startDate, endDate } = query;
+
     const builder = this.repository
       .createQueryBuilder('payment')
       .select([
@@ -50,9 +52,23 @@ export class PaymentsService extends Pageable<Payment> {
       .addSelect(['payer.firstName', 'payer.lastName']);
 
     if (!user.isAdmin)
-      builder
-        .where('payment.user_id = :userId', { userId: user.id })
-        .orWhere('payment.payer_id = :userId', { userId: user.id });
+      builder.where(
+        new Brackets((qb) =>
+          qb
+            .where('payment.user_id = :userId', { userId: user.id })
+            .orWhere('payment.payer_id = :userId', { userId: user.id }),
+        ),
+      );
+
+    if (search)
+      builder.andWhere('payment.description ILIKE :search', {
+        search: `%${search}%`,
+      });
+
+    if (startDate)
+      builder.andWhere('payment.createdAt >= :startDate', { startDate });
+
+    if (endDate) builder.andWhere('payment.createdAt <= :endDate', { endDate });
 
     builder.orderBy('payment.createdAt', 'DESC');
 
