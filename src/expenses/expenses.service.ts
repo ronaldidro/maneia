@@ -72,7 +72,7 @@ export class ExpensesService extends Pageable<Expense> {
 
     if (search)
       builder.andWhere('expense.description ILIKE :search', {
-        search: `%${search}%`,
+        search: `%${search.trim()}%`,
       });
 
     if (group)

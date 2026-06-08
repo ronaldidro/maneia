@@ -35,7 +35,7 @@ export class DetailsService extends Pageable<ExpenseDetail> {
 
     if (search)
       builder.andWhere('expense.description ILIKE :search', {
-        search: `%${search}%`,
+        search: `%${search.trim()}%`,
       });
 
     if (startDate)

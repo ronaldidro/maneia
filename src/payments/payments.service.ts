@@ -62,7 +62,7 @@ export class PaymentsService extends Pageable<Payment> {
 
     if (search)
       builder.andWhere('payment.description ILIKE :search', {
-        search: `%${search}%`,
+        search: `%${search.trim()}%`,
       });
 
     if (startDate)
