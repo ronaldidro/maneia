@@ -6,6 +6,14 @@ export class QueryDto {
   search?: string;
 
   @IsOptional()
+  @IsString()
+  group?: string;
+
+  @IsOptional()
+  @IsString()
+  user?: string;
+
+  @IsOptional()
   @IsDateString()
   startDate?: string;
 

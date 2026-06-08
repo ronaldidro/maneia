@@ -50,7 +50,7 @@ export class ExpensesService extends Pageable<Expense> {
     query: ExpensesQueryDto,
     user: User,
   ): Promise<PaginatedResponse<Expense>> {
-    const { search, startDate, endDate } = query;
+    const { search, group, user: debtor, startDate, endDate } = query;
 
     const builder = this.repository
       .createQueryBuilder('expense')
@@ -74,6 +74,12 @@ export class ExpensesService extends Pageable<Expense> {
       builder.andWhere('expense.description ILIKE :search', {
         search: `%${search}%`,
       });
+
+    if (group)
+      builder.andWhere('expense.group_id = :groupId', { groupId: group });
+
+    if (debtor)
+      builder.andWhere('detail.user_id = :debtorId', { debtorId: debtor });
 
     if (startDate)
       builder.andWhere('expense.expensedAt >= :startDate', { startDate });
