@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { Membership } from '@/memberships/entities/membership.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '@/users/entities/user.entity';
 import { MembershipsQueryDto } from '@/memberships/dto/memberships-query.dto';
 
 @Injectable()
@@ -12,7 +11,7 @@ export class MembershipsService {
     private readonly repository: Repository<Membership>,
   ) {}
 
-  async findAll(query: MembershipsQueryDto, user: User): Promise<Membership[]> {
+  async findAll(query: MembershipsQueryDto): Promise<Membership[]> {
     const { group } = query;
 
     const builder = this.repository
@@ -23,10 +22,8 @@ export class MembershipsService {
       .leftJoin('membership.user', 'member')
       .addSelect(['member.id', 'member.firstName', 'member.lastName']);
 
-    if (!user.isAdmin)
-      builder.where('group.user_id = :userId', { userId: user.id });
-
-    if (group) builder.andWhere('group.id = :groupId', { groupId: group });
+    if (group)
+      builder.andWhere('membership.group_id = :groupId', { groupId: group });
 
     return await builder.getMany();
   }

@@ -31,11 +31,8 @@ export class GroupsController {
   }
 
   @Get(':id')
-  findOne(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @CurrentUser() user: User,
-  ) {
-    return this.groupsService.findOne(id, user);
+  findOne(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.groupsService.findOne(id);
   }
 
   @Patch(':id')
@@ -48,10 +45,7 @@ export class GroupsController {
   }
 
   @Delete(':id')
-  remove(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @CurrentUser() user: User,
-  ) {
-    return this.groupsService.remove(id, user);
+  remove(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.groupsService.remove(id);
   }
 }

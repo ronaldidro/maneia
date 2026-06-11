@@ -19,7 +19,7 @@ export class GroupsService {
 
   async create(createGroupDto: CreateGroupDto, userId: string): Promise<Group> {
     const memberships = this.membershipRepository.create(
-      createGroupDto.members.map((id) => ({
+      createGroupDto.members.concat(userId).map((id) => ({
         user: { id },
       })),
     );
@@ -38,26 +38,40 @@ export class GroupsService {
       .createQueryBuilder('group')
       .select(['group.id', 'group.name', 'group.createdAt'])
       .leftJoin('group.user', 'owner')
-      .addSelect(['owner.firstName', 'owner.lastName'])
+      .addSelect(['owner.id', 'owner.firstName', 'owner.lastName'])
+      .leftJoin('group.memberships', 'membership')
+      .addSelect(['membership.id'])
+      .leftJoin('membership.user', 'member')
+      .addSelect(['member.id', 'member.firstName', 'member.lastName'])
       .loadRelationCountAndMap('group.members', 'group.memberships');
 
-    if (!user.isAdmin) builder.where('owner.id = :userId', { userId: user.id });
+    if (!user.isAdmin)
+      builder
+        .where((qb) => {
+          const sq = qb
+            .subQuery()
+            .select('membership.group')
+            .from('memberships', 'membership')
+            .where('membership.user = :userId')
+            .getQuery();
+          return `group.id IN ${sq}`;
+        })
+        .setParameter('userId', user.id);
 
     return await builder.getMany();
   }
 
-  async findOne(id: string, user: User): Promise<Group> {
+  async findOne(id: string): Promise<Group> {
     const builder = this.repository
       .createQueryBuilder('group')
       .select(['group.id', 'group.name'])
+      .leftJoin('group.user', 'owner')
+      .addSelect(['owner.id', 'owner.firstName', 'owner.lastName'])
       .leftJoin('group.memberships', 'membership')
       .addSelect(['membership.id'])
       .leftJoin('membership.user', 'member')
       .addSelect(['member.id', 'member.firstName', 'member.lastName'])
       .where('group.id = :id', { id });
-
-    if (!user.isAdmin)
-      builder.andWhere('group.user_id = :userId', { userId: user.id });
 
     const group = await builder.getOne();
 
@@ -71,12 +85,15 @@ export class GroupsService {
     updateGroupDto: UpdateGroupDto,
     user: User,
   ): Promise<UpdateResult> {
-    await this.findOne(id, user);
+    await this.findOne(id);
+
+    if (!updateGroupDto.members)
+      throw new NotFoundException('Members not found');
 
     await this.membershipRepository.delete({ group: { id } });
 
     await this.membershipRepository.save(
-      updateGroupDto.members!.map((userId) => ({
+      updateGroupDto.members.concat(user.id).map((userId) => ({
         user: { id: userId },
         group: { id },
       })),
@@ -85,8 +102,8 @@ export class GroupsService {
     return await this.repository.update({ id }, { name: updateGroupDto.name });
   }
 
-  async remove(id: string, user: User): Promise<Group> {
-    const group = await this.findOne(id, user);
+  async remove(id: string): Promise<Group> {
+    const group = await this.findOne(id);
     return await this.repository.softRemove(group); // softRemove apply soft deletes to group and relations
   }
 }
