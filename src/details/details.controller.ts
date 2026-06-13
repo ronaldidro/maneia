@@ -13,7 +13,7 @@ export class DetailsController {
 
   @Get()
   findAll(@Query() detailsQuery: DetailsQueryDto, @CurrentUser() user: User) {
-    return this.service.findAll(detailsQuery, user);
+    return this.service.findAllPaginated(detailsQuery, user);
   }
 
   @Get('sum')

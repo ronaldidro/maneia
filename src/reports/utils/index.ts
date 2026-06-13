@@ -1,90 +1,62 @@
-import { Expense } from '@/expenses/entities/expense.entity';
-import { TableCell } from 'pdfmake/interfaces';
-import { format } from 'date-fns';
+import {
+  ContentColumns,
+  StyleDictionary,
+  TableLayout,
+  TDocumentDefinitions,
+} from 'pdfmake/interfaces';
 import { es } from 'date-fns/locale';
+import { format } from 'date-fns';
+import { QueryDto } from '@/common/dto/query.dto';
 
 export const formatDate = (date: Date | string) =>
   format(date, 'dd MMM yy', { locale: es });
 
-export const getExpensesRows = (expenses: Expense[]): TableCell[][] =>
-  expenses.flatMap((expense) => {
-    const detailsCount = expense.details.length;
-    const rowSpan = expense.splitted ? detailsCount + 1 : detailsCount;
+const styles: StyleDictionary = {
+  h1: { fontSize: 16, bold: true },
+  totals: { fontSize: 14, bold: true, alignment: 'right' },
+};
 
-    if (detailsCount) {
-      let rows: TableCell[][] = [];
+export const baseDefinitions: TDocumentDefinitions = {
+  styles,
+  pageMargins: [40, 50],
+  header: {
+    text: 'Splitty',
+    alignment: 'right',
+    style: 'h1',
+    margin: [15, 15],
+  },
+  footer: (currentPage, pageCount) => ({
+    margin: [15, 15],
+    text: currentPage.toString() + ' de ' + pageCount,
+    bold: true,
+  }),
+  content: [],
+};
 
-      rows = expense.details.map((detail, index) => {
-        if (index === 0) {
-          return [
-            {
-              text: formatDate(expense.expensedAt),
-              rowSpan,
-              verticalAlignment: 'middle' as const,
-              alignment: 'center',
-            },
-            {
-              text: expense.description,
-              rowSpan,
-              verticalAlignment: 'middle' as const,
-            },
-            {
-              text: expense.group.name,
-              rowSpan,
-              verticalAlignment: 'middle' as const,
-              alignment: 'center',
-            },
-            { text: detail.user.firstName },
-            { text: `S/${detail.amount}`, alignment: 'right' },
-            {
-              text: `S/${expense.amount}`,
-              rowSpan,
-              verticalAlignment: 'middle' as const,
-              alignment: 'right',
-            },
-          ];
-        }
+export const tableLayout: TableLayout = {
+  fillColor: (rowIndex) => (rowIndex === 0 ? '#E5E7EB' : null),
+};
 
-        return [
-          { text: '' },
-          { text: '' },
-          { text: '' },
-          { text: detail.user.firstName },
-          { text: `S/${detail.amount}`, alignment: 'right' },
-          { text: '' },
-        ];
-      });
+export const getContentColumns = (query: QueryDto): ContentColumns => {
+  const { group, user, startDate, endDate } = query;
 
-      if (expense.splitted)
-        rows.push([
-          { text: '' },
-          { text: '' },
-          { text: '' },
-          { text: expense.user.firstName },
-          { text: `S/${expense.details[0].amount}`, alignment: 'right' },
-          { text: '' },
-        ]);
+  return {
+    columns: [
+      { text: 'Grupo:', style: { bold: true }, width: 'auto' },
+      { text: group ?? 'Todos' },
+      { text: 'Miembro:', style: { bold: true }, width: 'auto' },
+      { text: user ?? 'Todos' },
+      { text: 'Fecha:', style: { bold: true }, width: 'auto' },
+      {
+        text:
+          startDate && endDate
+            ? `${formatDate(startDate)} al ${formatDate(endDate)}`
+            : 'Todas',
+      },
+    ],
+    columnGap: 5,
+  };
+};
 
-      return rows;
-    }
-
-    const detail = expense.details[0];
-    return [
-      [
-        {
-          text: formatDate(expense.expensedAt),
-          alignment: 'center',
-        },
-        { text: expense.description },
-        { text: expense.group.name, alignment: 'center' },
-        {
-          text: detail?.user.firstName ?? expense.user.firstName,
-        },
-        {
-          text: detail?.amount ? `S/${detail.amount}` : `S/${expense.amount}`,
-          alignment: 'right',
-        },
-        { text: `S/${expense.amount}`, alignment: 'right' },
-      ],
-    ];
-  });
+export * from '@/reports/utils/expenses.rows';
+export * from '@/reports/utils/debts.rows';

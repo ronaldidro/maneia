@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
 import { Pageable, PaginatedResponse } from '@/common/pageable';
+import { QueryDto } from '@/common/dto/query.dto';
 import { User } from '@/users/entities/user.entity';
 import { DetailsSumQueryDto } from '@/details/dto/details-sum-query.dto';
 import { DetailsQueryDto } from '@/details/dto/details-query.dto';
@@ -16,36 +17,16 @@ export class DetailsService extends Pageable<ExpenseDetail> {
     super();
   }
 
-  async findAll(
+  async findAll(query: QueryDto, user: User): Promise<ExpenseDetail[]> {
+    const builder = this.buildQuery(query, user);
+    return await builder.getMany();
+  }
+
+  async findAllPaginated(
     query: DetailsQueryDto,
     user: User,
   ): Promise<PaginatedResponse<ExpenseDetail>> {
-    const { search, startDate, endDate } = query;
-
-    const builder = this.repository
-      .createQueryBuilder('detail')
-      .select(['detail.id', 'detail.amount'])
-      .leftJoin('detail.expense', 'expense')
-      .addSelect(['expense.id', 'expense.description', 'expense.expensedAt'])
-      .leftJoin('expense.user', 'payer')
-      .addSelect(['payer.firstName', 'payer.lastName']);
-
-    if (!user.isAdmin)
-      builder.where('detail.user_id = :userId', { userId: user.id });
-
-    if (search)
-      builder.andWhere('expense.description ILIKE :search', {
-        search: `%${search.trim()}%`,
-      });
-
-    if (startDate)
-      builder.andWhere('expense.expensedAt >= :startDate', { startDate });
-
-    if (endDate)
-      builder.andWhere('expense.expensedAt <= :endDate', { endDate });
-
-    builder.orderBy('expense.expensedAt', 'DESC');
-
+    const builder = this.buildQuery(query, user);
     return await this.paginate(builder, query);
   }
 
@@ -61,5 +42,44 @@ export class DetailsService extends Pageable<ExpenseDetail> {
     const result = await builder.getRawOne<{ amount: string }>();
 
     return Number(result?.amount).toFixed(2);
+  }
+
+  private buildQuery(
+    query: QueryDto,
+    user: User,
+  ): SelectQueryBuilder<ExpenseDetail> {
+    const { search, group, user: payer, startDate, endDate } = query;
+
+    const builder = this.repository
+      .createQueryBuilder('detail')
+      .select(['detail.id', 'detail.amount'])
+      .leftJoin('detail.expense', 'expense')
+      .addSelect(['expense.id', 'expense.description', 'expense.expensedAt'])
+      .leftJoin('expense.user', 'payer')
+      .addSelect(['payer.firstName', 'payer.lastName'])
+      .leftJoin('expense.group', 'group')
+      .addSelect(['group.name']);
+
+    if (!user.isAdmin)
+      builder.where('detail.user_id = :userId', { userId: user.id });
+
+    if (search)
+      builder.andWhere('expense.description ILIKE :search', {
+        search: `%${search.trim()}%`,
+      });
+
+    if (group)
+      builder.andWhere('expense.group_id = :groupId', { groupId: group });
+
+    if (payer)
+      builder.andWhere('expense.user_id = :payerId', { payerId: payer });
+
+    if (startDate)
+      builder.andWhere('expense.expensedAt >= :startDate', { startDate });
+
+    if (endDate)
+      builder.andWhere('expense.expensedAt <= :endDate', { endDate });
+
+    return builder.orderBy('expense.expensedAt', 'DESC');
   }
 }

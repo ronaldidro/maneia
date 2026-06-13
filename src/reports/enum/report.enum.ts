@@ -1,4 +1,5 @@
 export enum ReportType {
-  Expense = 'expense',
-  Payment = 'payment',
+  Expenses = 'expenses',
+  Debts = 'debts',
+  Payments = 'payments',
 }
