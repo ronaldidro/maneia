@@ -69,18 +69,20 @@ export const makeExpenseReport = (
         table: {
           headerRows: 1,
           dontBreakRows: true,
-          widths: ['auto', '*', 'auto', 'auto', 'auto'],
+          widths: [50, '*', 80, 105, 'auto', 'auto'],
           body: [
             [
               { text: 'Fecha', bold: true, alignment: 'center' },
               { text: 'Descripción', bold: true, alignment: 'center' },
+              { text: 'Grupo', bold: true, alignment: 'center' },
               { text: 'Miembro', bold: true, alignment: 'center' },
               { text: 'Monto', bold: true, alignment: 'center' },
               { text: 'Total', bold: true, alignment: 'center' },
             ],
             ...getExpensesRows(expenses),
             [
-              { text: 'Total', colSpan: user ? 3 : 4, style: 'totals' },
+              { text: 'Total', colSpan: user ? 4 : 5, style: 'totals' },
+              {},
               {},
               {},
               user

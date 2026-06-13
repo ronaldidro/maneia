@@ -28,6 +28,12 @@ export const getExpensesRows = (expenses: Expense[]): TableCell[][] =>
               rowSpan,
               verticalAlignment: 'middle' as const,
             },
+            {
+              text: expense.group.name,
+              rowSpan,
+              verticalAlignment: 'middle' as const,
+              alignment: 'center',
+            },
             { text: detail.user.firstName },
             { text: `S/${detail.amount}`, alignment: 'right' },
             {
@@ -42,6 +48,7 @@ export const getExpensesRows = (expenses: Expense[]): TableCell[][] =>
         return [
           { text: '' },
           { text: '' },
+          { text: '' },
           { text: detail.user.firstName },
           { text: `S/${detail.amount}`, alignment: 'right' },
           { text: '' },
@@ -50,6 +57,7 @@ export const getExpensesRows = (expenses: Expense[]): TableCell[][] =>
 
       if (expense.splitted)
         rows.push([
+          { text: '' },
           { text: '' },
           { text: '' },
           { text: expense.user.firstName },
@@ -68,6 +76,7 @@ export const getExpensesRows = (expenses: Expense[]): TableCell[][] =>
           alignment: 'center',
         },
         { text: expense.description },
+        { text: expense.group.name, alignment: 'center' },
         {
           text: detail?.user.firstName ?? expense.user.firstName,
         },

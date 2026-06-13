@@ -6,7 +6,7 @@ import {
 import { CreateExpenseDto } from '@/expenses/dto/create-expense.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Expense } from '@/expenses/entities/expense.entity';
-import { DeleteResult, Repository } from 'typeorm';
+import { DeleteResult, Repository, SelectQueryBuilder } from 'typeorm';
 import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
 import { User } from '@/users/entities/user.entity';
 import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
@@ -94,7 +94,7 @@ export class ExpensesService extends Pageable<Expense> {
     return await this.repository.delete(id);
   }
 
-  private buildQuery(query: QueryDto, user: User) {
+  private buildQuery(query: QueryDto, user: User): SelectQueryBuilder<Expense> {
     const { search, group, user: debtor, startDate, endDate } = query;
 
     const builder = this.repository
