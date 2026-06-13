@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Brackets, Repository, UpdateResult } from 'typeorm';
 import { CreatePaymentDto } from '@/payments/dto/create-payment.dto';
 import { PaymentsQueryDto } from '@/payments/dto/payments-query.dto';
@@ -6,12 +10,16 @@ import { Payment } from '@/payments/entities/payment.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@/users/entities/user.entity';
 import { Pageable, PaginatedResponse } from '@/common/pageable';
+import { SettlementsService } from '@/settlements/settlements.service';
+import { ExpensesService } from '@/expenses/expenses.service';
 
 @Injectable()
 export class PaymentsService extends Pageable<Payment> {
   constructor(
     @InjectRepository(Payment)
     private readonly repository: Repository<Payment>,
+    private readonly settlementsService: SettlementsService,
+    private readonly expensesService: ExpensesService,
   ) {
     super();
   }
@@ -20,6 +28,25 @@ export class PaymentsService extends Pageable<Payment> {
     createPaymentDto: CreatePaymentDto,
     user: User,
   ): Promise<Payment> {
+    const { group, payer, debt, amount } = createPaymentDto;
+
+    await this.settlementsService.create(group, payer, user.id);
+
+    const remaining = debt - amount;
+
+    if (remaining > 0)
+      await this.expensesService.create(
+        {
+          description: 'Saldo pendiente de pago',
+          amount: Number(remaining.toFixed(2)),
+          group,
+          splitted: false,
+          expensedAt: new Date().toISOString(),
+          details: [{ user: payer, amount: Number(remaining.toFixed(2)) }],
+        },
+        user.id,
+      );
+
     const payment = this.repository.create({
       ...createPaymentDto,
       amount: createPaymentDto.amount.toString(),
@@ -97,7 +124,24 @@ export class PaymentsService extends Pageable<Payment> {
     return payment;
   }
 
-  async remove(id: string): Promise<UpdateResult> {
+  async remove(id: string, user: User): Promise<UpdateResult> {
+    const payment = await this.findOne(id);
+
+    if (!user.isAdmin && payment.user.id !== user.id)
+      throw new ForbiddenException('Payment invalid');
+
+    await this.expensesService.create(
+      {
+        description: 'Reversión de pago',
+        amount: Number(payment.amount),
+        group: payment.group.id,
+        splitted: false,
+        expensedAt: new Date().toISOString(),
+        details: [{ user: payment.payer.id, amount: Number(payment.amount) }],
+      },
+      user.id,
+    );
+
     return await this.repository.softDelete(id);
   }
 }
