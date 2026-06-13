@@ -11,7 +11,7 @@ export const getExpensesRows = (expenses: Expense[]): TableCell[][] =>
     const detailsCount = expense.details.length;
     const rowSpan = expense.splitted ? detailsCount + 1 : detailsCount;
 
-    if (detailsCount > 1) {
+    if (detailsCount) {
       let rows: TableCell[][] = [];
 
       rows = expense.details.map((detail, index) => {

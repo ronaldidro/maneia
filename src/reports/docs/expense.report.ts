@@ -30,7 +30,7 @@ export const makeExpenseReport = (
 
   return {
     styles,
-    pageMargins: [40, 60],
+    pageMargins: [40, 50],
     header: {
       text: 'Splitty',
       alignment: 'right',
@@ -40,6 +40,7 @@ export const makeExpenseReport = (
     footer: (currentPage, pageCount) => ({
       margin: [15, 15],
       text: currentPage.toString() + ' de ' + pageCount,
+      bold: true,
     }),
     content: [
       { text: 'Reporte de Gastos', style: 'h1' },
@@ -62,8 +63,12 @@ export const makeExpenseReport = (
       },
       '',
       {
+        layout: {
+          fillColor: (rowIndex) => (rowIndex === 0 ? '#E5E7EB' : null),
+        },
         table: {
           headerRows: 1,
+          dontBreakRows: true,
           widths: ['auto', '*', 'auto', 'auto', 'auto'],
           body: [
             [
