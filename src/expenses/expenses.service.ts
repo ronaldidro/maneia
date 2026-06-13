@@ -11,6 +11,7 @@ import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
 import { User } from '@/users/entities/user.entity';
 import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
 import { Pageable, PaginatedResponse } from '@/common/pageable';
+import { QueryDto } from '@/common/dto/query.dto';
 
 @Injectable()
 export class ExpensesService extends Pageable<Expense> {
@@ -46,49 +47,16 @@ export class ExpensesService extends Pageable<Expense> {
     return await this.repository.save(expense);
   }
 
-  async findAll(
+  async findAll(query: QueryDto, user: User): Promise<Expense[]> {
+    const builder = this.buildQuery(query, user);
+    return await builder.getMany();
+  }
+
+  async findAllPaginated(
     query: ExpensesQueryDto,
     user: User,
   ): Promise<PaginatedResponse<Expense>> {
-    const { search, group, user: debtor, startDate, endDate } = query;
-
-    const builder = this.repository
-      .createQueryBuilder('expense')
-      .select([
-        'expense.id',
-        'expense.description',
-        'expense.amount',
-        'expense.splitted',
-        'expense.expensedAt',
-      ])
-      .leftJoin('expense.user', 'payer')
-      .addSelect(['payer.firstName', 'payer.lastName'])
-      .leftJoin('expense.details', 'detail')
-      .addSelect(['detail.id'])
-      .leftJoin('detail.user', 'debtor')
-      .addSelect(['debtor.firstName', 'debtor.lastName']);
-
-    if (!user.isAdmin) builder.where('payer.id = :userId', { userId: user.id });
-
-    if (search)
-      builder.andWhere('expense.description ILIKE :search', {
-        search: `%${search.trim()}%`,
-      });
-
-    if (group)
-      builder.andWhere('expense.group_id = :groupId', { groupId: group });
-
-    if (debtor)
-      builder.andWhere('detail.user_id = :debtorId', { debtorId: debtor });
-
-    if (startDate)
-      builder.andWhere('expense.expensedAt >= :startDate', { startDate });
-
-    if (endDate)
-      builder.andWhere('expense.expensedAt <= :endDate', { endDate });
-
-    builder.orderBy('expense.expensedAt', 'DESC');
-
+    const builder = this.buildQuery(query, user);
     return await this.paginate(builder, query);
   }
 
@@ -124,5 +92,48 @@ export class ExpensesService extends Pageable<Expense> {
       throw new ForbiddenException('Expense invalid');
 
     return await this.repository.delete(id);
+  }
+
+  private buildQuery(query: QueryDto, user: User) {
+    const { search, group, user: debtor, startDate, endDate } = query;
+
+    const builder = this.repository
+      .createQueryBuilder('expense')
+      .select([
+        'expense.id',
+        'expense.description',
+        'expense.amount',
+        'expense.splitted',
+        'expense.expensedAt',
+      ])
+      .leftJoin('expense.user', 'payer')
+      .addSelect(['payer.firstName', 'payer.lastName'])
+      .leftJoin('expense.details', 'detail')
+      .addSelect(['detail.id', 'detail.amount'])
+      .leftJoin('detail.user', 'debtor')
+      .addSelect(['debtor.firstName', 'debtor.lastName'])
+      .leftJoin('expense.group', 'group')
+      .addSelect(['group.name']);
+
+    if (!user.isAdmin) builder.where('payer.id = :userId', { userId: user.id });
+
+    if (search)
+      builder.andWhere('expense.description ILIKE :search', {
+        search: `%${search.trim()}%`,
+      });
+
+    if (group)
+      builder.andWhere('expense.group_id = :groupId', { groupId: group });
+
+    if (debtor)
+      builder.andWhere('detail.user_id = :debtorId', { debtorId: debtor });
+
+    if (startDate)
+      builder.andWhere('expense.expensedAt >= :startDate', { startDate });
+
+    if (endDate)
+      builder.andWhere('expense.expensedAt <= :endDate', { endDate });
+
+    return builder.orderBy('expense.expensedAt', 'DESC');
   }
 }

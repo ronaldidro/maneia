@@ -34,7 +34,7 @@ export class ExpensesController {
 
   @Get()
   findAll(@Query() expensesQuery: ExpensesQueryDto, @CurrentUser() user: User) {
-    return this.service.findAll(expensesQuery, user);
+    return this.service.findAllPaginated(expensesQuery, user);
   }
 
   @Get('summary')
