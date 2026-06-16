@@ -29,7 +29,8 @@ export const makeExpensesReport = (
   const groupName = query.group ? expenses[0].group.name : undefined;
 
   const userName = query.user
-    ? expenses[0].details[0].user.firstName
+    ? expenses[0].details.find((detail) => detail.user.id === query.user)?.user
+        .firstName
     : undefined;
 
   return {

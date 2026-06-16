@@ -58,10 +58,11 @@ export class DetailsService extends Pageable<ExpenseDetail> {
       .leftJoin('expense.user', 'payer')
       .addSelect(['payer.firstName', 'payer.lastName'])
       .leftJoin('expense.group', 'group')
-      .addSelect(['group.name']);
+      .addSelect(['group.name'])
+      .where('detail.user_id != expense.user_id');
 
     if (!user.isAdmin)
-      builder.where('detail.user_id = :userId', { userId: user.id });
+      builder.andWhere('detail.user_id = :userId', { userId: user.id });
 
     if (search)
       builder.andWhere('expense.description ILIKE :search', {

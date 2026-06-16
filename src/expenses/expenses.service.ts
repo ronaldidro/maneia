@@ -29,6 +29,13 @@ export class ExpensesService extends Pageable<Expense> {
     createExpenseDto: CreateExpenseDto,
     userId: string,
   ): Promise<Expense> {
+    if (createExpenseDto.splitted) {
+      createExpenseDto.details.push({
+        user: userId,
+        amount: createExpenseDto.details[0].amount,
+      });
+    }
+
     const details = this.detailRepository.create(
       createExpenseDto.details.map((detail) => ({
         amount: detail.amount.toString(),
@@ -49,6 +56,12 @@ export class ExpensesService extends Pageable<Expense> {
 
   async findAll(query: QueryDto, user: User): Promise<Expense[]> {
     const builder = this.buildQuery(query, user);
+
+    if (query.user)
+      builder.andWhere('detail.user_id = :debtorId', { debtorId: query.user });
+
+    builder.orderBy('expense.expensedAt', 'DESC');
+
     return await builder.getMany();
   }
 
@@ -57,6 +70,22 @@ export class ExpensesService extends Pageable<Expense> {
     user: User,
   ): Promise<PaginatedResponse<Expense>> {
     const builder = this.buildQuery(query, user);
+
+    if (query.user)
+      builder
+        .andWhere((qb) => {
+          const sq = qb
+            .subQuery()
+            .select('detail.expense_id')
+            .from('expense-details', 'detail')
+            .where('detail.user_id = :debtorId')
+            .getQuery();
+          return `expense.id IN ${sq}`;
+        })
+        .setParameter('debtorId', query.user);
+
+    builder.orderBy('expense.expensedAt', 'DESC');
+
     return await this.paginate(builder, query);
   }
 
@@ -95,7 +124,7 @@ export class ExpensesService extends Pageable<Expense> {
   }
 
   private buildQuery(query: QueryDto, user: User): SelectQueryBuilder<Expense> {
-    const { search, group, user: debtor, startDate, endDate } = query;
+    const { search, group, startDate, endDate } = query;
 
     const builder = this.repository
       .createQueryBuilder('expense')
@@ -111,7 +140,7 @@ export class ExpensesService extends Pageable<Expense> {
       .leftJoin('expense.details', 'detail')
       .addSelect(['detail.id', 'detail.amount'])
       .leftJoin('detail.user', 'debtor')
-      .addSelect(['debtor.firstName', 'debtor.lastName'])
+      .addSelect(['debtor.id', 'debtor.firstName', 'debtor.lastName'])
       .leftJoin('expense.group', 'group')
       .addSelect(['group.name']);
 
@@ -125,15 +154,12 @@ export class ExpensesService extends Pageable<Expense> {
     if (group)
       builder.andWhere('expense.group_id = :groupId', { groupId: group });
 
-    if (debtor)
-      builder.andWhere('detail.user_id = :debtorId', { debtorId: debtor });
-
     if (startDate)
       builder.andWhere('expense.expensedAt >= :startDate', { startDate });
 
     if (endDate)
       builder.andWhere('expense.expensedAt <= :endDate', { endDate });
 
-    return builder.orderBy('expense.expensedAt', 'DESC');
+    return builder;
   }
 }

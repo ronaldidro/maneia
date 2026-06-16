@@ -29,7 +29,9 @@ export class SummariesService {
     const totalDebtsBuilder = this.detailRepository
       .createQueryBuilder('detail')
       .select('COALESCE(SUM(detail.amount),0)', 'amount')
+      .leftJoin('detail.expense', 'expense')
       .where('detail.user_id = :id', { id: user.id })
+      .andWhere('detail.user_id != expense.user_id')
       .getRawOne<{ amount: string }>();
 
     const debtorsBuilder = this.detailRepository
@@ -37,10 +39,9 @@ export class SummariesService {
       .select('SUM(detail.amount)', 'amount')
       .leftJoin('detail.user', 'debtor')
       .addSelect('debtor.firstName', 'firstName')
-      .addSelect('debtor.lastName', 'lastName')
-      .addSelect("CONCAT(debtor.first_name, ' ', debtor.last_name)", 'fullName')
       .leftJoin('detail.expense', 'expense')
       .where('expense.user_id = :id', { id: user.id })
+      .andWhere('detail.user_id != expense.user_id')
       .groupBy('debtor.id')
       .getRawMany<ExpenseSummaryDetailDto>();
 
@@ -50,34 +51,32 @@ export class SummariesService {
       .leftJoin('detail.expense', 'expense')
       .leftJoin('expense.user', 'creditor')
       .addSelect('creditor.firstName', 'firstName')
-      .addSelect('creditor.lastName', 'lastName')
-      .addSelect(
-        "CONCAT(creditor.first_name, ' ', creditor.last_name)",
-        'fullName',
-      )
       .where('detail.user_id = :id', { id: user.id })
+      .andWhere('detail.user_id != expense.user_id')
       .groupBy('creditor.id')
       .getRawMany<ExpenseSummaryDetailDto>();
 
-    const [totalExpenses, totalDebts, debtors, creditors] = await Promise.all([
-      totalExpensesBuilder,
-      totalDebtsBuilder,
-      debtorsBuilder,
-      creditorsBuilder,
-    ]);
+    const userExpensesBuilder = this.detailRepository
+      .createQueryBuilder('detail')
+      .select('SUM(detail.amount)', 'amount')
+      .leftJoin('detail.expense', 'expense')
+      .where('detail.user_id = :id', { id: user.id })
+      .andWhere('detail.user_id = expense.user_id')
+      .getRawOne<{ amount: string }>();
 
-    const totalDebt = debtors.reduce(
-      (sum, item) => sum + Number(item.amount),
-      0,
-    );
-
-    const totalPaid = Number(totalExpenses?.amount);
-    const userExpenses = Number((totalPaid - totalDebt).toFixed(2));
+    const [totalExpenses, totalDebts, debtors, creditors, userExpenses] =
+      await Promise.all([
+        totalExpensesBuilder,
+        totalDebtsBuilder,
+        debtorsBuilder,
+        creditorsBuilder,
+        userExpensesBuilder,
+      ]);
 
     return {
       user: user.firstName,
-      expenses: totalPaid,
-      amount: userExpenses,
+      expenses: Number(totalExpenses?.amount),
+      amount: Number(userExpenses?.amount),
       debts: Number(totalDebts?.amount),
       debtors,
       creditors,
