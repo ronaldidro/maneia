@@ -21,6 +21,10 @@ export class CreatePaymentDto {
   @Min(0)
   amount: number;
 
+  @IsNumber()
+  @Min(0)
+  remaining: number;
+
   @IsNotEmpty()
   @IsEnum(PayMethod)
   method: PayMethod;

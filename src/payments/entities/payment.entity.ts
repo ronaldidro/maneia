@@ -3,7 +3,7 @@ import { BaseEntity } from '../../common/base.entity';
 import { Group } from '../../groups/entities/group.entity';
 import { User } from '../../users/entities/user.entity';
 import { PayMethod } from '../enum/payment.enum';
-import { Expose } from 'class-transformer';
+import { PaymentExpense } from '../interfaces';
 
 @Entity({ name: 'payments' })
 @Index(['group'])
@@ -19,8 +19,14 @@ export class Payment extends BaseEntity {
   @Column({ type: 'numeric', precision: 12, scale: 2 })
   debt: string;
 
+  @Column({ type: 'numeric', precision: 12, scale: 2 })
+  remaining: string;
+
   @Column({ type: 'enum', enum: PayMethod })
   method: PayMethod;
+
+  @Column({ type: 'jsonb' })
+  expenses: PaymentExpense[];
 
   @ManyToOne(() => Group, (group) => group.payments)
   group: Group;
@@ -30,9 +36,4 @@ export class Payment extends BaseEntity {
 
   @ManyToOne(() => User, (user) => user.receivedPayments)
   payer: User;
-
-  @Expose()
-  get remaining(): string {
-    return (Number(this.debt) - Number(this.amount)).toFixed(2);
-  }
 }

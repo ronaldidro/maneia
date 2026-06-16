@@ -28,11 +28,13 @@ export class PaymentsService extends Pageable<Payment> {
     createPaymentDto: CreatePaymentDto,
     user: User,
   ): Promise<Payment> {
-    const { group, payer, debt, amount } = createPaymentDto;
+    const { group, payer, remaining } = createPaymentDto;
 
-    await this.settlementsService.create(group, payer, user.id);
-
-    const remaining = debt - amount;
+    const paymentExpenses = await this.settlementsService.create(
+      group,
+      payer,
+      user.id,
+    );
 
     if (remaining > 0)
       await this.expensesService.create(
@@ -51,8 +53,10 @@ export class PaymentsService extends Pageable<Payment> {
       ...createPaymentDto,
       amount: createPaymentDto.amount.toString(),
       debt: createPaymentDto.debt.toString(),
-      group: { id: createPaymentDto.group },
-      payer: { id: createPaymentDto.payer },
+      remaining: remaining.toString(),
+      expenses: paymentExpenses,
+      group: { id: group },
+      payer: { id: payer },
       user: { id: user.id },
     });
 
@@ -109,6 +113,7 @@ export class PaymentsService extends Pageable<Payment> {
         description: true,
         debt: true,
         amount: true,
+        remaining: true,
         method: true,
         createdAt: true,
         group: { id: true, name: true },
