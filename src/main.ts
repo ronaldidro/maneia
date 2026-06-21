@@ -3,7 +3,7 @@ import { AppModule } from '@/app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
-import { ErrorsInterceptor } from '@/interceptor/errors-interceptor.interceptor';
+import { ErrorsInterceptor } from '@/interceptor/errors.interceptor';
 import helmet from 'helmet';
 
 async function bootstrap() {
