@@ -2,11 +2,13 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from '@/users/dto/create-user.dto';
 import { UpdateUserDto } from '@/users/dto/update-user.dto';
 import { UsersQueryDto } from '@/users/dto/users-query.dto';
+import { UpdatePasswordDto } from '@/users/dto/update-password.dto';
 import { User } from '@/users/entities/user.entity';
 import { DeleteResult, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -50,6 +52,7 @@ export class UsersService {
         firstName: true,
         lastName: true,
         email: true,
+        password: true,
         role: true,
       },
       where: { id },
@@ -80,6 +83,22 @@ export class UsersService {
       user.password = await this.hashedPassword(updateUserDto.password);
 
     return await this.repository.save(user);
+  }
+
+  async updatePassword(
+    updatePasswordDto: UpdatePasswordDto,
+    currentUser: User,
+  ): Promise<User> {
+    const isMatch = await bcrypt.compare(
+      updatePasswordDto.current,
+      currentUser.password,
+    );
+
+    if (!isMatch) throw new UnprocessableEntityException('Incorrect password');
+
+    currentUser.password = await this.hashedPassword(updatePasswordDto.renewed);
+
+    return await this.repository.save(currentUser);
   }
 
   async remove(id: string): Promise<DeleteResult> {

@@ -13,6 +13,7 @@ import { UsersService } from '@/users/users.service';
 import { CreateUserDto } from '@/users/dto/create-user.dto';
 import { UpdateUserDto } from '@/users/dto/update-user.dto';
 import { UsersQueryDto } from '@/users/dto/users-query.dto';
+import { UpdatePasswordDto } from '@/users/dto/update-password.dto';
 import { Roles } from '@/decorator/roles.decorator';
 import { Role } from '@/common/enum/role.enum';
 import { ApiBearerAuth } from '@nestjs/swagger';
@@ -38,6 +39,14 @@ export class UsersController {
   @Get(':id')
   findOne(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.usersService.findOne(id);
+  }
+
+  @Patch('password')
+  updatePassword(
+    @Body() updatePasswordDto: UpdatePasswordDto,
+    @CurrentUser() currentUser: User,
+  ) {
+    return this.usersService.updatePassword(updatePasswordDto, currentUser);
   }
 
   @Patch(':id')
