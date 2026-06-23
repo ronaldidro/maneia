@@ -31,6 +31,10 @@ class EnvironmentVariables {
 
   @IsNotEmpty()
   @IsString()
+  ADMIN_PASS: string;
+
+  @IsNotEmpty()
+  @IsString()
   DATABASE_HOST: string;
 
   @IsNotEmpty()
@@ -48,6 +52,10 @@ class EnvironmentVariables {
   @IsNotEmpty()
   @IsString()
   DATABASE_NAME: string;
+
+  @IsNotEmpty()
+  @IsString()
+  TZ: string;
 }
 
 export function validate(config: Record<string, unknown>) {

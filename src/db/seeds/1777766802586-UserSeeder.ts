@@ -14,7 +14,7 @@ export class UserSeeder1777766802586 implements Seeder {
     const repository = dataSource.getRepository(User);
 
     const salt = await bcrypt.genSalt();
-    const hash = await bcrypt.hash('admin123', salt);
+    const hash = await bcrypt.hash(process.env.ADMIN_PASS, salt);
 
     await repository.save({
       firstName: 'Ron',
