@@ -7,14 +7,17 @@ import {
   Delete,
   Query,
   ParseUUIDPipe,
+  Header,
+  StreamableFile,
 } from '@nestjs/common';
 import { ExpensesService } from '@/expenses/expenses.service';
+import { SummariesService } from '@/summaries/summaries.service';
 import { CreateExpenseDto } from '@/expenses/dto/create-expense.dto';
+import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
+import { QueryDto } from '@/common/dto/query.dto';
 import { User } from '@/users/entities/user.entity';
 import { CurrentUser } from '@/decorator/user.decorator';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
-import { SummariesService } from '@/summaries/summaries.service';
 
 @ApiBearerAuth()
 @Controller('expenses')
@@ -34,12 +37,20 @@ export class ExpensesController {
 
   @Get()
   findAll(@Query() expensesQuery: ExpensesQueryDto, @CurrentUser() user: User) {
-    return this.service.findAllPaginated(expensesQuery, user);
+    return this.service.findAll(expensesQuery, user);
   }
 
   @Get('summary')
   findSummary(@CurrentUser() user: User) {
     return this.summariesService.findAll(user);
+  }
+
+  @Get('report')
+  @Header('Content-Type', 'application/pdf')
+  @Header('Content-Disposition', 'attachment; filename="expenses.pdf"')
+  async findReport(@Query() queryDto: QueryDto, @CurrentUser() user: User) {
+    const file = await this.service.findReport(queryDto, user);
+    return new StreamableFile(file);
   }
 
   @Get(':id')

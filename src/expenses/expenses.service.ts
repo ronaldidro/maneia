@@ -3,15 +3,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateExpenseDto } from '@/expenses/dto/create-expense.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Expense } from '@/expenses/entities/expense.entity';
 import { DeleteResult, Repository, SelectQueryBuilder } from 'typeorm';
+import { CreateExpenseDto } from '@/expenses/dto/create-expense.dto';
+import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
+import { QueryDto } from '@/common/dto/query.dto';
+import { Expense } from '@/expenses/entities/expense.entity';
 import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
 import { User } from '@/users/entities/user.entity';
-import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
 import { Pageable, PaginatedResponse } from '@/common/pageable';
-import { QueryDto } from '@/common/dto/query.dto';
+import { ReportsService } from '@/reports/reports.service';
 
 @Injectable()
 export class ExpensesService extends Pageable<Expense> {
@@ -21,6 +22,8 @@ export class ExpensesService extends Pageable<Expense> {
 
     @InjectRepository(ExpenseDetail)
     private readonly detailRepository: Repository<ExpenseDetail>,
+
+    private readonly reportsService: ReportsService,
   ) {
     super();
   }
@@ -54,18 +57,7 @@ export class ExpensesService extends Pageable<Expense> {
     return await this.repository.save(expense);
   }
 
-  async findAll(query: QueryDto, user: User): Promise<Expense[]> {
-    const builder = this.buildQuery(query, user);
-
-    if (query.user)
-      builder.andWhere('detail.user_id = :debtorId', { debtorId: query.user });
-
-    builder.orderBy('expense.expensedAt', 'DESC');
-
-    return await builder.getMany();
-  }
-
-  async findAllPaginated(
+  async findAll(
     query: ExpensesQueryDto,
     user: User,
   ): Promise<PaginatedResponse<Expense>> {
@@ -112,6 +104,26 @@ export class ExpensesService extends Pageable<Expense> {
     if (!expense) throw new NotFoundException('Expense not found');
 
     return expense;
+  }
+
+  async findReport(
+    query: QueryDto,
+    user: User,
+  ): Promise<Buffer<ArrayBufferLike>> {
+    const builder = this.buildQuery(query, user);
+
+    if (query.user)
+      builder.andWhere('detail.user_id = :debtorId', { debtorId: query.user });
+
+    builder.orderBy('expense.expensedAt', 'DESC');
+
+    const expenses = await builder.getMany();
+
+    if (!expenses.length) throw new NotFoundException('Expenses not found');
+
+    const pdf = this.reportsService.createExpensesPdf(expenses, query);
+
+    return await pdf.getBuffer();
   }
 
   async remove(id: string, user: User): Promise<DeleteResult> {

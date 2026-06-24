@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
@@ -7,22 +7,19 @@ import { QueryDto } from '@/common/dto/query.dto';
 import { User } from '@/users/entities/user.entity';
 import { DetailsSumQueryDto } from '@/details/dto/details-sum-query.dto';
 import { DetailsQueryDto } from '@/details/dto/details-query.dto';
+import { ReportsService } from '@/reports/reports.service';
 
 @Injectable()
 export class DetailsService extends Pageable<ExpenseDetail> {
   constructor(
     @InjectRepository(ExpenseDetail)
     private readonly repository: Repository<ExpenseDetail>,
+    private readonly reportsService: ReportsService,
   ) {
     super();
   }
 
-  async findAll(query: QueryDto, user: User): Promise<ExpenseDetail[]> {
-    const builder = this.buildQuery(query, user);
-    return await builder.getMany();
-  }
-
-  async findAllPaginated(
+  async findAll(
     query: DetailsQueryDto,
     user: User,
   ): Promise<PaginatedResponse<ExpenseDetail>> {
@@ -42,6 +39,21 @@ export class DetailsService extends Pageable<ExpenseDetail> {
     const result = await builder.getRawOne<{ amount: string }>();
 
     return Number(result?.amount).toFixed(2);
+  }
+
+  async findReport(
+    query: QueryDto,
+    user: User,
+  ): Promise<Buffer<ArrayBufferLike>> {
+    const builder = this.buildQuery(query, user);
+
+    const details = await builder.getMany();
+
+    if (!details.length) throw new NotFoundException('Details not found');
+
+    const pdf = this.reportsService.createDetailsPdf(details, query);
+
+    return await pdf.getBuffer();
   }
 
   private buildQuery(

@@ -1,10 +1,11 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Header, Query, StreamableFile } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { DetailsService } from '@/details/details.service';
 import { CurrentUser } from '@/decorator/user.decorator';
 import { User } from '@/users/entities/user.entity';
 import { DetailsSumQueryDto } from '@/details/dto/details-sum-query.dto';
 import { DetailsQueryDto } from '@/details/dto/details-query.dto';
+import { QueryDto } from '@/common/dto/query.dto';
 
 @ApiBearerAuth()
 @Controller('details')
@@ -13,7 +14,7 @@ export class DetailsController {
 
   @Get()
   findAll(@Query() detailsQuery: DetailsQueryDto, @CurrentUser() user: User) {
-    return this.service.findAllPaginated(detailsQuery, user);
+    return this.service.findAll(detailsQuery, user);
   }
 
   @Get('sum')
@@ -22,5 +23,13 @@ export class DetailsController {
     @CurrentUser() user: User,
   ) {
     return this.service.findSum(detailsSumQuery, user.id);
+  }
+
+  @Get('report')
+  @Header('Content-Type', 'application/pdf')
+  @Header('Content-Disposition', 'attachment; filename="debts.pdf"')
+  async findReport(@Query() queryDto: QueryDto, @CurrentUser() user: User) {
+    const file = await this.service.findReport(queryDto, user);
+    return new StreamableFile(file);
   }
 }

@@ -5,11 +5,13 @@ import { Expense } from '@/expenses/entities/expense.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
 import { SummariesModule } from '@/summaries/summaries.module';
+import { ReportsModule } from '@/reports/reports.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Expense, ExpenseDetail]),
     SummariesModule,
+    ReportsModule,
   ],
   controllers: [ExpensesController],
   providers: [ExpensesService],
