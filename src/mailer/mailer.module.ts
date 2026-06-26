@@ -10,7 +10,10 @@ import { MailerController } from './mailer.controller';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         transport: {
-          service: 'gmail',
+          // service: 'gmail',
+          host: 'smtp.gmail.com',
+          port: 465,
+          secure: true,
           auth: {
             type: 'OAuth2',
             user: config.get<string>('mailer.user'),
