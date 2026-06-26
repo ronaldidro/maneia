@@ -9,6 +9,10 @@ declare namespace NodeJS {
     DATABASE_USER: string;
     DATABASE_PASS: string;
     DATABASE_NAME: string;
+    MAIL_USER: string;
+    MAIL_CLIENT_ID: string;
+    MAIL_CLIENT_SECRET: string;
+    MAIL_REFRESH_TOKEN: string;
     TZ: string;
   }
 }

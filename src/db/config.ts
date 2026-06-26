@@ -11,7 +11,7 @@ const getDbConfig = (config: ConfigService): TypeOrmModuleOptions => ({
   database: config.get<string>('database.name'),
   entities: [__dirname + '/../**/**/*.entity{.ts,.js}'],
   migrations: [__dirname + '/../db/migrations/*{.ts,.js}'],
-  logging: process.env.NODE_ENV === 'dev',
+  logging: config.get<string>('env') === 'dev',
   ssl: { rejectUnauthorized: false },
   namingStrategy: new SnakeNamingStrategy(),
 });

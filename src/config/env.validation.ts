@@ -55,6 +55,22 @@ class EnvironmentVariables {
 
   @IsNotEmpty()
   @IsString()
+  MAIL_USER: string;
+
+  @IsNotEmpty()
+  @IsString()
+  MAIL_CLIENT_ID: string;
+
+  @IsNotEmpty()
+  @IsString()
+  MAIL_CLIENT_SECRET: string;
+
+  @IsNotEmpty()
+  @IsString()
+  MAIL_REFRESH_TOKEN: string;
+
+  @IsNotEmpty()
+  @IsString()
   TZ: string;
 }
 

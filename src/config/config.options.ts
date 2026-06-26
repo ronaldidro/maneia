@@ -12,6 +12,12 @@ const loadEnv = () => ({
     pass: process.env.DATABASE_PASS,
     name: process.env.DATABASE_NAME,
   },
+  mailer: {
+    user: process.env.MAIL_USER,
+    client_id: process.env.MAIL_CLIENT_ID,
+    client_secret: process.env.MAIL_CLIENT_SECRET,
+    refresh_token: process.env.MAIL_REFRESH_TOKEN,
+  },
 });
 
 const configOptions: ConfigModuleOptions = {

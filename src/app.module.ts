@@ -10,6 +10,7 @@ import { MembershipsModule } from '@/memberships/memberships.module';
 import { PaymentsModule } from '@/payments/payments.module';
 import { DetailsModule } from '@/details/details.module';
 import { ReportsModule } from '@/reports/reports.module';
+import { MailerModule } from '@/mailer/mailer.module';
 import configOptions from '@/config/config.options';
 import getDbConfig from '@/db/config';
 
@@ -28,6 +29,7 @@ import getDbConfig from '@/db/config';
     DetailsModule,
     PaymentsModule,
     ReportsModule,
+    MailerModule,
   ],
 })
 export class AppModule implements NestModule {
