@@ -12,9 +12,8 @@ import { MailerController } from './mailer.controller';
         transport: {
           // service: 'gmail',
           host: 'smtp.gmail.com',
-          port: 587,
-          secure: false,
-          requireTLS: true,
+          port: 465,
+          secure: true,
           auth: {
             type: 'OAuth2',
             user: config.get<string>('mailer.user'),
