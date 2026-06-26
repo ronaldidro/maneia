@@ -12,6 +12,7 @@ import { User } from '@/users/entities/user.entity';
 import { Pageable, PaginatedResponse } from '@/common/pageable';
 import { SettlementsService } from '@/settlements/settlements.service';
 import { ExpensesService } from '@/expenses/expenses.service';
+import { ReportsService } from '@/reports/reports.service';
 
 @Injectable()
 export class PaymentsService extends Pageable<Payment> {
@@ -20,6 +21,7 @@ export class PaymentsService extends Pageable<Payment> {
     private readonly repository: Repository<Payment>,
     private readonly settlementsService: SettlementsService,
     private readonly expensesService: ExpensesService,
+    private readonly reportsService: ReportsService,
   ) {
     super();
   }
@@ -115,6 +117,7 @@ export class PaymentsService extends Pageable<Payment> {
         amount: true,
         remaining: true,
         method: true,
+        expenses: true,
         createdAt: true,
         group: { id: true, name: true },
         user: { id: true, firstName: true, lastName: true },
@@ -127,6 +130,14 @@ export class PaymentsService extends Pageable<Payment> {
     if (!payment) throw new NotFoundException('Payment not found');
 
     return payment;
+  }
+
+  async findReport(id: string): Promise<Buffer<ArrayBufferLike>> {
+    const payment = await this.findOne(id);
+
+    const pdf = this.reportsService.createPaymentPdf(payment);
+
+    return await pdf.getBuffer();
   }
 
   async remove(id: string, user: User): Promise<UpdateResult> {

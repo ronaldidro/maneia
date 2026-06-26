@@ -7,9 +7,16 @@ import {
 import { es } from 'date-fns/locale';
 import { format } from 'date-fns';
 import { QueryDto } from '@/common/dto/query.dto';
+import { Payment } from '@/payments/entities/payment.entity';
 
 export const formatDate = (date: Date | string) =>
   format(date, 'dd MMM yy', { locale: es });
+
+export const PAY_DESCRIPTION = {
+  transfer: 'Transferencia',
+  cash: 'Efectivo',
+  yape: 'Yape',
+};
 
 const styles: StyleDictionary = {
   h1: { fontSize: 16, bold: true },
@@ -58,5 +65,50 @@ export const getContentColumns = (query: QueryDto): ContentColumns => {
   };
 };
 
+export const getPaymentContentColumns = (payment: Payment): ContentColumns => ({
+  columns: [
+    {
+      stack: [
+        { text: [{ text: 'Recibe: ', bold: true }, payment.user.firstName] },
+        '',
+        { text: [{ text: 'Deuda: ', bold: true }, `S/${payment.debt}`] },
+        '',
+        {
+          text: [
+            { text: 'Fecha: ', bold: true },
+            formatDate(payment.createdAt),
+          ],
+        },
+      ],
+    },
+    {
+      stack: [
+        { text: [{ text: 'Paga: ', bold: true }, payment.payer.firstName] },
+        '',
+        { text: [{ text: 'Pago: ', bold: true }, `S/${payment.amount}`] },
+        '',
+        { text: [{ text: 'Grupo: ', bold: true }, payment.group.name] },
+      ],
+    },
+    {
+      stack: [
+        {
+          text: [
+            { text: 'Método: ', bold: true },
+            PAY_DESCRIPTION[payment.method],
+          ],
+        },
+        '',
+        {
+          text: [{ text: 'Restante: ', bold: true }, `S/${payment.remaining}`],
+        },
+        '',
+        { text: [{ text: 'Descripción: ', bold: true }, payment.description] },
+      ],
+    },
+  ],
+});
+
 export * from '@/reports/utils/expenses.rows';
 export * from '@/reports/utils/debts.rows';
+export * from '@/reports/utils/payment-expenses.rows';

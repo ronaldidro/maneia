@@ -7,6 +7,8 @@ import {
   Delete,
   ParseUUIDPipe,
   Query,
+  Header,
+  StreamableFile,
 } from '@nestjs/common';
 import { PaymentsService } from '@/payments/payments.service';
 import { CreatePaymentDto } from '@/payments/dto/create-payment.dto';
@@ -31,6 +33,14 @@ export class PaymentsController {
   @Get()
   findAll(@Query() paymentsQuery: PaymentsQueryDto, @CurrentUser() user: User) {
     return this.service.findAll(paymentsQuery, user);
+  }
+
+  @Get(':id/report')
+  @Header('Content-Type', 'application/pdf')
+  @Header('Content-Disposition', 'attachment; filename="payment.pdf"')
+  async findReport(@Param('id', new ParseUUIDPipe()) id: string) {
+    const file = await this.service.findReport(id);
+    return new StreamableFile(file);
   }
 
   @Get(':id')
