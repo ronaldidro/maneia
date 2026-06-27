@@ -5,6 +5,7 @@ const loadEnv = () => ({
   env: process.env.NODE_ENV,
   port: process.env.PORT,
   secret: process.env.SECRET,
+  client_url: process.env.CLIENT_URL,
   database: {
     host: process.env.DATABASE_HOST,
     port: process.env.DATABASE_PORT,
@@ -13,7 +14,7 @@ const loadEnv = () => ({
     name: process.env.DATABASE_NAME,
   },
   mailer: {
-    user: process.env.MAIL_USER,
+    sender: process.env.MAIL_SENDER,
     client_id: process.env.MAIL_CLIENT_ID,
     client_secret: process.env.MAIL_CLIENT_SECRET,
     refresh_token: process.env.MAIL_REFRESH_TOKEN,

@@ -1,6 +1,7 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsObject, IsString } from 'class-validator';
+import { MailTemplate, MailTemplates } from '@/mailer/interfaces';
 
-export class CreateMailerDto {
+export class CreateMailerDto<T extends MailTemplate = MailTemplate> {
   @IsNotEmpty()
   @IsString()
   to: string;
@@ -11,5 +12,9 @@ export class CreateMailerDto {
 
   @IsNotEmpty()
   @IsString()
-  text: string;
+  template: T;
+
+  @IsNotEmpty()
+  @IsObject()
+  data: MailTemplates[T];
 }

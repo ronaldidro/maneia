@@ -1,51 +1,81 @@
+import { join } from 'node:path';
+import { readFile } from 'node:fs/promises';
 import { Injectable } from '@nestjs/common';
-import { CreateMailerDto } from './dto/create-mailer.dto';
+import { ConfigService } from '@nestjs/config';
 import { gmail_v1, google } from 'googleapis';
 import MailComposer from 'nodemailer/lib/mail-composer';
+import { CreateMailerDto } from '@/mailer/dto/create-mailer.dto';
+import { MailTemplate, MailTemplates } from '@/mailer/interfaces';
 
 @Injectable()
 export class MailerService {
-  private gmail: gmail_v1.Gmail;
+  private readonly gmail: gmail_v1.Gmail;
 
-  constructor() {
+  constructor(private readonly configService: ConfigService) {
     const oauth2Client = new google.auth.OAuth2({
-      client_id: process.env.MAIL_CLIENT_ID,
-      client_secret: process.env.MAIL_CLIENT_SECRET,
+      client_id: this.configService.get<string>('mailer.client_id'),
+      client_secret: this.configService.get<string>('mailer.client_secret'),
     });
 
     oauth2Client.setCredentials({
-      refresh_token: process.env.MAIL_REFRESH_TOKEN,
+      refresh_token: this.configService.get<string>('mailer.refresh_token'),
     });
 
     this.gmail = google.gmail({ version: 'v1', auth: oauth2Client });
   }
 
-  async sendMail(createMailerDto: CreateMailerDto) {
-    try {
-      const mail = new MailComposer({
-        from: 'nobody@gmail.com',
-        textEncoding: 'base64',
-        ...createMailerDto,
-      });
+  async send<T extends MailTemplate>(
+    createMailerDto: CreateMailerDto<T>,
+  ): Promise<gmail_v1.Schema$Message> {
+    const raw = await this.getRawMessage(createMailerDto);
 
-      const message = await mail.compile().build();
+    const result = await this.gmail.users.messages.send({
+      userId: 'me',
+      requestBody: { raw },
+    });
 
-      const raw = Buffer.from(message)
-        .toString('base64')
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_')
-        .replace(/=+$/, '');
+    return result.data;
+  }
 
-      const result = await this.gmail.users.messages.send({
-        userId: 'me',
-        requestBody: { raw },
-      });
+  private async getRawMessage<T extends MailTemplate>(
+    createMailerDto: CreateMailerDto<T>,
+  ): Promise<string> {
+    const mail = new MailComposer({
+      subject: createMailerDto.subject,
+      from: this.configService.get<string>('mailer.sender'),
+      to: createMailerDto.to,
+      html: await this.getTemplate(
+        createMailerDto.template,
+        createMailerDto.data,
+      ),
+    });
 
-      console.log('Email sent successfully:', result.data.id);
-      return result.data;
-    } catch (error) {
-      console.error('Error sending email:', error);
-      throw error;
+    const message = await mail.compile().build();
+
+    return Buffer.from(message)
+      .toString('base64')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
+  }
+
+  private async getTemplate<T extends MailTemplate>(
+    name: T,
+    data: MailTemplates[T],
+  ): Promise<string> {
+    let html = await readFile(
+      join(__dirname, 'templates', `${name}.html`),
+      'utf8',
+    );
+
+    const clientUrl = this.configService.get<string>('client_url');
+
+    const templateData = { ...data, url: `${clientUrl}/${data.path}` };
+
+    for (const [key, value] of Object.entries(templateData)) {
+      html = html.replaceAll(`{{${key}}}`, String(value));
     }
+
+    return html;
   }
 }

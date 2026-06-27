@@ -10,6 +10,6 @@ export class MailerController {
 
   @Post()
   create(@Body() createMailerDto: CreateMailerDto) {
-    return this.mailerService.sendMail(createMailerDto);
+    return this.mailerService.send(createMailerDto);
   }
 }

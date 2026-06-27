@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Nuevo gasto</title>
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background: #f3f4f6;
+      font-family: Arial, Helvetica, sans-serif;
+    "
+  >
+    <table
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      style="background: #f3f4f6; padding: 24px 12px"
+    >
+      <tr>
+        <td align="center">
+          <table
+            width="100%"
+            cellpadding="0"
+            cellspacing="0"
+            style="
+              max-width: 600px;
+              background: #ffffff;
+              border-radius: 12px;
+              overflow: hidden;
+            "
+          >
+            <tr>
+              <td
+                align="center"
+                style="
+                  background: #2563eb;
+                  padding: 24px;
+                  color: white;
+                  font-size: 28px;
+                  font-weight: bold;
+                "
+              >
+                Splitty
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 24px">
+                <p
+                  style="
+                    margin: 0 0 24px;
+                    color: #4b5563;
+                    font-size: 15px;
+                    line-height: 22px;
+                  "
+                >
+                  Se ha agregado un nuevo gasto dentro de uno de tus grupos.
+                  Puedes revisar toda la información desde la aplicación.
+                </p>
+                <table
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  style="
+                    background: #f9fafb;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 10px;
+                  "
+                >
+                  <tr>
+                    <td style="padding: 18px">
+                      <p
+                        style="
+                          margin: 0;
+                          color: #6b7280;
+                          font-size: 13px;
+                          font-weight: bold;
+                        "
+                      >
+                        DESCRIPCIÓN
+                      </p>
+                      <p
+                        style="
+                          margin: 6px 0 18px;
+                          color: #111827;
+                          font-size: 16px;
+                        "
+                      >
+                        {{description}}
+                      </p>
+                      <p
+                        style="
+                          margin: 0;
+                          color: #6b7280;
+                          font-size: 13px;
+                          font-weight: bold;
+                        "
+                      >
+                        GRUPO
+                      </p>
+                      <p
+                        style="
+                          margin: 6px 0 18px;
+                          color: #111827;
+                          font-size: 16px;
+                        "
+                      >
+                        {{group}}
+                      </p>
+                      <p
+                        style="
+                          margin: 0;
+                          color: #6b7280;
+                          font-size: 13px;
+                          font-weight: bold;
+                        "
+                      >
+                        REGISTRADO POR
+                      </p>
+                      <p
+                        style="
+                          margin: 6px 0 18px;
+                          color: #111827;
+                          font-size: 16px;
+                        "
+                      >
+                        {{payer}}
+                      </p>
+                      <p
+                        style="
+                          margin: 0;
+                          color: #6b7280;
+                          font-size: 13px;
+                          font-weight: bold;
+                        "
+                      >
+                        FECHA
+                      </p>
+                      <p
+                        style="
+                          margin: 6px 0 18px;
+                          color: #111827;
+                          font-size: 16px;
+                        "
+                      >
+                        {{date}}
+                      </p>
+                      <p
+                        style="
+                          margin: 0;
+                          color: #6b7280;
+                          font-size: 13px;
+                          font-weight: bold;
+                        "
+                      >
+                        MONTO TOTAL
+                      </p>
+                      <p
+                        style="
+                          margin: 6px 0 0;
+                          color: #2563eb;
+                          font-size: 24px;
+                          font-weight: bold;
+                        "
+                      >
+                        {{amount}}
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+                <div style="text-align: center; margin-top: 28px">
+                  <a
+                    href="{{url}}"
+                    style="
+                      display: inline-block;
+                      background: #2563eb;
+                      color: #ffffff;
+                      text-decoration: none;
+                      padding: 12px 24px;
+                      border-radius: 8px;
+                      font-weight: bold;
+                      font-size: 15px;
+                    "
+                  >
+                    Ver gasto
+                  </a>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td
+                align="center"
+                style="
+                  background: #f9fafb;
+                  color: #6b7280;
+                  font-size: 13px;
+                  padding: 20px;
+                  border-top: 1px solid #e5e7eb;
+                "
+              >
+                Este es un correo automático
+                <br /><br />
+                © Splitty. Todos los derechos reservados.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

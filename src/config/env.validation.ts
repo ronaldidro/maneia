@@ -35,6 +35,10 @@ class EnvironmentVariables {
 
   @IsNotEmpty()
   @IsString()
+  CLIENT_URL: string;
+
+  @IsNotEmpty()
+  @IsString()
   DATABASE_HOST: string;
 
   @IsNotEmpty()
@@ -55,7 +59,7 @@ class EnvironmentVariables {
 
   @IsNotEmpty()
   @IsString()
-  MAIL_USER: string;
+  MAIL_SENDER: string;
 
   @IsNotEmpty()
   @IsString()
