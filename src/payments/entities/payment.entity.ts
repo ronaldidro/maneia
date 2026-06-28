@@ -1,9 +1,9 @@
 import { Column, Entity, Index, ManyToOne } from 'typeorm';
-import { BaseEntity } from '../../common/base.entity';
-import { Group } from '../../groups/entities/group.entity';
-import { User } from '../../users/entities/user.entity';
-import { PayMethod } from '../enum/payment.enum';
-import { PaymentExpense } from '../interfaces';
+import { BaseEntity } from '@/common/base.entity';
+import { PayMethod } from '@/payments/enum/payment.enum';
+import { PaymentExpense } from '@/payments/interfaces';
+import { Group } from '@/groups/entities/group.entity';
+import { User } from '@/users/entities/user.entity';
 
 @Entity({ name: 'payments' })
 @Index(['group'])

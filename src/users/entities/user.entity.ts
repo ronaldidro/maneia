@@ -1,12 +1,12 @@
-import { Exclude, Expose } from 'class-transformer';
-import { BaseEntity } from '../../common/base.entity';
 import { Entity, Column, OneToMany } from 'typeorm';
-import { Role } from '../../common/enum/role.enum';
-import { Group } from '../../groups/entities/group.entity';
-import { Membership } from '../../memberships/entities/membership.entity';
-import { Expense } from '../../expenses/entities/expense.entity';
-import { ExpenseDetail } from '../../details/entities/expense-detail.entity';
-import { Payment } from '../../payments/entities/payment.entity';
+import { Exclude, Expose } from 'class-transformer';
+import { BaseEntity } from '@/common/base.entity';
+import { Role } from '@/common/enum/role.enum';
+import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
+import { Expense } from '@/expenses/entities/expense.entity';
+import { Group } from '@/groups/entities/group.entity';
+import { Membership } from '@/memberships/entities/membership.entity';
+import { Payment } from '@/payments/entities/payment.entity';
 
 @Entity({ name: 'users' })
 export class User extends BaseEntity {

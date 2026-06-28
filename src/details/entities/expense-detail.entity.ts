@@ -1,7 +1,7 @@
-import { BaseEntity } from '../../common/base.entity';
-import { Expense } from '../../expenses/entities/expense.entity';
-import { User } from '../../users/entities/user.entity';
 import { Column, Entity, Index, ManyToOne } from 'typeorm';
+import { BaseEntity } from '@/common/base.entity';
+import { Expense } from '@/expenses/entities/expense.entity';
+import { User } from '@/users/entities/user.entity';
 
 @Entity({ name: 'expense-details' })
 @Index(['expense', 'user'])
