@@ -1,7 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { LoggerMiddleware } from '@/middleware/logger.middleware';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from '@/users/users.module';
 import { AuthModule } from '@/auth/auth.module';
 import { GroupsModule } from '@/groups/groups.module';
@@ -11,16 +9,13 @@ import { PaymentsModule } from '@/payments/payments.module';
 import { DetailsModule } from '@/details/details.module';
 import { ReportsModule } from '@/reports/reports.module';
 import { MailerModule } from '@/mailer/mailer.module';
-import configOptions from '@/config/config.options';
-import getDbConfig from '@/db/config';
+import { DatabaseModule } from '@/db/database.module';
+import { ConfigurationModule } from '@/config/configuration.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(configOptions),
-    TypeOrmModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: getDbConfig,
-    }),
+    ConfigurationModule,
+    DatabaseModule,
     AuthModule,
     UsersModule,
     GroupsModule,

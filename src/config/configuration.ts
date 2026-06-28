@@ -1,7 +1,4 @@
-import { validate } from '@/config/env.validation';
-import { ConfigModuleOptions } from '@nestjs/config';
-
-const loadEnv = () => ({
+export default () => ({
   env: process.env.NODE_ENV,
   port: process.env.PORT,
   secret: process.env.SECRET,
@@ -20,12 +17,3 @@ const loadEnv = () => ({
     refresh_token: process.env.MAIL_REFRESH_TOKEN,
   },
 });
-
-const configOptions: ConfigModuleOptions = {
-  envFilePath: '.env',
-  load: [loadEnv],
-  validate,
-  isGlobal: true,
-};
-
-export default configOptions;
