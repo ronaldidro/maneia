@@ -100,7 +100,7 @@ export const getPaymentContentColumns = (payment: Payment): ContentColumns => ({
         },
         '',
         {
-          text: [{ text: 'Restante: ', bold: true }, `S/${payment.remaining}`],
+          text: [{ text: 'Pendiente: ', bold: true }, `S/${payment.remaining}`],
         },
         '',
         { text: [{ text: 'Descripción: ', bold: true }, payment.description] },

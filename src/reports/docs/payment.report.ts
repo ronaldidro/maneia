@@ -47,6 +47,20 @@ export const makePaymentReport = (payment: Payment): TDocumentDefinitions => {
           ],
         },
       },
+      '',
+      '',
+      Number(payment.remaining) > 0
+        ? {
+            text: [
+              { text: 'Nota:\n\n', bold: true },
+              { text: 'Se registró un nuevo gasto con descripción ' },
+              { text: 'Saldo pendiente de pago ', bold: true },
+              { text: 'con el monto ' },
+              { text: `S/${payment.remaining} `, bold: true },
+              { text: `para el miembro ${payment.payer.firstName}.` },
+            ],
+          }
+        : '',
     ],
   };
 };
