@@ -25,7 +25,6 @@ const styles: StyleDictionary = {
 
 export const baseDefinitions: TDocumentDefinitions = {
   styles,
-  pageMargins: [40, 50],
   header: {
     text: 'Splitty',
     alignment: 'right',

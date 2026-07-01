@@ -29,7 +29,6 @@ export const makePaymentReport = (payment: Payment): TDocumentDefinitions => {
       {
         layout: tableLayout,
         table: {
-          headerRows: 1,
           dontBreakRows: true,
           widths: [50, '*', 'auto'],
           body: [
