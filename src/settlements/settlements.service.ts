@@ -40,14 +40,14 @@ export class SettlementsService {
 
         if (!detail) continue;
 
+        paymentExpenses.push(this.mapToPaymentExpense(expense, detail));
+
         if (expense.details.length === 1 && !expense.splitted) {
           expensesToRemove.push(expense);
           continue;
         }
 
         detailsToRemove.push(detail);
-
-        paymentExpenses.push(this.mapToPaymentExpense(expense, detail));
       }
 
       await Promise.all([
