@@ -7,8 +7,10 @@ import { ErrorsInterceptor } from '@/interceptor/errors.interceptor';
 import helmet from 'helmet';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
+
+  app.enableCors({ origin: [configService.get<string>('client_url')] });
 
   app.use(helmet());
 
@@ -42,6 +44,6 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  await app.listen(configService.get<number>('PORT') ?? 3000);
+  await app.listen(configService.get<number>('port') ?? 3000);
 }
 bootstrap();
