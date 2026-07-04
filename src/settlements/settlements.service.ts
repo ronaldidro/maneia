@@ -19,73 +19,82 @@ export class SettlementsService {
       const expenseRepository = manager.getRepository(Expense);
       const detailRepository = manager.getRepository(ExpenseDetail);
 
+      const now = new Date();
+
+      const detailsToSettle = await detailRepository.find({
+        where: {
+          user: { id: payer },
+          expense: {
+            user: { id: userId },
+            group: { id: group },
+            expensedAt: LessThanOrEqual(now),
+          },
+        },
+        relations: {
+          user: true,
+          expense: { user: true, group: true, details: true },
+        },
+        order: { expense: { expensedAt: 'ASC' } },
+      });
+
       const detailsToRemove: ExpenseDetail[] = [];
       const expensesToRemove: Expense[] = [];
       const paymentExpenses: PaymentExpense[] = [];
 
-      const settleExpenses = await expenseRepository.find({
-        where: {
-          user: { id: userId },
-          group: { id: group },
-          expensedAt: LessThanOrEqual(new Date()),
-        },
-        relations: { details: { user: true }, group: true, user: true },
-        order: { expensedAt: 'ASC' },
-      });
-
-      for (const expense of settleExpenses) {
-        const detail = expense.details.find(
-          (detail) => detail.user.id === payer,
-        );
-
-        if (!detail) continue;
-
-        paymentExpenses.push(this.mapToPaymentExpense(expense, detail));
+      for (const detail of detailsToSettle) {
+        const expense = detail.expense;
 
         if (expense.details.length === 1 && !expense.splitted) {
           expensesToRemove.push(expense);
-          continue;
+        } else {
+          detailsToRemove.push(detail);
         }
 
-        detailsToRemove.push(detail);
+        paymentExpenses.push(this.mapToPaymentExpense(expense, detail));
       }
 
       await Promise.all([
-        detailRepository.remove(detailsToRemove),
-        expenseRepository.remove(expensesToRemove),
+        detailsToRemove.length
+          ? detailRepository.remove(detailsToRemove)
+          : Promise.resolve(),
+        expensesToRemove.length
+          ? expenseRepository.remove(expensesToRemove)
+          : Promise.resolve(),
       ]);
 
       return paymentExpenses;
     });
   }
 
-  private mapToPaymentExpense = (
+  private mapToPaymentExpense(
     expense: Expense,
     detail: ExpenseDetail,
-  ): PaymentExpense => ({
-    id: expense.id,
-    description: expense.description,
-    amount: expense.amount,
-    splitted: expense.splitted,
-    expensedAt: format(expense.expensedAt, 'dd MMM yy', { locale: es }),
-    group: {
-      id: expense.group.id,
-      name: expense.group.name,
-    },
-    owner: {
-      id: expense.user.id,
-      firstName: expense.user.firstName,
-      lastName: expense.user.lastName,
-    },
-    details: [
-      {
-        debtor: {
-          id: detail.user.id,
-          firstName: detail.user.firstName,
-          lastName: detail.user.lastName,
-        },
-        amount: detail.amount,
+  ): PaymentExpense {
+    return {
+      id: expense.id,
+      description: expense.description,
+      amount: expense.amount,
+      splitted: expense.splitted,
+      expensedAt: format(expense.expensedAt, 'dd MMM yy', { locale: es }),
+      group: {
+        id: expense.group.id,
+        name: expense.group.name,
       },
-    ],
-  });
+      owner: {
+        id: expense.user.id,
+        firstName: expense.user.firstName,
+        lastName: expense.user.lastName,
+      },
+      details: [
+        {
+          debtor: {
+            id: detail.user.id,
+            firstName: detail.user.firstName,
+            lastName: detail.user.lastName,
+          },
+          amount: detail.amount,
+        },
+      ],
+    };
+  }
 }
