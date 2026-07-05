@@ -69,9 +69,9 @@ export class ExpensesService extends Pageable<Expense> {
       const data = {
         description: expenseCreated.description,
         group: expenseCreated.group.name,
-        payer: detail.user.firstName,
+        payer: expenseCreated.user.firstName,
         date: format(expenseCreated.expensedAt, 'dd MMM yy', { locale: es }),
-        amount: expenseCreated.amount,
+        amount: detail.amount,
       };
 
       await this.mailerQueue.add('send', {
