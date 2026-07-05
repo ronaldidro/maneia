@@ -4,7 +4,6 @@ export interface ExpenseCreatedTemplateData {
   payer: string;
   date: string;
   amount: string;
-  path: string;
 }
 
 export interface MailTemplates {

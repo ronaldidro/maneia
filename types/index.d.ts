@@ -10,6 +10,10 @@ declare namespace NodeJS {
     DATABASE_USER: string;
     DATABASE_PASS: string;
     DATABASE_NAME: string;
+    QUEUE_HOST: string;
+    QUEUE_PORT: string;
+    QUEUE_USER: string;
+    QUEUE_PASS: string;
     MAIL_SENDER: string;
     MAIL_CLIENT_ID: string;
     MAIL_CLIENT_SECRET: string;

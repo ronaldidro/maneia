@@ -2,13 +2,21 @@ export default () => ({
   env: process.env.NODE_ENV,
   port: process.env.PORT,
   secret: process.env.SECRET,
-  client_url: process.env.CLIENT_URL,
+  client: {
+    url: process.env.CLIENT_URL,
+  },
   database: {
     host: process.env.DATABASE_HOST,
     port: process.env.DATABASE_PORT,
     user: process.env.DATABASE_USER,
     pass: process.env.DATABASE_PASS,
     name: process.env.DATABASE_NAME,
+  },
+  queue: {
+    host: process.env.QUEUE_HOST,
+    port: process.env.QUEUE_PORT,
+    user: process.env.QUEUE_USER,
+    pass: process.env.QUEUE_PASS,
   },
   mailer: {
     sender: process.env.MAIL_SENDER,

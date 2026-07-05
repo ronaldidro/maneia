@@ -59,6 +59,22 @@ class EnvironmentVariables {
 
   @IsNotEmpty()
   @IsString()
+  QUEUE_HOST: string;
+
+  @IsNotEmpty()
+  @IsString()
+  QUEUE_PORT: string;
+
+  @IsNotEmpty()
+  @IsString()
+  QUEUE_USER: string;
+
+  @IsNotEmpty()
+  @IsString()
+  QUEUE_PASS: string;
+
+  @IsNotEmpty()
+  @IsString()
   MAIL_SENDER: string;
 
   @IsNotEmpty()

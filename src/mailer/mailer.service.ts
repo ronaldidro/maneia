@@ -68,9 +68,9 @@ export class MailerService {
       'utf8',
     );
 
-    const clientUrl = this.configService.get<string>('client_url');
+    const url = this.configService.get<string>('client.url');
 
-    const templateData = { ...data, url: `${clientUrl}/${data.path}` };
+    const templateData = { ...data, url };
 
     for (const [key, value] of Object.entries(templateData)) {
       html = html.replaceAll(`{{${key}}}`, String(value));
