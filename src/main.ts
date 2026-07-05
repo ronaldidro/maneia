@@ -1,10 +1,11 @@
 import { NestFactory, Reflector } from '@nestjs/core';
-import { AppModule } from '@/app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ConfigService } from '@nestjs/config';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
-import { ErrorsInterceptor } from '@/interceptor/errors.interceptor';
+import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
+import { AppModule } from '@/app.module';
+import { ErrorsInterceptor } from '@/interceptor/errors.interceptor';
+import { registerBullBoard } from '@/bull-board';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -43,6 +44,8 @@ async function bootstrap() {
   );
 
   app.setGlobalPrefix('api');
+
+  registerBullBoard(app, ['mailer'], configService);
 
   await app.listen(configService.get<number>('port') ?? 3000);
 }

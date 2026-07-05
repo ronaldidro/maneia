@@ -91,6 +91,14 @@ class EnvironmentVariables {
 
   @IsNotEmpty()
   @IsString()
+  BOARD_USER: string;
+
+  @IsNotEmpty()
+  @IsString()
+  BOARD_PASS: string;
+
+  @IsNotEmpty()
+  @IsString()
   TZ: string;
 }
 

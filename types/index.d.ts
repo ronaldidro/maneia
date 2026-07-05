@@ -18,6 +18,8 @@ declare namespace NodeJS {
     MAIL_CLIENT_ID: string;
     MAIL_CLIENT_SECRET: string;
     MAIL_REFRESH_TOKEN: string;
+    BOARD_USER: string;
+    BOARD_PASS: string;
     TZ: string;
   }
 }

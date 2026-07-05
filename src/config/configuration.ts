@@ -24,4 +24,8 @@ export default () => ({
     client_secret: process.env.MAIL_CLIENT_SECRET,
     refresh_token: process.env.MAIL_REFRESH_TOKEN,
   },
+  board: {
+    user: process.env.BOARD_USER,
+    pass: process.env.BOARD_PASS,
+  },
 });
