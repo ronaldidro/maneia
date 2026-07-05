@@ -6,12 +6,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
 import { SummariesModule } from '@/summaries/summaries.module';
 import { ReportsModule } from '@/reports/reports.module';
+import { MailerModule } from '@/mailer/mailer.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Expense, ExpenseDetail]),
     SummariesModule,
     ReportsModule,
+    MailerModule,
   ],
   controllers: [ExpensesController],
   providers: [ExpensesService],

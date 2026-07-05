@@ -10,7 +10,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
-  app.enableCors({ origin: [configService.get<string>('client_url')] });
+  app.enableCors({ origin: [configService.get<string>('client.url')] });
 
   app.use(helmet());
 
@@ -46,4 +46,5 @@ async function bootstrap() {
 
   await app.listen(configService.get<number>('port') ?? 3000);
 }
-bootstrap();
+
+void bootstrap();

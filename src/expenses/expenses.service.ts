@@ -3,8 +3,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import type { Queue } from 'bull';
+import { InjectQueue } from '@nestjs/bull';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository, SelectQueryBuilder } from 'typeorm';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { CreateExpenseDto } from '@/expenses/dto/create-expense.dto';
 import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
 import { QueryDto } from '@/common/dto/query.dto';
@@ -22,6 +26,9 @@ export class ExpensesService extends Pageable<Expense> {
 
     @InjectRepository(ExpenseDetail)
     private readonly detailRepository: Repository<ExpenseDetail>,
+
+    @InjectQueue('mailer')
+    private readonly mailerQueue: Queue,
 
     private readonly reportsService: ReportsService,
   ) {
@@ -54,7 +61,28 @@ export class ExpensesService extends Pageable<Expense> {
       details,
     });
 
-    return await this.repository.save(expense);
+    const saved = await this.repository.save(expense);
+    const expenseCreated = await this.findOne(saved.id);
+
+    // refactor to events
+    for (const detail of expenseCreated.details) {
+      const data = {
+        description: expenseCreated.description,
+        group: expenseCreated.group.name,
+        payer: detail.user.firstName,
+        date: format(expenseCreated.expensedAt, 'dd MMM yy', { locale: es }),
+        amount: expenseCreated.amount,
+      };
+
+      await this.mailerQueue.add('send', {
+        to: detail.user.email,
+        subject: 'Nuevo gasto registrado',
+        template: 'expense-created',
+        data,
+      });
+    }
+
+    return expenseCreated;
   }
 
   async findAll(
@@ -94,7 +122,7 @@ export class ExpensesService extends Pageable<Expense> {
         details: {
           id: true,
           amount: true,
-          user: { firstName: true, lastName: true },
+          user: { firstName: true, lastName: true, email: true },
         },
       },
       where: { id },
