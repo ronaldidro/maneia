@@ -15,7 +15,11 @@ import { MailerConsumer } from '@/mailer/mailer.consumer';
           port: config.get<number>('queue.port'),
           username: config.get<string>('queue.user'),
           password: config.get<string>('queue.pass'),
-          tls: { rejectUnauthorized: false },
+          tls:
+            config.get<string>('env') === 'prd'
+              ? { rejectUnauthorized: false }
+              : undefined,
+          maxRetriesPerRequest: 0,
         },
       }),
       inject: [ConfigService],

@@ -3,6 +3,7 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
   Max,
   Min,
@@ -65,11 +66,11 @@ class EnvironmentVariables {
   @IsString()
   QUEUE_PORT: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   QUEUE_USER: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   QUEUE_PASS: string;
 
