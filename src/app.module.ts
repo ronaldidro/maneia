@@ -10,11 +10,13 @@ import { DetailsModule } from '@/details/details.module';
 import { ReportsModule } from '@/reports/reports.module';
 import { DatabaseModule } from '@/db/database.module';
 import { ConfigurationModule } from '@/config/configuration.module';
+import { EventsModule } from '@/events/events.module';
 
 @Module({
   imports: [
     ConfigurationModule,
     DatabaseModule,
+    EventsModule,
     AuthModule,
     UsersModule,
     GroupsModule,
