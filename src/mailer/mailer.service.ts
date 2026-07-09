@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { gmail_v1, google } from 'googleapis';
 import MailComposer from 'nodemailer/lib/mail-composer';
-import { CreateMailerDto } from '@/mailer/dto/create-mailer.dto';
+import { CreateMailer } from '@/mailer/create-mailer';
 import { MailTemplate, MailTemplates } from '@/mailer/interfaces';
 
 @Injectable()
@@ -25,9 +25,9 @@ export class MailerService {
   }
 
   async send<T extends MailTemplate>(
-    createMailerDto: CreateMailerDto<T>,
+    mailer: CreateMailer<T>,
   ): Promise<gmail_v1.Schema$Message> {
-    const raw = await this.getRawMessage(createMailerDto);
+    const raw = await this.getRawMessage(mailer);
 
     const result = await this.gmail.users.messages.send({
       userId: 'me',
@@ -38,16 +38,13 @@ export class MailerService {
   }
 
   private async getRawMessage<T extends MailTemplate>(
-    createMailerDto: CreateMailerDto<T>,
+    mailer: CreateMailer<T>,
   ): Promise<string> {
     const mail = new MailComposer({
-      subject: createMailerDto.subject,
+      subject: mailer.subject,
       from: this.configService.get<string>('mailer.sender'),
-      to: createMailerDto.to,
-      html: await this.getTemplate(
-        createMailerDto.template,
-        createMailerDto.data,
-      ),
+      to: mailer.to,
+      html: await this.getTemplate(mailer.template, mailer.data),
     });
 
     const message = await mail.compile().build();
