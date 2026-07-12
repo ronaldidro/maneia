@@ -33,6 +33,7 @@ export class ExpenseListener {
             debtorId: detail.user.id,
             payer: expense.payer.firstName,
             date: format(expense.expensedAt, 'dd MMMM yyyy', { locale: es }),
+            total: expense.amount,
             amount: detail.amount,
           },
           payload.currentUser,

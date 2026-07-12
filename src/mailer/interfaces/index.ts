@@ -6,6 +6,7 @@ export interface ExpenseCreatedTemplateData {
   debtorId: string;
   payer: string;
   date: string;
+  total: string;
   amount: string;
 }
 

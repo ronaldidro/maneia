@@ -68,6 +68,7 @@ export class ExpensesService extends Pageable<Expense> {
         group: { id: expenseCreated.group.id, name: expenseCreated.group.name },
         payer: { firstName: expenseCreated.user.firstName },
         expensedAt: expenseCreated.expensedAt,
+        amount: expenseCreated.amount,
         details: expenseCreated.details.map(({ user, amount }) => ({
           user: { id: user.id, firstName: user.firstName, email: user.email },
           amount: amount,

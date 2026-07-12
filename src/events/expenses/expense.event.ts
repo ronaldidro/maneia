@@ -8,6 +8,7 @@ export class ExpenseCreatedEvent {
       group: { id: string; name: string };
       payer: { firstName: string };
       expensedAt: Date;
+      amount: string;
       details: {
         user: { id: string; firstName: string; email: string };
         amount: string;
