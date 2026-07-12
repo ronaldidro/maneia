@@ -45,6 +45,7 @@ export class MailerService {
       from: this.configService.get<string>('mailer.sender'),
       to: mailer.to,
       html: await this.getTemplate(mailer.template, mailer.data),
+      attachments: mailer.attachments,
     });
 
     const message = await mail.compile().build();
@@ -65,9 +66,11 @@ export class MailerService {
       'utf8',
     );
 
+    const appName = this.configService.get<string>('app.name');
     const url = this.configService.get<string>('client.url');
+    const currentYear = new Date().getFullYear();
 
-    const templateData = { ...data, url };
+    const templateData = { ...data, appName, url, currentYear };
 
     for (const [key, value] of Object.entries(templateData)) {
       html = html.replaceAll(`{{${key}}}`, String(value));

@@ -3,6 +3,7 @@ import { BullModule } from '@nestjs/bull';
 import { ConfigService } from '@nestjs/config';
 import { MailerService } from '@/mailer/mailer.service';
 import { MailerConsumer } from '@/mailer/mailer.consumer';
+import { ExpensesModule } from '@/expenses/expenses.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { MailerConsumer } from '@/mailer/mailer.consumer';
       }),
       inject: [ConfigService],
     }),
+    ExpensesModule,
   ],
   providers: [MailerService, MailerConsumer],
   exports: [BullModule],
