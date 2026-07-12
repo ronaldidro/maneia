@@ -8,6 +8,9 @@ import { es } from 'date-fns/locale';
 import { format } from 'date-fns';
 import { QueryDto } from '@/common/dto/query.dto';
 import { Payment } from '@/payments/entities/payment.entity';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 export const formatDate = (date: Date | string) =>
   format(date, 'dd MMM yy', { locale: es });
@@ -26,7 +29,7 @@ const styles: StyleDictionary = {
 export const baseDefinitions: TDocumentDefinitions = {
   styles,
   header: {
-    text: 'Splitty',
+    text: process.env.APP_NAME,
     alignment: 'right',
     style: 'h1',
     margin: [15, 15],

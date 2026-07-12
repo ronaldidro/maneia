@@ -3,6 +3,7 @@ declare namespace NodeJS {
     NODE_ENV: string;
     PORT: string;
     SECRET: string;
+    APP_NAME: string;
     ADMIN_PASS: string;
     CLIENT_URL: string;
     DATABASE_HOST: string;

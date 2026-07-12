@@ -32,6 +32,10 @@ class EnvironmentVariables {
 
   @IsNotEmpty()
   @IsString()
+  APP_NAME: string;
+
+  @IsNotEmpty()
+  @IsString()
   ADMIN_PASS: string;
 
   @IsNotEmpty()

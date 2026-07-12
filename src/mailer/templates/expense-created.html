@@ -35,18 +35,28 @@
               <td
                 align="center"
                 style="
-                  background: #2563eb;
+                  background: #1e3a8a;
                   padding: 24px;
                   color: white;
                   font-size: 28px;
                   font-weight: bold;
                 "
               >
-                Splitty
+                {{appName}}
               </td>
             </tr>
             <tr>
               <td style="padding: 24px">
+                <p
+                  style="
+                    margin: 0 0 8px;
+                    color: #111827;
+                    font-size: 15px;
+                    font-weight: 600;
+                  "
+                >
+                  Hola {{debtorName}}.
+                </p>
                 <p
                   style="
                     margin: 0 0 24px;
@@ -55,8 +65,8 @@
                     line-height: 22px;
                   "
                 >
-                  Se ha agregado un nuevo gasto dentro de uno de tus grupos.
-                  Puedes revisar toda la información desde la aplicación.
+                  Se ha agregado un nuevo gasto en uno de tus grupos. A
+                  continuación, encontrarás el detalle de la operación.
                 </p>
                 <table
                   width="100%"
@@ -135,7 +145,7 @@
                           font-weight: bold;
                         "
                       >
-                        FECHA
+                        FECHA DE REGISTRO
                       </p>
                       <p
                         style="
@@ -154,7 +164,7 @@
                           font-weight: bold;
                         "
                       >
-                        MONTO
+                        MONTO ASIGNADO
                       </p>
                       <p
                         style="
@@ -186,6 +196,19 @@
                     Ver más
                   </a>
                 </div>
+                <div style="text-align: center; margin-top: 24px">
+                  <p
+                    style="
+                      margin: 0;
+                      color: #6b7280;
+                      font-size: 13px;
+                      line-height: 20px;
+                    "
+                  >
+                    <strong>Nota:</strong> Se adjunta un reporte con el estado
+                    actualizado de tus gastos en este grupo.
+                  </p>
+                </div>
               </td>
             </tr>
             <tr>
@@ -199,9 +222,10 @@
                   border-top: 1px solid #e5e7eb;
                 "
               >
-                Este es un correo automático
+                Este mensaje ha sido generado automáticamente. Por favor, no
+                respondas a este correo.
                 <br /><br />
-                © Splitty. Todos los derechos reservados.
+                © {{currentYear}} {{appName}}. Todos los derechos reservados.
               </td>
             </tr>
           </table>

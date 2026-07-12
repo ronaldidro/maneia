@@ -2,6 +2,9 @@ export default () => ({
   env: process.env.NODE_ENV,
   port: process.env.PORT,
   secret: process.env.SECRET,
+  app: {
+    name: process.env.APP_NAME,
+  },
   client: {
     url: process.env.CLIENT_URL,
   },
