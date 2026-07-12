@@ -48,7 +48,7 @@ export class PaymentsService extends Pageable<Payment> {
           expensedAt: new Date().toISOString(),
           details: [{ user: payer, amount: Number(remaining.toFixed(2)) }],
         },
-        user.id,
+        user,
       );
 
     const payment = this.repository.create({
@@ -155,7 +155,7 @@ export class PaymentsService extends Pageable<Payment> {
         expensedAt: new Date().toISOString(),
         details: [{ user: payment.payer.id, amount: Number(payment.amount) }],
       },
-      user.id,
+      user,
     );
 
     return await this.repository.softDelete(id);

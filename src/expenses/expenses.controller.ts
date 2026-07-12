@@ -32,7 +32,7 @@ export class ExpensesController {
     @Body() createExpenseDto: CreateExpenseDto,
     @CurrentUser() user: User,
   ) {
-    return this.service.create(createExpenseDto, user.id);
+    return this.service.create(createExpenseDto, user);
   }
 
   @Get()

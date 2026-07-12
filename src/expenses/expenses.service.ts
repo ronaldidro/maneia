@@ -34,11 +34,11 @@ export class ExpensesService extends Pageable<Expense> {
 
   async create(
     createExpenseDto: CreateExpenseDto,
-    userId: string,
+    user: User,
   ): Promise<Expense> {
     if (createExpenseDto.splitted) {
       createExpenseDto.details.push({
-        user: userId,
+        user: user.id,
         amount: createExpenseDto.details[0].amount,
       });
     }
@@ -53,7 +53,7 @@ export class ExpensesService extends Pageable<Expense> {
     const expense = this.repository.create({
       ...createExpenseDto,
       amount: createExpenseDto.amount.toString(),
-      user: { id: userId },
+      user: { id: user.id },
       group: { id: createExpenseDto.group },
       details,
     });
@@ -63,14 +63,14 @@ export class ExpensesService extends Pageable<Expense> {
 
     this.eventEmitter.emit(
       'expense.created',
-      new ExpenseCreatedEvent({
+      new ExpenseCreatedEvent(user, {
         description: expenseCreated.description,
-        group: { name: expenseCreated.group.name },
+        group: { id: expenseCreated.group.id, name: expenseCreated.group.name },
         payer: { firstName: expenseCreated.user.firstName },
         expensedAt: expenseCreated.expensedAt,
-        details: expenseCreated.details.map((detail) => ({
-          email: detail.user.email,
-          amount: detail.amount,
+        details: expenseCreated.details.map(({ user, amount }) => ({
+          user: { id: user.id, firstName: user.firstName, email: user.email },
+          amount: amount,
         })),
       }),
     );
@@ -110,12 +110,12 @@ export class ExpensesService extends Pageable<Expense> {
         amount: true,
         splitted: true,
         expensedAt: true,
-        group: { name: true },
+        group: { id: true, name: true },
         user: { id: true, firstName: true, lastName: true },
         details: {
           id: true,
           amount: true,
-          user: { firstName: true, lastName: true, email: true },
+          user: { id: true, firstName: true, lastName: true, email: true },
         },
       },
       where: { id },
