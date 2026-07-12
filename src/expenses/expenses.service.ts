@@ -6,13 +6,14 @@ import {
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository, SelectQueryBuilder } from 'typeorm';
-import { ExpenseCreatedEvent } from '@/events/expenses/expense.event';
+import { ExpenseEvent } from '@/events/expenses/expense.event';
 import { CreateExpenseDto } from '@/expenses/dto/create-expense.dto';
 import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
 import { QueryDto } from '@/common/dto/query.dto';
 import { Expense } from '@/expenses/entities/expense.entity';
 import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
 import { User } from '@/users/entities/user.entity';
+import { MailTemplate } from '@/mailer/interfaces';
 import { Pageable, PaginatedResponse } from '@/common/pageable';
 import { ReportsService } from '@/reports/reports.service';
 
@@ -61,19 +62,12 @@ export class ExpensesService extends Pageable<Expense> {
     const saved = await this.repository.save(expense);
     const expenseCreated = await this.findOne(saved.id);
 
-    this.eventEmitter.emit(
+    this.emitEvent(
       'expense.created',
-      new ExpenseCreatedEvent(user, {
-        description: expenseCreated.description,
-        group: { id: expenseCreated.group.id, name: expenseCreated.group.name },
-        payer: { firstName: expenseCreated.user.firstName },
-        expensedAt: expenseCreated.expensedAt,
-        amount: expenseCreated.amount,
-        details: expenseCreated.details.map(({ user, amount }) => ({
-          user: { id: user.id, firstName: user.firstName, email: user.email },
-          amount: amount,
-        })),
-      }),
+      expenseCreated,
+      user,
+      'Nuevo gasto registrado',
+      'expense-created',
     );
 
     return expenseCreated;
@@ -154,7 +148,17 @@ export class ExpensesService extends Pageable<Expense> {
     if (!user.isAdmin && expense.user.id !== user.id)
       throw new ForbiddenException('Expense invalid');
 
-    return await this.repository.delete(id);
+    const result = await this.repository.delete(id);
+
+    this.emitEvent(
+      'expense.deleted',
+      { ...expense, deletedAt: new Date() },
+      user,
+      'Gasto eliminado',
+      'expense-deleted',
+    );
+
+    return result;
   }
 
   private buildQuery(query: QueryDto, user: User): SelectQueryBuilder<Expense> {
@@ -195,5 +199,36 @@ export class ExpensesService extends Pageable<Expense> {
       builder.andWhere('expense.expensedAt <= :endDate', { endDate });
 
     return builder;
+  }
+
+  private emitEvent(
+    event: string,
+    expense: Expense,
+    user: User,
+    subject: string,
+    template: MailTemplate,
+  ) {
+    this.eventEmitter.emit(
+      event,
+      new ExpenseEvent(
+        user,
+        { subject, template },
+        {
+          description: expense.description,
+          group: {
+            id: expense.group.id,
+            name: expense.group.name,
+          },
+          payer: { firstName: expense.user.firstName },
+          createdAt: expense.expensedAt,
+          deletedAt: expense.deletedAt,
+          amount: expense.amount,
+          details: expense.details.map(({ user, amount }) => ({
+            user: { id: user.id, firstName: user.firstName, email: user.email },
+            amount: amount,
+          })),
+        },
+      ),
+    );
   }
 }
