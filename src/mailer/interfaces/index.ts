@@ -5,7 +5,8 @@ export interface ExpenseTemplateData {
   group: string;
   debtorId: string;
   payer: string;
-  date: string;
+  createdAt: string;
+  deletedAt?: string;
   total: string;
   amount: string;
 }
