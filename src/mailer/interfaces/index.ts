@@ -1,4 +1,4 @@
-export interface ExpenseCreatedTemplateData {
+export interface ExpenseTemplateData {
   debtorName: string;
   description: string;
   groupId: string;
@@ -11,7 +11,8 @@ export interface ExpenseCreatedTemplateData {
 }
 
 export interface MailTemplates {
-  'expense-created': ExpenseCreatedTemplateData;
+  'expense-created': ExpenseTemplateData;
+  'expense-deleted': ExpenseTemplateData;
 }
 
 export type MailTemplate = keyof MailTemplates;

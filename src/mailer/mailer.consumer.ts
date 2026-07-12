@@ -13,7 +13,7 @@ export class MailerConsumer {
     private readonly expensesService: ExpensesService,
   ) {}
 
-  @Process('send-expense-created')
+  @Process('send-expense')
   async send(job: Job<CreateMailer>) {
     const { data: mailer } = job;
 
