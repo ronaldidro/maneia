@@ -4,7 +4,7 @@ import { ExpenseListener } from '@/events/expenses/expense.listener';
 import { MailerModule } from '@/mailer/mailer.module';
 
 @Module({
-  imports: [EventEmitterModule.forRoot(), MailerModule],
+  imports: [EventEmitterModule.forRoot({ wildcard: true }), MailerModule],
   providers: [ExpenseListener],
 })
 export class EventsModule {}
