@@ -161,6 +161,28 @@ export class ExpensesService extends Pageable<Expense> {
     return result;
   }
 
+  async removeAll(user: User): Promise<Expense[]> {
+    const builder = this.repository
+      .createQueryBuilder('expense')
+      .where('expense.user_id = :userId', { userId: user.id })
+      .andWhere((qb) => {
+        const sq = qb
+          .subQuery()
+          .select('detail.expense_id')
+          .from('expense-details', 'detail')
+          .where('detail.user_id != :debtorId')
+          .getQuery();
+        return `expense.id NOT IN ${sq}`;
+      })
+      .setParameter('debtorId', user.id);
+
+    const expenses = await builder.getMany();
+
+    if (!expenses.length) throw new NotFoundException('Expenses not found');
+
+    return await this.repository.remove(expenses);
+  }
+
   private buildQuery(query: QueryDto, user: User): SelectQueryBuilder<Expense> {
     const { search, group, startDate, endDate } = query;
 

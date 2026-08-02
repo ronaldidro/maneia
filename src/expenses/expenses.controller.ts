@@ -58,6 +58,11 @@ export class ExpensesController {
     return this.service.findOne(id);
   }
 
+  @Delete()
+  removeAll(@CurrentUser() user: User) {
+    return this.service.removeAll(user);
+  }
+
   @Delete(':id')
   remove(
     @Param('id', new ParseUUIDPipe()) id: string,
