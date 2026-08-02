@@ -1,5 +1,4 @@
 import { PaymentExpense } from '@/payments/interfaces';
-import { formatDate } from '@/reports/utils';
 import { TableCell } from 'pdfmake';
 
 export const getPaymentExpensesRows = (
@@ -7,7 +6,7 @@ export const getPaymentExpensesRows = (
 ): TableCell[][] =>
   expenses.map((expense) => [
     {
-      text: formatDate(expense.expensedAt),
+      text: expense.expensedAt,
       alignment: 'center',
       verticalAlignment: 'middle',
     },
