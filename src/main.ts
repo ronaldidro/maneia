@@ -11,7 +11,11 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
-  app.enableCors({ origin: [configService.get<string>('client.url')] });
+  const isDevEnv = configService.get<string>('env') === 'dev';
+  const clientUrl = configService.get<string>('client.url');
+  const origin = isDevEnv ? '*' : clientUrl;
+
+  app.enableCors({ origin });
 
   app.use(helmet());
 
