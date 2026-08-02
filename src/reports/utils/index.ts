@@ -7,6 +7,7 @@ import {
 import { es } from 'date-fns/locale';
 import { format } from 'date-fns';
 import { QueryDto } from '@/common/dto/query.dto';
+import { PAY_DESCRIPTION } from '@/common/constants';
 import { Payment } from '@/payments/entities/payment.entity';
 import * as dotenv from 'dotenv';
 
@@ -14,12 +15,6 @@ dotenv.config();
 
 export const formatDate = (date: Date | string) =>
   format(date, 'dd MMM yy', { locale: es });
-
-export const PAY_DESCRIPTION = {
-  transfer: 'Transferencia',
-  cash: 'Efectivo',
-  yape: 'Yape',
-};
 
 const styles: StyleDictionary = {
   h1: { fontSize: 16, bold: true },
