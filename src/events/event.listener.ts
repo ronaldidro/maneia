@@ -5,10 +5,11 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { ExpenseEvent } from '@/events/expenses/expense.event';
+import { PaymentEvent } from '@/events/payments/payment.event';
 import { CreateMailer } from '@/mailer/create-mailer';
 
 @Injectable()
-export class ExpenseListener {
+export class EventListener {
   constructor(
     @InjectQueue('mailer')
     private readonly mailerQueue: Queue,
@@ -41,6 +42,27 @@ export class ExpenseListener {
         ),
       );
     }
+  }
+
+  @OnEvent('payment.*')
+  async handlePaymentEvents(payload: PaymentEvent) {
+    const { payment, mail } = payload;
+
+    await this.mailerQueue.add(
+      'send-payment',
+      new CreateMailer(payment.payer.email, mail.subject, mail.template, {
+        paymentId: payment.id,
+        payer: payment.payer.firstName,
+        description: payment.description,
+        group: payment.group.name,
+        creditor: payment.creditor.firstName,
+        method: payment.method,
+        createdAt: this.formatDate(payment.createdAt)!,
+        debt: payment.debt,
+        amount: payment.amount,
+        remaining: payment.remaining,
+      }),
+    );
   }
 
   private formatDate(date?: Date) {
