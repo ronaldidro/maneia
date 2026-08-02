@@ -11,9 +11,24 @@ export interface ExpenseTemplateData {
   amount: string;
 }
 
-export interface MailTemplates {
-  'expense-created': ExpenseTemplateData;
-  'expense-deleted': ExpenseTemplateData;
+export interface PaymentTemplateData {
+  paymentId: string;
+  payer: string;
+  description: string;
+  group: string;
+  creditor: string;
+  method: string;
+  createdAt: string;
+  debt: string;
+  amount: string;
+  remaining: string;
 }
+
+export type MailTemplates = Record<
+  'expense-created' | 'expense-deleted',
+  ExpenseTemplateData
+> & {
+  'payment-created': PaymentTemplateData;
+};
 
 export type MailTemplate = keyof MailTemplates;
