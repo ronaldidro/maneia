@@ -3,13 +3,17 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Brackets, Repository, UpdateResult } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePaymentDto } from '@/payments/dto/create-payment.dto';
 import { PaymentsQueryDto } from '@/payments/dto/payments-query.dto';
 import { Payment } from '@/payments/entities/payment.entity';
-import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@/users/entities/user.entity';
+import { MailTemplate } from '@/mailer/interfaces';
+import { PaymentEvent } from '@/events/payments/payment.event';
 import { Pageable, PaginatedResponse } from '@/common/pageable';
+import { PAY_DESCRIPTION } from '@/common/constants';
 import { SettlementsService } from '@/settlements/settlements.service';
 import { ExpensesService } from '@/expenses/expenses.service';
 import { ReportsService } from '@/reports/reports.service';
@@ -22,6 +26,7 @@ export class PaymentsService extends Pageable<Payment> {
     private readonly settlementsService: SettlementsService,
     private readonly expensesService: ExpensesService,
     private readonly reportsService: ReportsService,
+    private readonly eventEmitter: EventEmitter2,
   ) {
     super();
   }
@@ -62,7 +67,17 @@ export class PaymentsService extends Pageable<Payment> {
       user: { id: user.id },
     });
 
-    return await this.repository.save(payment);
+    const saved = await this.repository.save(payment);
+    const paymentCreated = await this.findOne(saved.id);
+
+    this.emitEvent(
+      'payment.created',
+      paymentCreated,
+      'Nuevo pago registrado',
+      'payment-created',
+    );
+
+    return paymentCreated;
   }
 
   async findAll(
@@ -121,7 +136,7 @@ export class PaymentsService extends Pageable<Payment> {
         createdAt: true,
         group: { id: true, name: true },
         user: { id: true, firstName: true, lastName: true },
-        payer: { id: true, firstName: true, lastName: true },
+        payer: { id: true, firstName: true, lastName: true, email: true },
       },
       where: { id },
       relations: { group: true, user: true, payer: true },
@@ -159,5 +174,34 @@ export class PaymentsService extends Pageable<Payment> {
     );
 
     return await this.repository.softDelete(id);
+  }
+
+  private emitEvent(
+    event: string,
+    payment: Payment,
+    subject: string,
+    template: MailTemplate,
+  ) {
+    this.eventEmitter.emit(
+      event,
+      new PaymentEvent(
+        { subject, template },
+        {
+          id: payment.id,
+          payer: {
+            firstName: payment.payer.firstName,
+            email: payment.payer.email,
+          },
+          description: payment.description,
+          group: { name: payment.group.name },
+          creditor: { firstName: payment.user.firstName },
+          method: PAY_DESCRIPTION[payment.method],
+          createdAt: payment.createdAt,
+          debt: payment.debt,
+          amount: payment.amount,
+          remaining: payment.remaining,
+        },
+      ),
+    );
   }
 }

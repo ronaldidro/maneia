@@ -16,5 +16,6 @@ import { ReportsModule } from '@/reports/reports.module';
   ],
   controllers: [PaymentsController],
   providers: [PaymentsService],
+  exports: [PaymentsService],
 })
 export class PaymentsModule {}
