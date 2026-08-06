@@ -11,7 +11,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
-  const isDevEnv = configService.get<string>('env') === 'dev';
+  const isDevEnv = configService.get<boolean>('env.is_dev');
   const clientUrl = configService.get<string>('client.url');
   const origin = isDevEnv ? '*' : clientUrl;
 

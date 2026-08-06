@@ -16,10 +16,9 @@ import { PaymentsModule } from '@/payments/payments.module';
           port: config.get<number>('queue.port'),
           username: config.get<string>('queue.user'),
           password: config.get<string>('queue.pass'),
-          tls:
-            config.get<string>('env') === 'prd'
-              ? { rejectUnauthorized: false }
-              : undefined,
+          tls: config.get<boolean>('env.is_prd')
+            ? { rejectUnauthorized: false }
+            : undefined,
           maxRetriesPerRequest: 0,
         },
       }),

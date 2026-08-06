@@ -9,7 +9,7 @@ export class LoggerMiddleware implements NestMiddleware {
   constructor(private readonly configService: ConfigService) {}
 
   use(req: Request, res: Response, next: NextFunction) {
-    const isDevEnv = this.configService.get<string>('env') === 'dev';
+    const isDevEnv = this.configService.get<boolean>('env.is_dev');
     const body = JSON.stringify(req.body) ?? '';
 
     if (isDevEnv)
