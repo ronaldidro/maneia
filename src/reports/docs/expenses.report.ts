@@ -44,7 +44,7 @@ export const makeExpensesReport = (
         layout: tableLayout,
         table: {
           dontBreakRows: true,
-          widths: [50, '*', 80, 105, 'auto', 'auto'],
+          widths: [60, '*', 80, 105, 'auto', 'auto'],
           body: [
             [
               { text: 'Fecha', bold: true, alignment: 'center' },

@@ -30,7 +30,7 @@ export const makePaymentReport = (payment: Payment): TDocumentDefinitions => {
         layout: tableLayout,
         table: {
           dontBreakRows: true,
-          widths: [50, '*', 'auto'],
+          widths: [60, '*', 'auto'],
           body: [
             [
               { text: 'Fecha', bold: true, alignment: 'center' },

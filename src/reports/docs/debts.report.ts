@@ -27,7 +27,7 @@ export const makeDebtsReport = (
         layout: tableLayout,
         table: {
           dontBreakRows: true,
-          widths: [50, '*', 80, 105, 'auto'],
+          widths: [60, '*', 80, 105, 'auto'],
           body: [
             [
               { text: 'Fecha', bold: true, alignment: 'center' },
