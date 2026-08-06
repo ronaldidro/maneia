@@ -1,6 +1,6 @@
 import { TableCell } from 'pdfmake';
 import { Expense } from '@/expenses/entities/expense.entity';
-import { formatDate } from '@/reports/utils';
+import { parseToDate } from '@/reports/utils';
 
 export const getExpensesRows = (expenses: Expense[]): TableCell[][] =>
   expenses.flatMap((expense) =>
@@ -8,7 +8,7 @@ export const getExpensesRows = (expenses: Expense[]): TableCell[][] =>
       if (index === 0) {
         return [
           {
-            text: formatDate(expense.expensedAt),
+            text: parseToDate(expense.expensedAt),
             rowSpan: expense.details.length,
             verticalAlignment: 'middle',
             alignment: 'center',

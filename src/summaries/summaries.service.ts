@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { InjectRepository } from '@nestjs/typeorm';
+import { formatDate } from '@/common/helpers';
 import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
 import { Expense } from '@/expenses/entities/expense.entity';
 import { User } from '@/users/entities/user.entity';
@@ -137,9 +136,7 @@ export class SummariesService {
       .getRawMany<DayExpenseDto>();
 
   private getChartData = (dayExpenses: DayExpenseDto[]): ChartDto => ({
-    labels: dayExpenses.map(({ date }) =>
-      format(new Date(date), 'dd MMM', { locale: es }),
-    ),
+    labels: dayExpenses.map(({ date }) => formatDate(new Date(date), 'dd MMM')),
     expensesData: dayExpenses.map(({ expensesAmount }) =>
       Number(expensesAmount),
     ),

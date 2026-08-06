@@ -2,11 +2,10 @@ import type { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { ExpenseEvent } from '@/events/expenses/expense.event';
 import { PaymentEvent } from '@/events/payments/payment.event';
 import { CreateMailer } from '@/mailer/create-mailer';
+import { formatDate } from '@/common/helpers';
 
 @Injectable()
 export class EventListener {
@@ -33,8 +32,8 @@ export class EventListener {
             group: expense.group.name,
             debtorId: detail.user.id,
             payer: expense.payer.firstName,
-            createdAt: this.formatDate(expense.createdAt)!,
-            deletedAt: this.formatDate(expense.deletedAt),
+            createdAt: this.parseToDate(expense.createdAt)!,
+            deletedAt: this.parseToDate(expense.deletedAt),
             total: expense.amount,
             amount: detail.amount,
           },
@@ -57,7 +56,7 @@ export class EventListener {
         group: payment.group.name,
         creditor: payment.creditor.firstName,
         method: payment.method,
-        createdAt: this.formatDate(payment.createdAt)!,
+        createdAt: this.parseToDate(payment.createdAt)!,
         debt: payment.debt,
         amount: payment.amount,
         remaining: payment.remaining,
@@ -65,7 +64,7 @@ export class EventListener {
     );
   }
 
-  private formatDate(date?: Date) {
-    return date ? format(date, 'dd MMMM yyyy', { locale: es }) : undefined;
+  private parseToDate(date?: Date) {
+    return date ? formatDate(date, 'dd MMMM yyyy') : undefined;
   }
 }

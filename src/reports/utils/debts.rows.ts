@@ -1,11 +1,11 @@
 import { TableCell } from 'pdfmake';
 import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
-import { formatDate } from '@/reports/utils';
+import { parseToDate } from '@/reports/utils';
 
 export const getDebtsRows = (debts: ExpenseDetail[]): TableCell[][] =>
   debts.map(({ expense, amount }) => [
     {
-      text: formatDate(expense.expensedAt),
+      text: parseToDate(expense.expensedAt),
       alignment: 'center',
       verticalAlignment: 'middle',
     },

@@ -1,12 +1,11 @@
 import type { Job } from 'bull';
 import { Process, Processor } from '@nestjs/bull';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { MailerService } from '@/mailer/mailer.service';
 import { CreateMailer } from '@/mailer/create-mailer';
 import { MailTemplate } from '@/mailer/interfaces';
 import { ExpensesService } from '@/expenses/expenses.service';
 import { PaymentsService } from '@/payments/payments.service';
+import { formatDate } from '@/common/helpers';
 
 @Processor('mailer')
 export class MailerConsumer {
@@ -46,7 +45,7 @@ export class MailerConsumer {
   }
 
   private getCurrentDate() {
-    return format(new Date(), 'yyyy-MM-dd-hh:mm', { locale: es });
+    return formatDate(new Date(), 'yyyy-MM-dd-hh:mm');
   }
 
   private async sendMail<T extends MailTemplate>(mailer: CreateMailer<T>) {

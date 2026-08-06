@@ -1,12 +1,11 @@
 import { Transform } from 'class-transformer';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import {
   CreateDateColumn,
   DeleteDateColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { formatDate } from '@/common/helpers';
 
 export abstract class BaseEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -14,7 +13,7 @@ export abstract class BaseEntity {
 
   @Transform(({ value }: { value: Date }) => {
     if (!value) return;
-    return format(value, 'dd MMMM yyyy', { locale: es });
+    return formatDate(value, 'dd MMMM yyyy');
   })
   @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
   createdAt: Date;

@@ -1,10 +1,9 @@
+import { Injectable } from '@nestjs/common';
 import { DataSource, LessThanOrEqual } from 'typeorm';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
 import { Expense } from '@/expenses/entities/expense.entity';
 import { PaymentExpense } from '@/payments/interfaces';
-import { Injectable } from '@nestjs/common';
+import { formatDate } from '@/common/helpers';
 
 @Injectable()
 export class SettlementsService {
@@ -75,7 +74,7 @@ export class SettlementsService {
       description: expense.description,
       amount: expense.amount,
       splitted: expense.splitted,
-      expensedAt: format(expense.expensedAt, 'dd MMM yy', { locale: es }),
+      expensedAt: formatDate(expense.expensedAt, 'dd MMM yy'),
       group: {
         id: expense.group.id,
         name: expense.group.name,
