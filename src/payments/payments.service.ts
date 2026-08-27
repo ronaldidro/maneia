@@ -97,7 +97,9 @@ export class PaymentsService extends Pageable<Payment> {
       .leftJoin('payment.user', 'user')
       .addSelect(['user.id', 'user.firstName', 'user.lastName'])
       .leftJoin('payment.payer', 'payer')
-      .addSelect(['payer.firstName', 'payer.lastName']);
+      .addSelect(['payer.firstName', 'payer.lastName'])
+      .leftJoin('payment.group', 'group')
+      .addSelect(['group.name']);
 
     if (!user.isAdmin)
       builder.where(
