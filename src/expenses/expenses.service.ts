@@ -5,7 +5,12 @@ import {
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteResult, Repository, SelectQueryBuilder } from 'typeorm';
+import {
+  Brackets,
+  DeleteResult,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { ExpenseEvent } from '@/events/expenses/expense.event';
 import { CreateExpenseDto } from '@/expenses/dto/create-expense.dto';
 import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
@@ -92,8 +97,6 @@ export class ExpensesService extends Pageable<Expense> {
         })
         .setParameter('debtorId', query.user);
 
-    builder.orderBy('expense.expensedAt', 'DESC');
-
     return await this.paginate(builder, query);
   }
 
@@ -130,8 +133,6 @@ export class ExpensesService extends Pageable<Expense> {
 
     if (query.user)
       builder.andWhere('detail.user_id = :debtorId', { debtorId: query.user });
-
-    builder.orderBy('expense.expensedAt', 'DESC');
 
     const expenses = await builder.getMany();
 
@@ -196,7 +197,7 @@ export class ExpensesService extends Pageable<Expense> {
         'expense.expensedAt',
       ])
       .leftJoin('expense.user', 'payer')
-      .addSelect(['payer.firstName', 'payer.lastName'])
+      .addSelect(['payer.id', 'payer.firstName', 'payer.lastName'])
       .leftJoin('expense.details', 'detail')
       .addSelect(['detail.id', 'detail.amount'])
       .leftJoin('detail.user', 'debtor')
@@ -204,7 +205,23 @@ export class ExpensesService extends Pageable<Expense> {
       .leftJoin('expense.group', 'group')
       .addSelect(['group.name']);
 
-    if (!user.isAdmin) builder.where('payer.id = :userId', { userId: user.id });
+    if (!user.isAdmin) {
+      builder.where(
+        new Brackets((qb) => {
+          qb.where('payer.id = :userId', { userId: user.id }).orWhere(
+            (qbr: SelectQueryBuilder<Expense>) => {
+              const sq = qbr
+                .subQuery()
+                .select('detail.expense_id')
+                .from('expense-details', 'detail')
+                .where('detail.user_id = :userId')
+                .getQuery();
+              return `expense.id IN ${sq}`;
+            },
+          );
+        }),
+      );
+    }
 
     if (search)
       builder.andWhere('expense.description ILIKE :search', {
@@ -219,6 +236,8 @@ export class ExpensesService extends Pageable<Expense> {
 
     if (endDate)
       builder.andWhere('expense.expensedAt <= :endDate', { endDate });
+
+    builder.orderBy('expense.expensedAt', 'DESC');
 
     return builder;
   }
