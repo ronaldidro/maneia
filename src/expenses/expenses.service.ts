@@ -84,18 +84,7 @@ export class ExpensesService extends Pageable<Expense> {
   ): Promise<PaginatedResponse<Expense>> {
     const builder = this.buildQuery(query, user);
 
-    if (query.user)
-      builder
-        .andWhere((qb) => {
-          const sq = qb
-            .subQuery()
-            .select('detail.expense_id')
-            .from('expense-details', 'detail')
-            .where('detail.user_id = :debtorId')
-            .getQuery();
-          return `expense.id IN ${sq}`;
-        })
-        .setParameter('debtorId', query.user);
+    if (query.user) this.filterByDebtor(builder, query.user);
 
     return await this.paginate(builder, query);
   }
@@ -162,29 +151,76 @@ export class ExpensesService extends Pageable<Expense> {
     return result;
   }
 
-  async removeAll(user: User): Promise<Expense[]> {
-    const builder = this.repository
-      .createQueryBuilder('expense')
-      .where('expense.user_id = :userId', { userId: user.id })
-      .andWhere((qb) => {
-        const sq = qb
-          .subQuery()
-          .select('detail.expense_id')
-          .from('expense-details', 'detail')
-          .where('detail.user_id != :debtorId')
-          .getQuery();
-        return `expense.id NOT IN ${sq}`;
-      })
-      .setParameter('debtorId', user.id);
+  async removeAll(query: QueryDto, user: User): Promise<Expense[]> {
+    const { user: debtor } = query;
+
+    const builder = this.buildQuery(query, user, 'destroy');
+
+    if (debtor) this.filterByDebtor(builder, debtor);
 
     const expenses = await builder.getMany();
 
     if (!expenses.length) throw new NotFoundException('Expenses not found');
 
+    if (debtor && debtor !== user.id) {
+      await this.removeDebtorExpenses(expenses, debtor);
+      return expenses;
+    }
+
     return await this.repository.remove(expenses);
   }
 
-  private buildQuery(query: QueryDto, user: User): SelectQueryBuilder<Expense> {
+  private async removeDebtorExpenses(
+    expenses: Expense[],
+    debtor: string,
+  ): Promise<void> {
+    const expensesToRemove: Expense[] = [];
+    const detailsToRemove: ExpenseDetail[] = [];
+
+    for (const expense of expenses) {
+      if (expense.details.length === 1 && !expense.splitted) {
+        expensesToRemove.push(expense);
+      } else {
+        const detail = expense.details.find(
+          (detail) => detail.user.id === debtor,
+        );
+
+        if (detail) detailsToRemove.push(detail);
+      }
+    }
+
+    await Promise.all([
+      detailsToRemove.length
+        ? this.detailRepository.remove(detailsToRemove)
+        : Promise.resolve(),
+      expensesToRemove.length
+        ? this.repository.remove(expensesToRemove)
+        : Promise.resolve(),
+    ]);
+  }
+
+  private filterByDebtor(
+    builder: SelectQueryBuilder<Expense>,
+    debtor: string,
+  ): SelectQueryBuilder<Expense> {
+    return builder
+      .andWhere((qb) => {
+        const sq = qb
+          .subQuery()
+          .select('detail.expense_id')
+          .from('expense-details', 'detail')
+          .where('detail.user_id = :debtorId')
+          .getQuery();
+        return `expense.id IN ${sq}`;
+      })
+      .setParameter('debtorId', debtor);
+  }
+
+  private buildQuery(
+    query: QueryDto,
+    user: User,
+    action: 'read' | 'destroy' = 'read',
+  ): SelectQueryBuilder<Expense> {
     const { search, group, startDate, endDate } = query;
 
     const builder = this.repository
@@ -206,21 +242,25 @@ export class ExpensesService extends Pageable<Expense> {
       .addSelect(['group.name']);
 
     if (!user.isAdmin) {
-      builder.where(
-        new Brackets((qb) => {
-          qb.where('payer.id = :userId', { userId: user.id }).orWhere(
-            (qbr: SelectQueryBuilder<Expense>) => {
-              const sq = qbr
-                .subQuery()
-                .select('detail.expense_id')
-                .from('expense-details', 'detail')
-                .where('detail.user_id = :userId')
-                .getQuery();
-              return `expense.id IN ${sq}`;
-            },
-          );
-        }),
-      );
+      if (action === 'destroy') {
+        builder.where('payer.id = :userId', { userId: user.id });
+      } else {
+        builder.where(
+          new Brackets((qb) => {
+            qb.where('payer.id = :userId', { userId: user.id }).orWhere(
+              (qbr: SelectQueryBuilder<Expense>) => {
+                const sq = qbr
+                  .subQuery()
+                  .select('detail.expense_id')
+                  .from('expense-details', 'detail')
+                  .where('detail.user_id = :userId')
+                  .getQuery();
+                return `expense.id IN ${sq}`;
+              },
+            );
+          }),
+        );
+      }
     }
 
     if (search)

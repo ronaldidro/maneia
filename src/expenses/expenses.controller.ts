@@ -59,8 +59,8 @@ export class ExpensesController {
   }
 
   @Delete()
-  removeAll(@CurrentUser() user: User) {
-    return this.service.removeAll(user);
+  removeAll(@Query() queryDto: QueryDto, @CurrentUser() user: User) {
+    return this.service.removeAll(queryDto, user);
   }
 
   @Delete(':id')
