@@ -9,6 +9,7 @@ export class ExpenseEvent {
       template: MailTemplate;
     },
     public readonly expense: {
+      id: string;
       description: string;
       group: { id: string; name: string };
       payer: { firstName: string };

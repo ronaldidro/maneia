@@ -11,6 +11,7 @@ import { ReportsModule } from '@/reports/reports.module';
 import { DatabaseModule } from '@/db/database.module';
 import { ConfigurationModule } from '@/config/configuration.module';
 import { EventsModule } from '@/events/events.module';
+import { NotificationsModule } from '@/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { EventsModule } from '@/events/events.module';
     DetailsModule,
     PaymentsModule,
     ReportsModule,
+    NotificationsModule,
   ],
 })
 export class AppModule implements NestModule {

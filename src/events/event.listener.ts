@@ -5,6 +5,11 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { ExpenseEvent } from '@/events/expenses/expense.event';
 import { PaymentEvent } from '@/events/payments/payment.event';
 import { CreateMailer } from '@/mailer/create-mailer';
+import { NotificationsService } from '@/notifications/notifications.service';
+import {
+  NotificationType,
+  NotificationEntityType,
+} from '@/notifications/enum/notification.enum';
 import { formatDate } from '@/common/helpers';
 
 @Injectable()
@@ -12,11 +17,12 @@ export class EventListener {
   constructor(
     @InjectQueue('mailer')
     private readonly mailerQueue: Queue,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   @OnEvent('expense.*')
   async handleExpenseEvents(payload: ExpenseEvent) {
-    const { expense, mail } = payload;
+    const { expense, mail, currentUser } = payload;
 
     for (const detail of expense.details) {
       await this.mailerQueue.add(
@@ -37,9 +43,19 @@ export class EventListener {
             total: expense.amount,
             amount: detail.amount,
           },
-          payload.currentUser,
+          currentUser,
         ),
       );
+
+      if (detail.user.id !== currentUser.id)
+        await this.notificationsService.create({
+          title: 'Nuevo gasto registrado',
+          description: `${expense.payer.firstName} registró un gasto de S/${expense.amount} en ${expense.group.name}`,
+          type: NotificationType.ExpenseCreated,
+          entityId: expense.id,
+          entityType: NotificationEntityType.Expense,
+          user: detail.user,
+        });
     }
   }
 

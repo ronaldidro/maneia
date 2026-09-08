@@ -295,6 +295,7 @@ export class ExpensesService extends Pageable<Expense> {
         user,
         { subject, template },
         {
+          id: expense.id,
           description: expense.description,
           group: {
             id: expense.group.id,
