@@ -11,10 +11,14 @@ import { User } from '@/users/entities/user.entity';
 import { Notification } from '@/notifications/entities/notification.entity';
 import { CreateNotificationDto } from '@/notifications/dto/create-notification.dto';
 import { UpdateNotificationDto } from '@/notifications/dto/update-notification.dto';
+import { NotificationSeverity } from '@/notifications/enum/notification.enum';
 
 @Injectable()
 export class NotificationsService {
-  private subject = new Subject<Notification>();
+  private subject = new Subject<{
+    notification: Notification;
+    severity: NotificationSeverity;
+  }>();
 
   constructor(
     @InjectRepository(Notification)
@@ -23,19 +27,25 @@ export class NotificationsService {
 
   stream(userId: string): Observable<MessageEvent> {
     return this.subject.asObservable().pipe(
-      filter((notification) => notification.user.id === userId), // filter only user notification
-      map((notification) => ({ data: notification })), // sse format
+      // only user notification
+      filter(({ notification }) => notification.user.id === userId),
+      // sse format
+      map(({ notification, severity }) => ({
+        data: notification,
+        type: severity,
+      })),
     );
   }
 
   async create(
     createNotificationDto: CreateNotificationDto,
+    severity: NotificationSeverity,
   ): Promise<Notification> {
     const notification = this.repository.create(createNotificationDto);
 
     const saved = await this.repository.save(notification);
 
-    this.subject.next(saved); // emit by sse
+    this.subject.next({ notification: saved, severity }); // emit by sse
 
     return saved;
   }

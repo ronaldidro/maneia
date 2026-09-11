@@ -8,3 +8,10 @@ export enum NotificationEntityType {
   Expense = 'expense',
   Payment = 'payment',
 }
+
+export enum NotificationSeverity {
+  Success = 'success',
+  Warn = 'warn',
+  Info = 'info',
+  Error = 'error',
+}
