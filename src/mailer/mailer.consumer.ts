@@ -15,8 +15,8 @@ export class MailerConsumer {
     private readonly paymentsService: PaymentsService,
   ) {}
 
-  @Process('send-expense')
-  async sendExpense(
+  @Process('expense-mail')
+  async sendMailExpense(
     job: Job<CreateMailer<'expense-created' | 'expense-deleted'>>,
   ) {
     const { data: mailer } = job;
@@ -31,8 +31,8 @@ export class MailerConsumer {
     await this.sendMail({ ...mailer, attachments: [{ filename, content }] });
   }
 
-  @Process('send-payment')
-  async sendPayment(job: Job<CreateMailer<'payment-created'>>) {
+  @Process('payment-mail')
+  async sendMailPayment(job: Job<CreateMailer<'payment-created'>>) {
     const { data: mailer } = job;
 
     const content = await this.paymentsService.findReport(
