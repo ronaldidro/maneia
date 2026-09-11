@@ -1,15 +1,13 @@
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { EventListener } from '@/events/event.listener';
+import { ExpenseListener } from '@/events/expenses/expense.listener';
+import { PaymentListener } from '@/events/payments/payment.listener';
+import { EventService } from '@/events/event.service';
 import { MailerModule } from '@/mailer/mailer.module';
 import { NotificationsModule } from '@/notifications/notifications.module';
 
 @Module({
-  imports: [
-    EventEmitterModule.forRoot({ wildcard: true }),
-    NotificationsModule,
-    MailerModule,
-  ],
-  providers: [EventListener],
+  imports: [EventEmitterModule.forRoot(), NotificationsModule, MailerModule],
+  providers: [EventService, ExpenseListener, PaymentListener],
 })
 export class EventsModule {}
