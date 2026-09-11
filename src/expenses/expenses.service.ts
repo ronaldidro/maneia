@@ -18,7 +18,6 @@ import { QueryDto } from '@/common/dto/query.dto';
 import { Expense } from '@/expenses/entities/expense.entity';
 import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
 import { User } from '@/users/entities/user.entity';
-import { MailTemplate } from '@/mailer/interfaces';
 import { Pageable, PaginatedResponse } from '@/common/pageable';
 import { ReportsService } from '@/reports/reports.service';
 
@@ -65,15 +64,10 @@ export class ExpensesService extends Pageable<Expense> {
     });
 
     const saved = await this.repository.save(expense);
+
     const expenseCreated = await this.findOne(saved.id);
 
-    this.emitEvent(
-      'expense.created',
-      expenseCreated,
-      user,
-      'Nuevo gasto registrado',
-      'expense-created',
-    );
+    this.emitEvent('expense.created', expenseCreated, user);
 
     return expenseCreated;
   }
@@ -140,13 +134,9 @@ export class ExpensesService extends Pageable<Expense> {
 
     const result = await this.repository.delete(id);
 
-    this.emitEvent(
-      'expense.deleted',
-      { ...expense, deletedAt: new Date() },
-      user,
-      'Gasto eliminado',
-      'expense-deleted',
-    );
+    const expenseDeleted = { ...expense, deletedAt: new Date() };
+
+    this.emitEvent('expense.deleted', expenseDeleted, user);
 
     return result;
   }
@@ -282,35 +272,22 @@ export class ExpensesService extends Pageable<Expense> {
     return builder;
   }
 
-  private emitEvent(
-    event: string,
-    expense: Expense,
-    user: User,
-    subject: string,
-    template: MailTemplate,
-  ) {
+  private emitEvent(event: string, expense: Expense, user: User) {
     this.eventEmitter.emit(
       event,
-      new ExpenseEvent(
-        user,
-        { subject, template },
-        {
-          id: expense.id,
-          description: expense.description,
-          group: {
-            id: expense.group.id,
-            name: expense.group.name,
-          },
-          payer: { firstName: expense.user.firstName },
-          createdAt: expense.expensedAt,
-          deletedAt: expense.deletedAt,
-          amount: expense.amount,
-          details: expense.details.map(({ user, amount }) => ({
-            user: { id: user.id, firstName: user.firstName, email: user.email },
-            amount: amount,
-          })),
-        },
-      ),
+      new ExpenseEvent(user, {
+        id: expense.id,
+        description: expense.description,
+        group: { id: expense.group.id, name: expense.group.name },
+        payer: { firstName: expense.user.firstName },
+        createdAt: expense.expensedAt,
+        deletedAt: expense.deletedAt,
+        amount: expense.amount,
+        details: expense.details.map(({ user, amount }) => ({
+          user: { id: user.id, firstName: user.firstName, email: user.email },
+          amount: amount,
+        })),
+      }),
     );
   }
 }
