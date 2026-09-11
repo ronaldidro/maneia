@@ -10,7 +10,6 @@ import { CreatePaymentDto } from '@/payments/dto/create-payment.dto';
 import { PaymentsQueryDto } from '@/payments/dto/payments-query.dto';
 import { Payment } from '@/payments/entities/payment.entity';
 import { User } from '@/users/entities/user.entity';
-import { MailTemplate } from '@/mailer/interfaces';
 import { PaymentEvent } from '@/events/payments/payment.event';
 import { Pageable, PaginatedResponse } from '@/common/pageable';
 import { PAY_DESCRIPTION } from '@/common/constants';
@@ -70,12 +69,7 @@ export class PaymentsService extends Pageable<Payment> {
     const saved = await this.repository.save(payment);
     const paymentCreated = await this.findOne(saved.id);
 
-    this.emitEvent(
-      'payment.created',
-      paymentCreated,
-      'Nuevo pago registrado',
-      'payment-created',
-    );
+    this.emitEvent('payment.created', paymentCreated);
 
     return paymentCreated;
   }
@@ -178,32 +172,25 @@ export class PaymentsService extends Pageable<Payment> {
     return await this.repository.softDelete(id);
   }
 
-  private emitEvent(
-    event: string,
-    payment: Payment,
-    subject: string,
-    template: MailTemplate,
-  ) {
+  private emitEvent(event: string, payment: Payment) {
     this.eventEmitter.emit(
       event,
-      new PaymentEvent(
-        { subject, template },
-        {
-          id: payment.id,
-          payer: {
-            firstName: payment.payer.firstName,
-            email: payment.payer.email,
-          },
-          description: payment.description,
-          group: { name: payment.group.name },
-          creditor: { firstName: payment.user.firstName },
-          method: PAY_DESCRIPTION[payment.method],
-          createdAt: payment.createdAt,
-          debt: payment.debt,
-          amount: payment.amount,
-          remaining: payment.remaining,
+      new PaymentEvent({
+        id: payment.id,
+        payer: {
+          id: payment.payer.id,
+          firstName: payment.payer.firstName,
+          email: payment.payer.email,
         },
-      ),
+        description: payment.description,
+        group: { name: payment.group.name },
+        creditor: { firstName: payment.user.firstName },
+        method: PAY_DESCRIPTION[payment.method],
+        createdAt: payment.createdAt,
+        debt: payment.debt,
+        amount: payment.amount,
+        remaining: payment.remaining,
+      }),
     );
   }
 }
