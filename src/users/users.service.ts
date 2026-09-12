@@ -46,17 +46,24 @@ export class UsersService {
   }
 
   async findOne(id: string): Promise<User | null> {
-    return await this.repository.findOne({
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        email: true,
-        password: true,
-        role: true,
-      },
-      where: { id },
-    });
+    return await this.repository
+      .createQueryBuilder('user')
+      .select([
+        'user.id',
+        'user.firstName',
+        'user.lastName',
+        'user.email',
+        'user.password',
+        'user.role',
+      ])
+      .loadRelationCountAndMap(
+        'user.notificationsCount',
+        'user.notifications',
+        'notification',
+        (qb) => qb.where('notification.isRead = :isRead', { isRead: false }),
+      )
+      .where('user.id = :id', { id })
+      .getOne();
   }
 
   async findBy(key: keyof User, value: string): Promise<User | null> {
