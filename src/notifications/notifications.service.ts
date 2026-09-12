@@ -71,7 +71,16 @@ export class NotificationsService extends Pageable<Notification> {
       .where('notification.user_id = :userId', { userId: user.id })
       .orderBy('notification.createdAt', 'DESC');
 
-    return await this.paginate(builder, query);
+    const [result, count] = await Promise.all([
+      this.paginate(builder, query),
+      this.repository.count({
+        where: { user: { id: user.id }, isRead: false },
+      }),
+    ]);
+
+    result.meta.unread = count;
+
+    return result;
   }
 
   async findOne(id: string): Promise<Notification> {
