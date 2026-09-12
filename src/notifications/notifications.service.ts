@@ -12,9 +12,11 @@ import { Notification } from '@/notifications/entities/notification.entity';
 import { CreateNotificationDto } from '@/notifications/dto/create-notification.dto';
 import { UpdateNotificationDto } from '@/notifications/dto/update-notification.dto';
 import { NotificationSeverity } from '@/notifications/enum/notification.enum';
+import { Pageable, PaginatedResponse } from '@/common/pageable';
+import { PaginationDto } from '@/common/dto/pagination.dto';
 
 @Injectable()
-export class NotificationsService {
+export class NotificationsService extends Pageable<Notification> {
   private subject = new Subject<{
     notification: Notification;
     severity: NotificationSeverity;
@@ -23,7 +25,9 @@ export class NotificationsService {
   constructor(
     @InjectRepository(Notification)
     private readonly repository: Repository<Notification>,
-  ) {}
+  ) {
+    super();
+  }
 
   stream(userId: string): Observable<MessageEvent> {
     return this.subject.asObservable().pipe(
@@ -50,15 +54,31 @@ export class NotificationsService {
     return saved;
   }
 
-  async findAll(user: User): Promise<Notification[]> {
-    return await this.repository.find({
-      where: { user: { id: user.id } },
-      order: { createdAt: 'DESC' },
-    });
+  async findAll(
+    query: PaginationDto,
+    user: User,
+  ): Promise<PaginatedResponse<Notification>> {
+    const builder = this.repository
+      .createQueryBuilder('notification')
+      .select([
+        'notification.id',
+        'notification.title',
+        'notification.description',
+        'notification.type',
+        'notification.isRead',
+        'notification.createdAt',
+      ])
+      .where('notification.user_id = :userId', { userId: user.id })
+      .orderBy('notification.createdAt', 'DESC');
+
+    return await this.paginate(builder, query);
   }
 
   async findOne(id: string): Promise<Notification> {
-    const notification = await this.repository.findOne({ where: { id } });
+    const notification = await this.repository.findOne({
+      where: { id },
+      relations: { user: true },
+    });
 
     if (!notification) throw new NotFoundException('Notification not found');
 
@@ -82,7 +102,7 @@ export class NotificationsService {
 
     this.checkOwner(notification, user);
 
-    return await this.repository.delete(notification);
+    return await this.repository.delete(id);
   }
 
   private checkOwner(notification: Notification, user: User): void {

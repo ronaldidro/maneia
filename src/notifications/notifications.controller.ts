@@ -6,6 +6,7 @@ import {
   Param,
   ParseUUIDPipe,
   Patch,
+  Query,
   Sse,
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
@@ -13,6 +14,7 @@ import { NotificationsService } from '@/notifications/notifications.service';
 import { UpdateNotificationDto } from '@/notifications/dto/update-notification.dto';
 import { CurrentUser } from '@/decorator/user.decorator';
 import { User } from '@/users/entities/user.entity';
+import { PaginationDto } from '@/common/dto/pagination.dto';
 
 @ApiBearerAuth()
 @Controller('notifications')
@@ -25,8 +27,8 @@ export class NotificationsController {
   }
 
   @Get()
-  findAll(@CurrentUser() user: User) {
-    return this.notificationsService.findAll(user);
+  findAll(@Query() query: PaginationDto, @CurrentUser() user: User) {
+    return this.notificationsService.findAll(query, user);
   }
 
   @Patch(':id')
