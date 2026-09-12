@@ -15,18 +15,23 @@ import { formatDate } from '@/common/helpers';
 export class PaymentListener {
   constructor(private readonly eventService: EventService) {}
 
+  private static readonly TYPE_LABEL = {
+    created: 'Pago registrado',
+    deleted: 'Pago eliminado',
+  } as const;
+
   @OnEvent('payment.created')
   async handlePaymentCreated(payload: PaymentEvent) {
     const { data: payment } = payload;
 
     await this.sendMail({
-      subject: 'Nuevo pago registrado',
+      subject: PaymentListener.TYPE_LABEL.created,
       template: 'payment-created',
       payment,
     });
 
     await this.sendNotification({
-      title: 'Nuevo pago registrado',
+      title: PaymentListener.TYPE_LABEL.created,
       description: `${payment.creditor.firstName} registró un pago de S/${payment.amount} en ${payment.group.name}`,
       type: NotificationType.PaymentCreated,
       entityId: payment.id,

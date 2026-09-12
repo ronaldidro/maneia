@@ -20,6 +20,11 @@ import { formatDate } from '@/common/helpers';
 export class ExpenseListener {
   constructor(private readonly eventService: EventService) {}
 
+  private static readonly TYPE_LABEL = {
+    created: 'Gasto registrado',
+    deleted: 'Gasto eliminado',
+  } as const;
+
   @OnEvent('expense.created')
   async handleExpenseCreated(payload: ExpenseEvent) {
     const { data: expense, currentUser } = payload;
@@ -28,7 +33,7 @@ export class ExpenseListener {
 
     for (const detail of details) {
       await this.sendMail({
-        subject: 'Nuevo gasto registrado',
+        subject: ExpenseListener.TYPE_LABEL.created,
         template: 'expense-created',
         expense,
         detail,
@@ -36,7 +41,7 @@ export class ExpenseListener {
       });
 
       await this.sendNotification({
-        title: 'Nuevo gasto registrado',
+        title: ExpenseListener.TYPE_LABEL.created,
         description: `${expense.payer.firstName} registró un gasto de S/${expense.amount} en ${expense.group.name}`,
         type: NotificationType.ExpenseCreated,
         entityId: expense.id,
@@ -54,7 +59,7 @@ export class ExpenseListener {
 
     for (const detail of details) {
       await this.sendMail({
-        subject: 'Gasto eliminado',
+        subject: ExpenseListener.TYPE_LABEL.deleted,
         template: 'expense-deleted',
         expense,
         detail,
@@ -62,7 +67,7 @@ export class ExpenseListener {
       });
 
       await this.sendNotification({
-        title: 'Gasto eliminado',
+        title: ExpenseListener.TYPE_LABEL.deleted,
         description: `${expense.payer.firstName} eliminó un gasto de S/${expense.amount} en ${expense.group.name}`,
         type: NotificationType.ExpenseDeleted,
         entityId: expense.id,
