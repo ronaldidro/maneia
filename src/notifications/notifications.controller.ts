@@ -12,9 +12,9 @@ import {
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { NotificationsService } from '@/notifications/notifications.service';
 import { UpdateNotificationDto } from '@/notifications/dto/update-notification.dto';
+import { NotificationsQueryDto } from '@/notifications/dto/notifications-query.dto';
 import { CurrentUser } from '@/decorator/user.decorator';
 import { User } from '@/users/entities/user.entity';
-import { PaginationDto } from '@/common/dto/pagination.dto';
 
 @ApiBearerAuth()
 @Controller('notifications')
@@ -27,8 +27,11 @@ export class NotificationsController {
   }
 
   @Get()
-  findAll(@Query() query: PaginationDto, @CurrentUser() user: User) {
-    return this.notificationsService.findAll(query, user);
+  findAll(
+    @Query() notificationsQuery: NotificationsQueryDto,
+    @CurrentUser() user: User,
+  ) {
+    return this.notificationsService.findAll(notificationsQuery, user);
   }
 
   @Patch(':id')

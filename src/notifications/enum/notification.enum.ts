@@ -15,3 +15,8 @@ export enum NotificationSeverity {
   Info = 'info',
   Error = 'error',
 }
+
+export enum NotificationStatus {
+  Read = 'read',
+  Unread = 'unread',
+}

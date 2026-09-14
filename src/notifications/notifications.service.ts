@@ -11,9 +11,12 @@ import { User } from '@/users/entities/user.entity';
 import { Notification } from '@/notifications/entities/notification.entity';
 import { CreateNotificationDto } from '@/notifications/dto/create-notification.dto';
 import { UpdateNotificationDto } from '@/notifications/dto/update-notification.dto';
-import { NotificationSeverity } from '@/notifications/enum/notification.enum';
+import { NotificationsQueryDto } from '@/notifications/dto/notifications-query.dto';
+import {
+  NotificationSeverity,
+  NotificationStatus,
+} from '@/notifications/enum/notification.enum';
 import { Pageable, PaginatedResponse } from '@/common/pageable';
-import { PaginationDto } from '@/common/dto/pagination.dto';
 
 @Injectable()
 export class NotificationsService extends Pageable<Notification> {
@@ -55,7 +58,7 @@ export class NotificationsService extends Pageable<Notification> {
   }
 
   async findAll(
-    query: PaginationDto,
+    query: NotificationsQueryDto,
     user: User,
   ): Promise<PaginatedResponse<Notification>> {
     const builder = this.repository
@@ -68,8 +71,14 @@ export class NotificationsService extends Pageable<Notification> {
         'notification.isRead',
         'notification.createdAt',
       ])
-      .where('notification.user_id = :userId', { userId: user.id })
-      .orderBy('notification.createdAt', 'DESC');
+      .where('notification.user_id = :userId', { userId: user.id });
+
+    if (query.status)
+      builder.andWhere('notification.isRead = :isRead', {
+        isRead: query.status === NotificationStatus.Read,
+      });
+
+    builder.orderBy('notification.createdAt', 'DESC');
 
     const [result, count] = await Promise.all([
       this.paginate(builder, query),
