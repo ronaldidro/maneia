@@ -13,6 +13,7 @@ import { ConfigurationModule } from '@/config/configuration.module';
 import { EventsModule } from '@/events/events.module';
 import { NotificationsModule } from '@/notifications/notifications.module';
 import { SchedulesModule } from '@/schedules/schedules.module';
+import { AppController } from '@/app.controller';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { SchedulesModule } from '@/schedules/schedules.module';
     NotificationsModule,
     SchedulesModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
