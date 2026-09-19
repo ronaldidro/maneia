@@ -1,13 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class SchedulesService {
   private readonly logger = new Logger(SchedulesService.name);
 
-  // @Cron(CronExpression.EVERY_30_SECONDS)
-  @Cron('0 */20 * * * *')
+  @Cron(CronExpression.EVERY_10_MINUTES)
   handleCron() {
-    this.logger.debug('Called every 20 minutes');
+    this.logger.debug('Called every 10 minutes');
   }
 }
