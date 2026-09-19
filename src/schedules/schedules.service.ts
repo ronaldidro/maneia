@@ -10,7 +10,7 @@ export class SchedulesService {
     this.logger.debug('Called every 30 minutes');
   }
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_5_MINUTES)
   handleCron() {
     this.logger.debug("I'm live");
   }
