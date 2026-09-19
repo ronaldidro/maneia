@@ -5,13 +5,8 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 export class SchedulesService {
   private readonly logger = new Logger(SchedulesService.name);
 
-  @Cron(CronExpression.EVERY_30_MINUTES)
+  @Cron(CronExpression.EVERY_12_HOURS)
   checkLimit() {
     this.logger.debug('Called every 30 minutes');
-  }
-
-  @Cron(CronExpression.EVERY_5_MINUTES)
-  handleCron() {
-    this.logger.debug("I'm live");
   }
 }
