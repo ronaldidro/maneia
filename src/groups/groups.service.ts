@@ -1,10 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateGroupDto } from '@/groups/dto/create-group.dto';
 import { UpdateGroupDto } from '@/groups/dto/update-group.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Group } from '@/groups/entities/group.entity';
 import { Membership } from '@/memberships/entities/membership.entity';
-import { Repository, UpdateResult } from 'typeorm';
+import { Repository } from 'typeorm';
 import { User } from '@/users/entities/user.entity';
 
 @Injectable()
@@ -18,14 +22,14 @@ export class GroupsService {
   ) {}
 
   async create(createGroupDto: CreateGroupDto, userId: string): Promise<Group> {
+    const { name, members } = createGroupDto;
+
     const memberships = this.membershipRepository.create(
-      createGroupDto.members.concat(userId).map((id) => ({
-        user: { id },
-      })),
+      members.concat(userId).map((id) => ({ user: { id } })),
     );
 
     const group = this.repository.create({
-      name: createGroupDto.name,
+      name,
       user: { id: userId },
       memberships,
     });
@@ -40,7 +44,7 @@ export class GroupsService {
       .leftJoin('group.user', 'owner')
       .addSelect(['owner.id', 'owner.firstName', 'owner.lastName'])
       .leftJoin('group.memberships', 'membership')
-      .addSelect(['membership.id'])
+      .addSelect(['membership.id', 'membership.budget'])
       .leftJoin('membership.user', 'member')
       .addSelect(['member.id', 'member.firstName', 'member.lastName'])
       .loadRelationCountAndMap('group.members', 'group.memberships');
@@ -84,26 +88,40 @@ export class GroupsService {
     id: string,
     updateGroupDto: UpdateGroupDto,
     user: User,
-  ): Promise<UpdateResult> {
-    await this.findOne(id);
+  ): Promise<Group> {
+    const group = await this.findOne(id);
 
-    if (!updateGroupDto.members)
-      throw new NotFoundException('Members not found');
+    this.checkOwner(group, user);
 
-    await this.membershipRepository.delete({ group: { id } });
+    const { name, members } = updateGroupDto;
 
-    await this.membershipRepository.save(
-      updateGroupDto.members.concat(user.id).map((userId) => ({
-        user: { id: userId },
-        group: { id },
-      })),
-    );
+    if (name) group.name = name;
 
-    return await this.repository.update({ id }, { name: updateGroupDto.name });
+    if (members) {
+      group.memberships = members.concat(user.id).map((userId) => {
+        const membership = group.memberships.find(
+          (membership) => membership.user.id === userId,
+        );
+
+        if (membership) return membership;
+
+        return this.membershipRepository.create({ user: { id: userId } });
+      });
+    }
+
+    return await this.repository.save(group);
   }
 
-  async remove(id: string): Promise<Group> {
+  async remove(id: string, user: User): Promise<Group> {
     const group = await this.findOne(id);
-    return await this.repository.softRemove(group); // softRemove apply soft deletes to group and relations
+
+    this.checkOwner(group, user);
+
+    return await this.repository.softRemove(group); // softRemove apply soft deletes to entity and relations
+  }
+
+  private checkOwner(group: Group, user: User): void {
+    if (group.user.id !== user.id)
+      throw new ForbiddenException('Group invalid');
   }
 }
