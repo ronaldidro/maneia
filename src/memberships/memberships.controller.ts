@@ -1,15 +1,18 @@
-import { Controller, Get, Query } from '@nestjs/common';
-import { MembershipsService } from './memberships.service';
+import { Body, Controller, Param, ParseUUIDPipe, Patch } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { MembershipsQueryDto } from '@/memberships/dto/memberships-query.dto';
+import { MembershipsService } from '@/memberships/memberships.service';
+import { UpdateMembershipDto } from '@/memberships/dto/update-membership.dto';
 
 @ApiBearerAuth()
 @Controller('memberships')
 export class MembershipsController {
   constructor(private readonly membershipsService: MembershipsService) {}
 
-  @Get()
-  findAll(@Query() membershipsQuery: MembershipsQueryDto) {
-    return this.membershipsService.findAll(membershipsQuery);
+  @Patch(':id')
+  update(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() updateMembershipDto: UpdateMembershipDto,
+  ) {
+    return this.membershipsService.update(id, updateMembershipDto);
   }
 }

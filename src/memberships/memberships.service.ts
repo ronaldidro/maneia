@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { Membership } from '@/memberships/entities/membership.entity';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Repository, UpdateResult } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { MembershipsQueryDto } from '@/memberships/dto/memberships-query.dto';
+import { Membership } from '@/memberships/entities/membership.entity';
+import { UpdateMembershipDto } from '@/memberships/dto/update-membership.dto';
 
 @Injectable()
 export class MembershipsService {
@@ -11,20 +11,24 @@ export class MembershipsService {
     private readonly repository: Repository<Membership>,
   ) {}
 
-  async findAll(query: MembershipsQueryDto): Promise<Membership[]> {
-    const { group } = query;
+  async findOne(id: string): Promise<Membership> {
+    const membership = await this.repository.findOne({
+      where: { id },
+    });
 
-    const builder = this.repository
-      .createQueryBuilder('membership')
-      .select(['membership.id'])
-      .leftJoin('membership.group', 'group')
-      .addSelect(['group.name'])
-      .leftJoin('membership.user', 'member')
-      .addSelect(['member.id', 'member.firstName', 'member.lastName']);
+    if (!membership) throw new NotFoundException('Membership not found');
 
-    if (group)
-      builder.andWhere('membership.group_id = :groupId', { groupId: group });
+    return membership;
+  }
 
-    return await builder.getMany();
+  async update(
+    id: string,
+    updateMembershipDto: UpdateMembershipDto,
+  ): Promise<UpdateResult> {
+    await this.findOne(id);
+
+    return await this.repository.update(id, {
+      budget: updateMembershipDto.budget?.toString() ?? null,
+    });
   }
 }
