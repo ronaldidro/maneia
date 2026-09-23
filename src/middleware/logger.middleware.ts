@@ -4,7 +4,9 @@ import { NextFunction, Request, Response } from 'express';
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
-  private readonly logger = new Logger('LoggerMiddleware', { timestamp: true });
+  private readonly logger = new Logger(LoggerMiddleware.name, {
+    timestamp: true,
+  });
 
   constructor(private readonly configService: ConfigService) {}
 

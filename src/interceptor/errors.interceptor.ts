@@ -12,7 +12,7 @@ import { catchError } from 'rxjs/operators';
 
 @Injectable()
 export class ErrorsInterceptor implements NestInterceptor {
-  private readonly logger = new Logger('ErrorsInterceptor', {
+  private readonly logger = new Logger(ErrorsInterceptor.name, {
     timestamp: true,
   });
 
