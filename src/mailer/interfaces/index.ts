@@ -24,11 +24,20 @@ export interface PaymentTemplateData {
   remaining: string;
 }
 
+export interface BudgetTemplateData {
+  user: string;
+  group: string;
+  budget: string;
+  total: string;
+  exceeded?: string;
+  remaining?: string;
+}
+
 export type MailTemplates = Record<
   'expense-created' | 'expense-deleted',
   ExpenseTemplateData
 > & {
   'payment-created': PaymentTemplateData;
-};
+} & Record<'budget-exceeded' | 'budget-tight', BudgetTemplateData>;
 
 export type MailTemplate = keyof MailTemplates;

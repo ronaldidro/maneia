@@ -16,7 +16,7 @@ export class MailerConsumer {
   ) {}
 
   @Process('expense-mail')
-  async sendMailExpense(
+  async sendExpenseMail(
     job: Job<CreateMailer<'expense-created' | 'expense-deleted'>>,
   ) {
     const { data: mailer } = job;
@@ -32,7 +32,7 @@ export class MailerConsumer {
   }
 
   @Process('payment-mail')
-  async sendMailPayment(job: Job<CreateMailer<'payment-created'>>) {
+  async sendPaymentMail(job: Job<CreateMailer<'payment-created'>>) {
     const { data: mailer } = job;
 
     const content = await this.paymentsService.findReport(
@@ -42,6 +42,13 @@ export class MailerConsumer {
     const filename = `pago-${this.getCurrentDate()}.pdf`;
 
     await this.sendMail({ ...mailer, attachments: [{ filename, content }] });
+  }
+
+  @Process('budget-mail')
+  async sendBudgetMail(
+    job: Job<CreateMailer<'budget-exceeded' | 'budget-tight'>>,
+  ) {
+    await this.sendMail(job.data);
   }
 
   private getCurrentDate() {
