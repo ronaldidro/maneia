@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { GroupsService } from '@/groups/groups.service';
@@ -14,6 +15,7 @@ import { CreateGroupDto } from '@/groups/dto/create-group.dto';
 import { UpdateGroupDto } from '@/groups/dto/update-group.dto';
 import { CurrentUser } from '@/decorator/user.decorator';
 import { User } from '@/users/entities/user.entity';
+import { QueryDto } from '@/common/dto/query.dto';
 
 @ApiBearerAuth()
 @Controller('groups')
@@ -26,8 +28,8 @@ export class GroupsController {
   }
 
   @Get()
-  findAll(@CurrentUser() user: User) {
-    return this.groupsService.findAll(user);
+  findAll(@Query() queryDto: QueryDto, @CurrentUser() user: User) {
+    return this.groupsService.findAll(queryDto, user);
   }
 
   @Get(':id')

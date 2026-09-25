@@ -10,6 +10,7 @@ import { Group } from '@/groups/entities/group.entity';
 import { Membership } from '@/memberships/entities/membership.entity';
 import { Repository } from 'typeorm';
 import { User } from '@/users/entities/user.entity';
+import { QueryDto } from '@/common/dto/query.dto';
 
 @Injectable()
 export class GroupsService {
@@ -37,7 +38,7 @@ export class GroupsService {
     return await this.repository.save(group);
   }
 
-  async findAll(user: User): Promise<Group[]> {
+  async findAll(queryDto: QueryDto, user: User): Promise<Group[]> {
     const builder = this.repository
       .createQueryBuilder('group')
       .select(['group.id', 'group.name', 'group.createdAt'])
@@ -61,6 +62,11 @@ export class GroupsService {
           return `group.id IN ${sq}`;
         })
         .setParameter('userId', user.id);
+
+    if (queryDto.search)
+      builder.andWhere('group.name ILIKE :search', {
+        search: `%${queryDto.search.trim()}%`,
+      });
 
     return await builder.getMany();
   }
