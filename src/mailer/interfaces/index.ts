@@ -18,11 +18,12 @@ export interface PaymentTemplateData {
   description: string;
   group: string;
   creditor: string;
-  method: string;
+  method?: string;
   createdAt: string;
-  debt: string;
+  deletedAt?: string;
+  debt?: string;
   amount: string;
-  remaining: string;
+  remaining?: string;
 }
 
 export interface BudgetTemplateData {
@@ -37,8 +38,8 @@ export interface BudgetTemplateData {
 export type MailTemplates = Record<
   'expense-created' | 'expense-deleted',
   ExpenseTemplateData
-> & {
-  'payment-created': PaymentTemplateData;
-} & Record<'budget-exceeded' | 'budget-tight', BudgetTemplateData>;
+> &
+  Record<'payment-created' | 'payment-deleted', PaymentTemplateData> &
+  Record<'budget-exceeded' | 'budget-tight', BudgetTemplateData>;
 
 export type MailTemplate = keyof MailTemplates;

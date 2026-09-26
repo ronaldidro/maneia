@@ -2,7 +2,7 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <title>Gasto eliminado</title>
+    <title>Pago eliminado</title>
   </head>
   <body
     style="
@@ -35,7 +35,7 @@
               <td
                 align="center"
                 style="
-                  background: #475569;
+                  background: #1e3a8a;
                   padding: 24px;
                   color: white;
                   font-size: 28px;
@@ -55,7 +55,7 @@
                     font-weight: 600;
                   "
                 >
-                  Hola {{debtorName}}.
+                  Hola {{payer}}.
                 </p>
                 <p
                   style="
@@ -65,9 +65,9 @@
                     line-height: 22px;
                   "
                 >
-                  Se ha <strong>eliminado</strong> un gasto previamente
-                  registrado en uno de tus grupos. A continuación, el detalle de
-                  la operación:
+                  Se ha <strong>eliminado</strong> un pago previamente
+                  registrado en uno de tus grupos. A continuación, encontrarás
+                  el detalle de la operación.
                 </p>
                 <table
                   width="100%"
@@ -136,7 +136,7 @@
                           font-size: 16px;
                         "
                       >
-                        {{payer}}
+                        {{creditor}}
                       </p>
                       <p
                         style="
@@ -184,25 +184,6 @@
                           font-weight: bold;
                         "
                       >
-                        MONTO TOTAL
-                      </p>
-                      <p
-                        style="
-                          margin: 6px 0 18px;
-                          color: #111827;
-                          font-size: 16px;
-                        "
-                      >
-                        S/{{total}}
-                      </p>
-                      <p
-                        style="
-                          margin: 0;
-                          color: #6b7280;
-                          font-size: 13px;
-                          font-weight: bold;
-                        "
-                      >
                         MONTO REVERTIDO
                       </p>
                       <p
@@ -220,10 +201,10 @@
                 </table>
                 <div style="text-align: center; margin-top: 28px">
                   <a
-                    href="{{url}}/expenses"
+                    href="{{url}}/payments"
                     style="
                       display: inline-block;
-                      background: #475569;
+                      background: #2563eb;
                       color: #ffffff;
                       text-decoration: none;
                       padding: 12px 24px;
@@ -232,22 +213,40 @@
                       font-size: 15px;
                     "
                   >
-                    Ver gastos
+                    Ver pagos
                   </a>
                 </div>
-                <div style="text-align: center; margin-top: 24px">
+                <div style="text-align: left; margin-top: 24px">
                   <p
                     style="
-                      margin: 0;
+                      margin: 0 0 8px;
                       color: #6b7280;
                       font-size: 13px;
                       line-height: 20px;
+                      text-align: left;
                     "
                   >
-                    <strong>Nota:</strong> Se adjunta un reporte con el estado
-                    actualizado de tus gastos en este grupo (esta operación ha
-                    sido excluida).
+                    <strong>Notas:</strong>
                   </p>
+                  <ul
+                    style="
+                      margin: 0;
+                      padding-left: 20px;
+                      color: #6b7280;
+                      font-size: 13px;
+                      line-height: 20px;
+                      text-align: left;
+                    "
+                  >
+                    <li>
+                      Se adjunta el reporte que corresponde a este pago
+                      eliminado.
+                    </li>
+                    <li>
+                      Al anularse este pago, el monto correspondiente ha sido
+                      restablecido a tu deuda pendiente en el grupo.
+                    </li>
+                  </ul>
                 </div>
               </td>
             </tr>
