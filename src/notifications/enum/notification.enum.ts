@@ -2,6 +2,7 @@ export enum NotificationType {
   ExpenseCreated = 'expense_created',
   ExpenseDeleted = 'expense_deleted',
   PaymentCreated = 'payment_created',
+  PaymentDeleted = 'payment_deleted',
   BudgetExceeded = 'budget_exceeded',
   BudgetTight = 'budget_tight',
 }

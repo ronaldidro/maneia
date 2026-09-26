@@ -8,10 +8,10 @@ import {
   Brackets,
   DataSource,
   DeepPartial,
+  DeleteResult,
   EntityManager,
   LessThanOrEqual,
   Repository,
-  UpdateResult,
 } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePaymentDto } from '@/payments/dto/create-payment.dto';
@@ -128,7 +128,7 @@ export class PaymentsService extends Pageable<Payment> {
     return await this.paginate(builder, query);
   }
 
-  async findOne(id: string): Promise<Payment> {
+  async findOne(id: string, withDeleted: boolean = false): Promise<Payment> {
     const payment = await this.repository.findOne({
       select: {
         id: true,
@@ -144,6 +144,7 @@ export class PaymentsService extends Pageable<Payment> {
         payer: { id: true, firstName: true, lastName: true, email: true },
       },
       where: { id },
+      withDeleted,
       relations: { group: true, user: true, payer: true },
     });
 
@@ -152,21 +153,24 @@ export class PaymentsService extends Pageable<Payment> {
     return payment;
   }
 
-  async findReport(id: string): Promise<Buffer<ArrayBufferLike>> {
-    const payment = await this.findOne(id);
+  async findReport(
+    id: string,
+    withDeleted: boolean = false,
+  ): Promise<Buffer<ArrayBufferLike>> {
+    const payment = await this.findOne(id, withDeleted);
 
     const pdf = this.reportsService.createPaymentPdf(payment);
 
     return await pdf.getBuffer();
   }
 
-  async remove(id: string, user: User): Promise<UpdateResult> {
+  async remove(id: string, user: User): Promise<DeleteResult> {
     const payment = await this.findOne(id);
 
     if (!user.isAdmin && payment.user.id !== user.id)
       throw new ForbiddenException('Payment invalid');
 
-    return await this.dataSource.transaction(async (manager) => {
+    const result = await this.dataSource.transaction(async (manager) => {
       await this.saveExpense(manager, {
         description: 'Reversión de pago',
         amount: payment.amount,
@@ -179,6 +183,12 @@ export class PaymentsService extends Pageable<Payment> {
 
       return await manager.softDelete(Payment, id);
     });
+
+    const paymentDeleted = { ...payment, deletedAt: new Date() };
+
+    this.emitEvent('payment.deleted', paymentDeleted);
+
+    return result;
   }
 
   private async settleExpenses(
@@ -286,6 +296,7 @@ export class PaymentsService extends Pageable<Payment> {
         creditor: { firstName: payment.user.firstName },
         method: PAY_DESCRIPTION[payment.method],
         createdAt: payment.createdAt,
+        deletedAt: payment.deletedAt,
         debt: payment.debt,
         amount: payment.amount,
         remaining: payment.remaining,

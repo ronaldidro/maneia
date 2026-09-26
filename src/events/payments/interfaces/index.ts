@@ -12,6 +12,7 @@ export interface PaymentData {
   creditor: { firstName: string };
   method: string;
   createdAt: Date;
+  deletedAt?: Date;
   debt: string;
   amount: string;
   remaining: string;
@@ -32,7 +33,7 @@ export interface PaymentMail {
 export interface PaymentNotification {
   title: string;
   description: string;
-  type: NotificationType.PaymentCreated;
+  type: NotificationType.PaymentCreated | NotificationType.PaymentDeleted;
   entityId: string;
   user: PaymentPayer;
   severity: NotificationSeverity;

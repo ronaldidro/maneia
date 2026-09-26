@@ -40,6 +40,26 @@ export class PaymentListener {
     });
   }
 
+  @OnEvent('payment.deleted')
+  async handlePaymentDeleted(payload: PaymentEvent) {
+    const { data: payment } = payload;
+
+    await this.sendMail({
+      subject: PaymentListener.TYPE_LABEL.deleted,
+      template: 'payment-deleted',
+      payment,
+    });
+
+    await this.sendNotification({
+      title: PaymentListener.TYPE_LABEL.deleted,
+      description: `${payment.creditor.firstName} eliminó un pago de S/${payment.amount} en ${payment.group.name}`,
+      type: NotificationType.PaymentDeleted,
+      entityId: payment.id,
+      user: payment.payer,
+      severity: NotificationSeverity.Error,
+    });
+  }
+
   private async sendMail({ subject, template, payment }: PaymentMail) {
     await this.eventService.addMailJob(
       'payment-mail',
@@ -51,6 +71,7 @@ export class PaymentListener {
         creditor: payment.creditor.firstName,
         method: payment.method,
         createdAt: this.parseToDate(payment.createdAt)!,
+        deletedAt: this.parseToDate(payment.deletedAt),
         debt: payment.debt,
         amount: payment.amount,
         remaining: payment.remaining,
