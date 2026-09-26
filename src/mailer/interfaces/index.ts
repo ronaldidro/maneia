@@ -1,4 +1,5 @@
 export interface ExpenseTemplateData {
+  expenseId: string;
   debtorName: string;
   description: string;
   groupId: string;

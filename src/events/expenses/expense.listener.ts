@@ -91,6 +91,7 @@ export class ExpenseListener {
         subject,
         template,
         {
+          expenseId: expense.id,
           debtorName: detail.user.firstName,
           description: expense.description,
           groupId: expense.group.id,
