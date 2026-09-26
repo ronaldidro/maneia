@@ -7,6 +7,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   Brackets,
   DataSource,
+  DeepPartial,
   EntityManager,
   LessThanOrEqual,
   Repository,
@@ -52,8 +53,8 @@ export class PaymentsService extends Pageable<Payment> {
         user,
       );
 
-      if (remaining > 0) {
-        const pending = manager.create(Expense, {
+      if (remaining > 0)
+        await this.saveExpense(manager, {
           description: 'Saldo pendiente de pago',
           amount: remaining.toFixed(2),
           group: { id: group },
@@ -62,9 +63,6 @@ export class PaymentsService extends Pageable<Payment> {
           expensedAt: new Date(),
           details: [{ user: { id: payer }, amount: remaining.toFixed(2) }],
         });
-
-        await manager.save(Expense, pending);
-      }
 
       return await manager.save(Payment, {
         ...createPaymentDto,
@@ -169,7 +167,7 @@ export class PaymentsService extends Pageable<Payment> {
       throw new ForbiddenException('Payment invalid');
 
     return await this.dataSource.transaction(async (manager) => {
-      const reversal = manager.create(Expense, {
+      await this.saveExpense(manager, {
         description: 'Reversión de pago',
         amount: payment.amount,
         group: payment.group,
@@ -178,8 +176,6 @@ export class PaymentsService extends Pageable<Payment> {
         expensedAt: new Date(),
         details: [{ user: payment.payer, amount: payment.amount }],
       });
-
-      await manager.save(Expense, reversal);
 
       return await manager.softDelete(Payment, id);
     });
@@ -265,6 +261,14 @@ export class PaymentsService extends Pageable<Payment> {
         },
       ],
     };
+  }
+
+  private async saveExpense(
+    manager: EntityManager,
+    expense: DeepPartial<Expense>,
+  ): Promise<void> {
+    const created = manager.create(Expense, expense);
+    await manager.save(Expense, created);
   }
 
   private emitEvent(event: string, payment: Payment) {
