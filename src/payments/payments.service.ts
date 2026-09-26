@@ -4,17 +4,26 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { Brackets, Repository, UpdateResult } from 'typeorm';
+import {
+  Brackets,
+  DataSource,
+  EntityManager,
+  LessThanOrEqual,
+  Repository,
+  UpdateResult,
+} from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePaymentDto } from '@/payments/dto/create-payment.dto';
 import { PaymentsQueryDto } from '@/payments/dto/payments-query.dto';
 import { Payment } from '@/payments/entities/payment.entity';
+import { PaymentExpense } from '@/payments/interfaces';
+import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
+import { Expense } from '@/expenses/entities/expense.entity';
 import { User } from '@/users/entities/user.entity';
 import { PaymentEvent } from '@/events/payments/payment.event';
 import { Pageable, PaginatedResponse } from '@/common/pageable';
 import { PAY_DESCRIPTION } from '@/common/constants';
-import { SettlementsService } from '@/settlements/settlements.service';
-import { ExpensesService } from '@/expenses/expenses.service';
+import { formatDate } from '@/common/helpers';
 import { ReportsService } from '@/reports/reports.service';
 
 @Injectable()
@@ -22,10 +31,9 @@ export class PaymentsService extends Pageable<Payment> {
   constructor(
     @InjectRepository(Payment)
     private readonly repository: Repository<Payment>,
-    private readonly settlementsService: SettlementsService,
-    private readonly expensesService: ExpensesService,
     private readonly reportsService: ReportsService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly dataSource: DataSource,
   ) {
     super();
   }
@@ -36,37 +44,40 @@ export class PaymentsService extends Pageable<Payment> {
   ): Promise<Payment> {
     const { group, payer, remaining } = createPaymentDto;
 
-    const paymentExpenses = await this.settlementsService.create(
-      group,
-      payer,
-      user.id,
-    );
-
-    if (remaining > 0)
-      await this.expensesService.create(
-        {
-          description: 'Saldo pendiente de pago',
-          amount: Number(remaining.toFixed(2)),
-          group,
-          splitted: false,
-          expensedAt: new Date().toISOString(),
-          details: [{ user: payer, amount: Number(remaining.toFixed(2)) }],
-        },
+    const saved = await this.dataSource.transaction(async (manager) => {
+      const paymentExpenses = await this.settleExpenses(
+        manager,
+        group,
+        payer,
         user,
       );
 
-    const payment = this.repository.create({
-      ...createPaymentDto,
-      amount: createPaymentDto.amount.toString(),
-      debt: createPaymentDto.debt.toString(),
-      remaining: remaining.toString(),
-      expenses: paymentExpenses,
-      group: { id: group },
-      payer: { id: payer },
-      user: { id: user.id },
+      if (remaining > 0) {
+        const pending = manager.create(Expense, {
+          description: 'Saldo pendiente de pago',
+          amount: remaining.toFixed(2),
+          group: { id: group },
+          user: { id: user.id },
+          splitted: false,
+          expensedAt: new Date(),
+          details: [{ user: { id: payer }, amount: remaining.toFixed(2) }],
+        });
+
+        await manager.save(Expense, pending);
+      }
+
+      return await manager.save(Payment, {
+        ...createPaymentDto,
+        amount: createPaymentDto.amount.toString(),
+        debt: createPaymentDto.debt.toString(),
+        remaining: remaining.toString(),
+        expenses: paymentExpenses,
+        group: { id: group },
+        payer: { id: payer },
+        user: { id: user.id },
+      });
     });
 
-    const saved = await this.repository.save(payment);
     const paymentCreated = await this.findOne(saved.id);
 
     this.emitEvent('payment.created', paymentCreated);
@@ -157,19 +168,103 @@ export class PaymentsService extends Pageable<Payment> {
     if (!user.isAdmin && payment.user.id !== user.id)
       throw new ForbiddenException('Payment invalid');
 
-    await this.expensesService.create(
-      {
+    return await this.dataSource.transaction(async (manager) => {
+      const reversal = manager.create(Expense, {
         description: 'Reversión de pago',
-        amount: Number(payment.amount),
-        group: payment.group.id,
+        amount: payment.amount,
+        group: payment.group,
+        user: { id: user.id },
         splitted: false,
-        expensedAt: new Date().toISOString(),
-        details: [{ user: payment.payer.id, amount: Number(payment.amount) }],
-      },
-      user,
-    );
+        expensedAt: new Date(),
+        details: [{ user: payment.payer, amount: payment.amount }],
+      });
 
-    return await this.repository.softDelete(id);
+      await manager.save(Expense, reversal);
+
+      return await manager.softDelete(Payment, id);
+    });
+  }
+
+  private async settleExpenses(
+    manager: EntityManager,
+    group: string,
+    payer: string,
+    user: User,
+  ): Promise<PaymentExpense[]> {
+    const detailsToSettle = await manager.find(ExpenseDetail, {
+      where: {
+        user: { id: payer },
+        expense: {
+          user: { id: user.id },
+          group: { id: group },
+          expensedAt: LessThanOrEqual(new Date()),
+        },
+      },
+      relations: {
+        user: true,
+        expense: { user: true, group: true, details: true },
+      },
+      order: { expense: { expensedAt: 'ASC' } },
+    });
+
+    const detailsToRemove: ExpenseDetail[] = [];
+    const expensesToRemove: Expense[] = [];
+    const paymentExpenses: PaymentExpense[] = [];
+
+    for (const detail of detailsToSettle) {
+      const expense = detail.expense;
+
+      if (expense.details.length === 1 && !expense.splitted) {
+        expensesToRemove.push(expense);
+      } else {
+        detailsToRemove.push(detail);
+      }
+
+      paymentExpenses.push(this.mapToPaymentExpense(expense, detail));
+    }
+
+    await Promise.all([
+      detailsToRemove.length
+        ? manager.remove(detailsToRemove)
+        : Promise.resolve(),
+      expensesToRemove.length
+        ? manager.remove(expensesToRemove)
+        : Promise.resolve(),
+    ]);
+
+    return paymentExpenses;
+  }
+
+  private mapToPaymentExpense(
+    expense: Expense,
+    detail: ExpenseDetail,
+  ): PaymentExpense {
+    return {
+      id: expense.id,
+      description: expense.description,
+      amount: expense.amount,
+      splitted: expense.splitted,
+      expensedAt: formatDate(expense.expensedAt, 'dd MMM yy'),
+      group: {
+        id: expense.group.id,
+        name: expense.group.name,
+      },
+      owner: {
+        id: expense.user.id,
+        firstName: expense.user.firstName,
+        lastName: expense.user.lastName,
+      },
+      details: [
+        {
+          debtor: {
+            id: detail.user.id,
+            firstName: detail.user.firstName,
+            lastName: detail.user.lastName,
+          },
+          amount: detail.amount,
+        },
+      ],
+    };
   }
 
   private emitEvent(event: string, payment: Payment) {
