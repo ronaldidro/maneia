@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsUUID } from 'class-validator';
+import { IsDateString, IsNotEmpty, IsUUID } from 'class-validator';
 
 export class DetailsSumQueryDto {
   @IsNotEmpty()
@@ -8,4 +8,8 @@ export class DetailsSumQueryDto {
   @IsNotEmpty()
   @IsUUID()
   group: string;
+
+  @IsNotEmpty()
+  @IsDateString()
+  closedAt: string;
 }
