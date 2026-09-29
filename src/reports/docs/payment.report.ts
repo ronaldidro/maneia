@@ -24,6 +24,14 @@ export const makePaymentReport = (payment: Payment): TDocumentDefinitions => {
       '',
       getPaymentContentColumns(payment),
       '',
+      {
+        text: [
+          { text: 'Descripción: ', bold: true },
+          { text: payment.description },
+        ],
+      },
+      '',
+      '',
       { text: 'Gastos cancelados', fontSize: 14, bold: true },
       '',
       {

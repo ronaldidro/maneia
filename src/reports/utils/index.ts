@@ -65,29 +65,36 @@ export const getPaymentContentColumns = (payment: Payment): ContentColumns => ({
   columns: [
     {
       stack: [
+        { text: [{ text: 'Grupo: ', bold: true }, payment.group.name] },
+        '',
         { text: [{ text: 'Recibe: ', bold: true }, payment.user.firstName] },
         '',
         { text: [{ text: 'Deuda: ', bold: true }, `S/${payment.debt}`] },
-        '',
+      ],
+    },
+    {
+      stack: [
         {
           text: [
-            { text: 'Fecha: ', bold: true },
+            { text: 'Fecha Registro: ', bold: true },
             parseToDate(payment.createdAt),
           ],
         },
-      ],
-    },
-    {
-      stack: [
+        '',
         { text: [{ text: 'Paga: ', bold: true }, payment.payer.firstName] },
         '',
         { text: [{ text: 'Pago: ', bold: true }, `S/${payment.amount}`] },
-        '',
-        { text: [{ text: 'Grupo: ', bold: true }, payment.group.name] },
       ],
     },
     {
       stack: [
+        {
+          text: [
+            { text: 'Fecha Cierre: ', bold: true },
+            parseToDate(payment.closedAt),
+          ],
+        },
+        '',
         {
           text: [
             { text: 'Método: ', bold: true },
@@ -98,8 +105,6 @@ export const getPaymentContentColumns = (payment: Payment): ContentColumns => ({
         {
           text: [{ text: 'Pendiente: ', bold: true }, `S/${payment.remaining}`],
         },
-        '',
-        { text: [{ text: 'Descripción: ', bold: true }, payment.description] },
       ],
     },
   ],
