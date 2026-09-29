@@ -1,5 +1,6 @@
 import { PayMethod } from '@/payments/enum/payment.enum';
 import {
+  IsDateString,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -9,6 +10,10 @@ import {
 } from 'class-validator';
 
 export class CreatePaymentDto {
+  @IsNotEmpty()
+  @IsDateString()
+  closedAt: string;
+
   @IsNotEmpty()
   @IsString()
   description: string;

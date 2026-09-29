@@ -43,7 +43,7 @@ export class PaymentsService extends Pageable<Payment> {
     createPaymentDto: CreatePaymentDto,
     user: User,
   ): Promise<Payment> {
-    const { group, payer, remaining } = createPaymentDto;
+    const { group, payer, remaining, closedAt } = createPaymentDto;
 
     const saved = await this.dataSource.transaction(async (manager) => {
       const paymentExpenses = await this.settleExpenses(
@@ -51,6 +51,7 @@ export class PaymentsService extends Pageable<Payment> {
         group,
         payer,
         user,
+        closedAt,
       );
 
       if (remaining > 0)
@@ -139,6 +140,7 @@ export class PaymentsService extends Pageable<Payment> {
         method: true,
         expenses: true,
         createdAt: true,
+        closedAt: true,
         group: { id: true, name: true },
         user: { id: true, firstName: true, lastName: true },
         payer: { id: true, firstName: true, lastName: true, email: true },
@@ -196,6 +198,7 @@ export class PaymentsService extends Pageable<Payment> {
     group: string,
     payer: string,
     user: User,
+    closedAt: string,
   ): Promise<PaymentExpense[]> {
     const detailsToSettle = await manager.find(ExpenseDetail, {
       where: {
@@ -203,7 +206,7 @@ export class PaymentsService extends Pageable<Payment> {
         expense: {
           user: { id: user.id },
           group: { id: group },
-          expensedAt: LessThanOrEqual(new Date()),
+          expensedAt: LessThanOrEqual(new Date(closedAt)),
         },
       },
       relations: {
