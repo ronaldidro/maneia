@@ -11,7 +11,7 @@ import {
   StreamableFile,
 } from '@nestjs/common';
 import { ExpensesService } from '@/expenses/expenses.service';
-import { SummariesService } from '@/summaries/summaries.service';
+import { SummariesService } from '@/expenses/summaries.service';
 import { CreateExpenseDto } from '@/expenses/dto/create-expense.dto';
 import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
 import { QueryDto } from '@/common/dto/query.dto';
@@ -41,8 +41,8 @@ export class ExpensesController {
   }
 
   @Get('summary')
-  findSummary(@CurrentUser() user: User) {
-    return this.summariesService.findAll(user);
+  findSummary(@Query() queryDto: QueryDto, @CurrentUser() user: User) {
+    return this.summariesService.findAll(queryDto, user);
   }
 
   @Get('report')

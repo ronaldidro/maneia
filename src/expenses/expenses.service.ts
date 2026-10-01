@@ -236,9 +236,10 @@ export class ExpensesService extends Pageable<Expense> {
         builder.where('payer.id = :userId', { userId: user.id });
       } else {
         builder.where(
-          new Brackets((qb) => {
-            qb.where('payer.id = :userId', { userId: user.id }).orWhere(
-              (qbr: SelectQueryBuilder<Expense>) => {
+          new Brackets((qb) =>
+            qb
+              .where('payer.id = :userId', { userId: user.id })
+              .orWhere((qbr: SelectQueryBuilder<Expense>) => {
                 const sq = qbr
                   .subQuery()
                   .select('detail.expense_id')
@@ -246,9 +247,8 @@ export class ExpensesService extends Pageable<Expense> {
                   .where('detail.user_id = :userId')
                   .getQuery();
                 return `expense.id IN ${sq}`;
-              },
-            );
-          }),
+              }),
+          ),
         );
       }
     }
