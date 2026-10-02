@@ -10,7 +10,6 @@ import {
   DeepPartial,
   DeleteResult,
   EntityManager,
-  LessThanOrEqual,
   Repository,
 } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -200,21 +199,31 @@ export class PaymentsService extends Pageable<Payment> {
     user: User,
     closedAt: string,
   ): Promise<PaymentExpense[]> {
-    const detailsToSettle = await manager.find(ExpenseDetail, {
-      where: {
-        user: { id: payer },
-        expense: {
-          user: { id: user.id },
-          group: { id: group },
-          expensedAt: LessThanOrEqual(new Date(closedAt)),
-        },
-      },
-      relations: {
-        user: true,
-        expense: { user: true, group: true, details: true },
-      },
-      order: { expense: { expensedAt: 'ASC' } },
-    });
+    const detailsToSettle = await manager
+      .createQueryBuilder(ExpenseDetail, 'detail')
+      .select(['detail.id', 'detail.amount'])
+      .leftJoin('detail.expense', 'expense')
+      .addSelect([
+        'expense.id',
+        'expense.description',
+        'expense.amount',
+        'expense.splitted',
+        'expense.expensedAt',
+      ])
+      .leftJoin('detail.user', 'payer')
+      .addSelect(['payer.id', 'payer.firstName', 'payer.lastName'])
+      .leftJoin('expense.group', 'group')
+      .addSelect(['group.id', 'group.name'])
+      .leftJoin('expense.user', 'user')
+      .addSelect(['user.id', 'user.firstName', 'user.lastName'])
+      .leftJoin('expense.details', 'details')
+      .addSelect('details.id')
+      .where('detail.user_id = :payerId', { payerId: payer })
+      .andWhere('expense.user_id = :userId', { userId: user.id })
+      .andWhere('expense.group_id = :groupId', { groupId: group })
+      .andWhere('DATE(expense.expensed_at) <= DATE(:closedAt)', { closedAt })
+      .orderBy('expense.expensed_at', 'ASC')
+      .getMany();
 
     const detailsToRemove: ExpenseDetail[] = [];
     const expensesToRemove: Expense[] = [];
