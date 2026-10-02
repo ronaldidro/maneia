@@ -35,7 +35,7 @@ export class DetailsService extends Pageable<ExpenseDetail> {
       .where('detail.user_id = :debtorId', { debtorId: query.debtor })
       .andWhere('expense.user_id = :userId', { userId })
       .andWhere('expense.group_id = :groupId', { groupId: query.group })
-      .andWhere('DATE(expense.created_at) <= DATE(:closedAt)', {
+      .andWhere('DATE(expense.expensed_at) <= DATE(:closedAt)', {
         closedAt: query.closedAt,
       });
 
