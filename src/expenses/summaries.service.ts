@@ -3,35 +3,42 @@ import { Brackets, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QueryDto } from '@/common/dto/query.dto';
 import { formatDate } from '@/common/helpers';
-import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
 import { Expense } from '@/expenses/entities/expense.entity';
 import { User } from '@/users/entities/user.entity';
 import {
   ChartDto,
   DayExpenseDto,
-  ExpenseSummaryDetailDto,
   ExpenseSummaryDto,
 } from '@/expenses/dto/summary.dto';
+import { MembershipsService } from '@/memberships/memberships.service';
+import { DetailsService } from '@/details/details.service';
 
 @Injectable()
 export class SummariesService {
   constructor(
     @InjectRepository(Expense)
     private readonly expenseRepository: Repository<Expense>,
-
-    @InjectRepository(ExpenseDetail)
-    private readonly detailRepository: Repository<ExpenseDetail>,
+    private readonly detailsService: DetailsService,
+    private readonly membershipsService: MembershipsService,
   ) {}
 
   async findAll(query: QueryDto, user: User): Promise<ExpenseSummaryDto> {
     const summaryQuery = { ...query, user: user.id };
 
     const totalExpensesBuilder = this.getTotalExpensesBuilder(summaryQuery);
-    const totalDebtsBuilder = this.getTotalDebtsBuilder(summaryQuery);
-    const debtorsBuilder = this.getDebtorsBuilder(summaryQuery);
-    const creditorsBuilder = this.getCreditorsBuilder(summaryQuery);
-    const userExpensesBuilder = this.getUserExpensesBuilder(summaryQuery);
+
+    const totalDebtsBuilder =
+      this.detailsService.totalDebtsBuilder(summaryQuery);
+
+    const debtorsBuilder = this.detailsService.debtorsBuilder(summaryQuery);
+    const creditorsBuilder = this.detailsService.creditorsBuilder(summaryQuery);
+
+    const userExpensesBuilder =
+      this.detailsService.userExpensesBuilder(summaryQuery);
+
     const dayExpensesBuilder = this.getDayExpensesBuilder(summaryQuery);
+
+    const membershipBuilder = this.membershipsService.builder(summaryQuery);
 
     const [
       totalExpenses,
@@ -40,6 +47,7 @@ export class SummariesService {
       creditors,
       userExpenses,
       dayExpenses,
+      membership,
     ] = await Promise.all([
       totalExpensesBuilder,
       totalDebtsBuilder,
@@ -47,6 +55,7 @@ export class SummariesService {
       creditorsBuilder,
       userExpensesBuilder,
       dayExpensesBuilder,
+      membershipBuilder,
     ]);
 
     return {
@@ -57,6 +66,7 @@ export class SummariesService {
       debtors,
       creditors,
       chart: this.getChartData(dayExpenses),
+      budget: Number(membership?.budget),
     };
   }
 
@@ -67,84 +77,6 @@ export class SummariesService {
       .createQueryBuilder('expense')
       .select('COALESCE(SUM(expense.amount),0)', 'amount')
       .where('expense.user_id = :userId', { userId: query.user })
-      .andWhere('expense.group_id = :groupId', { groupId: query.group })
-      .andWhere('DATE(expense.expensed_at) >= DATE(:startDate)', {
-        startDate: query.startDate,
-      })
-      .andWhere('DATE(expense.expensed_at) <= DATE(:endDate)', {
-        endDate: query.endDate,
-      })
-      .getRawOne<{ amount: string }>();
-
-  private getTotalDebtsBuilder = (
-    query: QueryDto,
-  ): Promise<{ amount: string } | undefined> =>
-    this.detailRepository
-      .createQueryBuilder('detail')
-      .select('COALESCE(SUM(detail.amount),0)', 'amount')
-      .leftJoin('detail.expense', 'expense')
-      .where('detail.user_id = :userId', { userId: query.user })
-      .andWhere('detail.user_id != expense.user_id')
-      .andWhere('expense.group_id = :groupId', { groupId: query.group })
-      .andWhere('DATE(expense.expensed_at) >= DATE(:startDate)', {
-        startDate: query.startDate,
-      })
-      .andWhere('DATE(expense.expensed_at) <= DATE(:endDate)', {
-        endDate: query.endDate,
-      })
-      .getRawOne<{ amount: string }>();
-
-  private getDebtorsBuilder = (
-    query: QueryDto,
-  ): Promise<ExpenseSummaryDetailDto[]> =>
-    this.detailRepository
-      .createQueryBuilder('detail')
-      .select('COALESCE(SUM(detail.amount),0)', 'amount')
-      .leftJoin('detail.user', 'debtor')
-      .addSelect('debtor.firstName', 'firstName')
-      .leftJoin('detail.expense', 'expense')
-      .where('expense.user_id = :userId', { userId: query.user })
-      .andWhere('detail.user_id != expense.user_id')
-      .andWhere('expense.group_id = :groupId', { groupId: query.group })
-      .andWhere('DATE(expense.expensed_at) >= DATE(:startDate)', {
-        startDate: query.startDate,
-      })
-      .andWhere('DATE(expense.expensed_at) <= DATE(:endDate)', {
-        endDate: query.endDate,
-      })
-      .groupBy('debtor.id')
-      .getRawMany<ExpenseSummaryDetailDto>();
-
-  private getCreditorsBuilder = (
-    query: QueryDto,
-  ): Promise<ExpenseSummaryDetailDto[]> =>
-    this.detailRepository
-      .createQueryBuilder('detail')
-      .select('COALESCE(SUM(detail.amount),0)', 'amount')
-      .leftJoin('detail.expense', 'expense')
-      .leftJoin('expense.user', 'creditor')
-      .addSelect('creditor.firstName', 'firstName')
-      .where('detail.user_id = :userId', { userId: query.user })
-      .andWhere('detail.user_id != expense.user_id')
-      .andWhere('expense.group_id = :groupId', { groupId: query.group })
-      .andWhere('DATE(expense.expensed_at) >= DATE(:startDate)', {
-        startDate: query.startDate,
-      })
-      .andWhere('DATE(expense.expensed_at) <= DATE(:endDate)', {
-        endDate: query.endDate,
-      })
-      .groupBy('creditor.id')
-      .getRawMany<ExpenseSummaryDetailDto>();
-
-  private getUserExpensesBuilder = (
-    query: QueryDto,
-  ): Promise<{ amount: string } | undefined> =>
-    this.detailRepository
-      .createQueryBuilder('detail')
-      .select('COALESCE(SUM(detail.amount),0)', 'amount')
-      .leftJoin('detail.expense', 'expense')
-      .where('detail.user_id = :userId', { userId: query.user })
-      .andWhere('detail.user_id = expense.user_id')
       .andWhere('expense.group_id = :groupId', { groupId: query.group })
       .andWhere('DATE(expense.expensed_at) >= DATE(:startDate)', {
         startDate: query.startDate,

@@ -25,4 +25,5 @@ export interface ExpenseSummaryDto {
   debtors: ExpenseSummaryDetailDto[];
   creditors: ExpenseSummaryDetailDto[];
   chart: ChartDto;
+  budget: number;
 }
