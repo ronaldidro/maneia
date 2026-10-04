@@ -1,6 +1,7 @@
 import type { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { CreateMailer } from '@/mailer/create-mailer';
 import { MailTemplate } from '@/mailer/interfaces';
 import { NotificationsService } from '@/notifications/notifications.service';
@@ -13,13 +14,15 @@ export class EventService {
     @InjectQueue('mailer')
     private readonly mailerQueue: Queue,
     private readonly notificationsService: NotificationsService,
+    private readonly configService: ConfigService,
   ) {}
 
   async addMailJob<T extends MailTemplate>(
     process: string,
     mailer: CreateMailer<T>,
   ) {
-    await this.mailerQueue.add(process, mailer);
+    const isPrdEnv = this.configService.get<boolean>('env.is_prd');
+    if (isPrdEnv) await this.mailerQueue.add(process, mailer);
   }
 
   async createNotification(
