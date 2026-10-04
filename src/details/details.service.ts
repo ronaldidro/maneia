@@ -7,6 +7,7 @@ import { QueryDto } from '@/common/dto/query.dto';
 import { User } from '@/users/entities/user.entity';
 import { DetailsSumQueryDto } from '@/details/dto/details-sum-query.dto';
 import { DetailsQueryDto } from '@/details/dto/details-query.dto';
+import { ExpenseSummaryDetailDto } from '@/details/dto/summary.dto';
 import { ReportsService } from '@/reports/reports.service';
 
 @Injectable()
@@ -57,6 +58,80 @@ export class DetailsService extends Pageable<ExpenseDetail> {
     const pdf = this.reportsService.createDetailsPdf(details, query);
 
     return await pdf.getBuffer();
+  }
+
+  totalDebtsBuilder(query: QueryDto) {
+    return this.repository
+      .createQueryBuilder('detail')
+      .select('COALESCE(SUM(detail.amount),0)', 'amount')
+      .leftJoin('detail.expense', 'expense')
+      .where('detail.user_id = :userId', { userId: query.user })
+      .andWhere('detail.user_id != expense.user_id')
+      .andWhere('expense.group_id = :groupId', { groupId: query.group })
+      .andWhere('DATE(expense.expensed_at) >= DATE(:startDate)', {
+        startDate: query.startDate,
+      })
+      .andWhere('DATE(expense.expensed_at) <= DATE(:endDate)', {
+        endDate: query.endDate,
+      })
+      .getRawOne<{ amount: string }>();
+  }
+
+  debtorsBuilder(query: QueryDto) {
+    return this.repository
+      .createQueryBuilder('detail')
+      .select('COALESCE(SUM(detail.amount),0)', 'amount')
+      .leftJoin('detail.user', 'debtor')
+      .addSelect('debtor.firstName', 'firstName')
+      .leftJoin('detail.expense', 'expense')
+      .where('expense.user_id = :userId', { userId: query.user })
+      .andWhere('detail.user_id != expense.user_id')
+      .andWhere('expense.group_id = :groupId', { groupId: query.group })
+      .andWhere('DATE(expense.expensed_at) >= DATE(:startDate)', {
+        startDate: query.startDate,
+      })
+      .andWhere('DATE(expense.expensed_at) <= DATE(:endDate)', {
+        endDate: query.endDate,
+      })
+      .groupBy('debtor.id')
+      .getRawMany<ExpenseSummaryDetailDto>();
+  }
+
+  creditorsBuilder(query: QueryDto) {
+    return this.repository
+      .createQueryBuilder('detail')
+      .select('COALESCE(SUM(detail.amount),0)', 'amount')
+      .leftJoin('detail.expense', 'expense')
+      .leftJoin('expense.user', 'creditor')
+      .addSelect('creditor.firstName', 'firstName')
+      .where('detail.user_id = :userId', { userId: query.user })
+      .andWhere('detail.user_id != expense.user_id')
+      .andWhere('expense.group_id = :groupId', { groupId: query.group })
+      .andWhere('DATE(expense.expensed_at) >= DATE(:startDate)', {
+        startDate: query.startDate,
+      })
+      .andWhere('DATE(expense.expensed_at) <= DATE(:endDate)', {
+        endDate: query.endDate,
+      })
+      .groupBy('creditor.id')
+      .getRawMany<ExpenseSummaryDetailDto>();
+  }
+
+  userExpensesBuilder(query: QueryDto) {
+    return this.repository
+      .createQueryBuilder('detail')
+      .select('COALESCE(SUM(detail.amount),0)', 'amount')
+      .leftJoin('detail.expense', 'expense')
+      .where('detail.user_id = :userId', { userId: query.user })
+      .andWhere('detail.user_id = expense.user_id')
+      .andWhere('expense.group_id = :groupId', { groupId: query.group })
+      .andWhere('DATE(expense.expensed_at) >= DATE(:startDate)', {
+        startDate: query.startDate,
+      })
+      .andWhere('DATE(expense.expensed_at) <= DATE(:endDate)', {
+        endDate: query.endDate,
+      })
+      .getRawOne<{ amount: string }>();
   }
 
   private buildQuery(

@@ -9,5 +9,6 @@ import { ReportsModule } from '@/reports/reports.module';
   imports: [TypeOrmModule.forFeature([ExpenseDetail]), ReportsModule],
   providers: [DetailsService],
   controllers: [DetailsController],
+  exports: [DetailsService],
 })
 export class DetailsModule {}
