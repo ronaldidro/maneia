@@ -4,9 +4,10 @@ import { GroupsController } from '@/groups/groups.controller';
 import { Group } from '@/groups/entities/group.entity';
 import { Membership } from '@/memberships/entities/membership.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from '@/auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Group, Membership])],
+  imports: [TypeOrmModule.forFeature([Group, Membership]), AuthModule],
   controllers: [GroupsController],
   providers: [GroupsService],
   exports: [GroupsService],

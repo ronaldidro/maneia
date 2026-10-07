@@ -11,6 +11,8 @@ import { Membership } from '@/memberships/entities/membership.entity';
 import { Repository } from 'typeorm';
 import { User } from '@/users/entities/user.entity';
 import { QueryDto } from '@/common/dto/query.dto';
+import { Action } from '@/common/enum/action.enum';
+import { AuthService } from '@/auth/auth.service';
 
 @Injectable()
 export class GroupsService {
@@ -20,6 +22,8 @@ export class GroupsService {
 
     @InjectRepository(Membership)
     private readonly membershipRepository: Repository<Membership>,
+
+    private readonly authService: AuthService,
   ) {}
 
   async create(createGroupDto: CreateGroupDto, userId: string): Promise<Group> {
@@ -97,7 +101,7 @@ export class GroupsService {
   ): Promise<Group> {
     const group = await this.findOne(id);
 
-    this.checkOwner(group, user);
+    this.checkAbility(group, user, Action.Update);
 
     const { name, members } = updateGroupDto;
 
@@ -121,13 +125,15 @@ export class GroupsService {
   async remove(id: string, user: User): Promise<Group> {
     const group = await this.findOne(id);
 
-    this.checkOwner(group, user);
+    this.checkAbility(group, user, Action.Delete);
 
     return await this.repository.softRemove(group); // softRemove apply soft deletes to entity and relations
   }
 
-  private checkOwner(group: Group, user: User): void {
-    if (group.user.id !== user.id)
-      throw new ForbiddenException('Group invalid');
+  private checkAbility(group: Group, user: User, action: Action): void {
+    const ability = this.authService.createAbility(user);
+
+    if (ability.cannot(action, group))
+      throw new ForbiddenException('Forbidden group');
   }
 }
