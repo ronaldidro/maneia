@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { SchedulesService } from '@/schedules/schedules.service';
-import { Membership } from '@/memberships/entities/membership.entity';
+import { MembershipsModule } from '@/memberships/memberships.module';
 
 @Module({
-  imports: [ScheduleModule.forRoot(), TypeOrmModule.forFeature([Membership])],
+  imports: [ScheduleModule.forRoot(), MembershipsModule],
   providers: [SchedulesService],
 })
 export class SchedulesModule {}

@@ -1,19 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { Repository } from 'typeorm';
-import { Membership } from '@/memberships/entities/membership.entity';
-import { MembershipSummaryDto } from '@/schedules/dto/schedule.dto';
 import { BudgetEvent } from '@/events/memberships/budget.event';
+import { MembershipsService } from '@/memberships/memberships.service';
+import { MembershipSummaryDto } from '@/memberships/dto/membership-summary.dto';
 
 @Injectable()
 export class SchedulesService {
   private readonly logger = new Logger(SchedulesService.name);
 
   constructor(
-    @InjectRepository(Membership)
-    private readonly membershipRepository: Repository<Membership>,
+    private readonly membershipsService: MembershipsService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -21,24 +18,7 @@ export class SchedulesService {
   async checkBudgetLimit() {
     this.logger.debug('*** Initializing Check Budget Limit Cron ***');
 
-    const results = await this.membershipRepository
-      .createQueryBuilder('membership')
-      .select(['membership.id AS id', 'membership.budget AS budget'])
-      .leftJoin('membership.user', 'member')
-      .addSelect([
-        'member.id AS "userId"',
-        'member.firstName AS "firstName"',
-        'member.email AS email',
-      ])
-      .leftJoin('membership.group', 'group')
-      .addSelect(['group.id AS "groupId"', 'group.name AS "groupName"'])
-      .leftJoin('member.expenses', 'expense', 'expense.group_id = group.id')
-      .addSelect('COALESCE(SUM(expense.amount), 0)', 'total')
-      .where('membership.budget IS NOT NULL')
-      .groupBy('membership.id')
-      .addGroupBy('member.id')
-      .addGroupBy('group.id')
-      .getRawMany<MembershipSummaryDto>();
+    const results = await this.membershipsService.summary();
 
     for (const result of results) {
       const budget = Number(result.budget);
