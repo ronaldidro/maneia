@@ -1,7 +1,7 @@
 import { Transform } from 'class-transformer';
 import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from '@/common/base.entity';
-import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
+import { ExpenseDetail } from '@/expenses/entities/detail.entity';
 import { Group } from '@/groups/entities/group.entity';
 import { User } from '@/users/entities/user.entity';
 import { formatDate } from '@/common/helpers';

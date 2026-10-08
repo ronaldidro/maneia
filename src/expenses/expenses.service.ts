@@ -12,7 +12,7 @@ import { CreateExpenseDto } from '@/expenses/dto/create-expense.dto';
 import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
 import { QueryDto } from '@/common/dto/query.dto';
 import { Expense } from '@/expenses/entities/expense.entity';
-import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
+import { ExpenseDetail } from '@/expenses/entities/detail.entity';
 import { User } from '@/users/entities/user.entity';
 import { Pageable, PaginatedResponse } from '@/common/pageable';
 import { ReportsService } from '@/reports/reports.service';

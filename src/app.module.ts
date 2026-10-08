@@ -6,7 +6,6 @@ import { GroupsModule } from '@/groups/groups.module';
 import { ExpensesModule } from '@/expenses/expenses.module';
 import { MembershipsModule } from '@/memberships/memberships.module';
 import { PaymentsModule } from '@/payments/payments.module';
-import { DetailsModule } from '@/details/details.module';
 import { ReportsModule } from '@/reports/reports.module';
 import { DatabaseModule } from '@/db/database.module';
 import { ConfigurationModule } from '@/config/configuration.module';
@@ -25,7 +24,6 @@ import { AppController } from '@/app.controller';
     GroupsModule,
     MembershipsModule,
     ExpensesModule,
-    DetailsModule,
     PaymentsModule,
     ReportsModule,
     NotificationsModule,

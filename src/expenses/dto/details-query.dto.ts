@@ -1,4 +1,7 @@
+import { PaginatedQueryDto } from '@/common/dto/pagination.dto';
 import { IsDateString, IsNotEmpty, IsUUID } from 'class-validator';
+
+export class DetailsQueryDto extends PaginatedQueryDto {}
 
 export class DetailsSumQueryDto {
   @IsNotEmpty()

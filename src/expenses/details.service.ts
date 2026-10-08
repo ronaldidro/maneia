@@ -1,13 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
-import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
+import { ExpenseDetail } from '@/expenses/entities/detail.entity';
+import { User } from '@/users/entities/user.entity';
 import { Pageable, PaginatedResponse } from '@/common/pageable';
 import { QueryDto } from '@/common/dto/query.dto';
-import { User } from '@/users/entities/user.entity';
-import { DetailsSumQueryDto } from '@/details/dto/details-sum-query.dto';
-import { DetailsQueryDto } from '@/details/dto/details-query.dto';
-import { ExpenseSummaryDetailDto } from '@/details/dto/summary.dto';
+import { DetailsQueryDto } from '@/expenses/dto/details-query.dto';
+import { ExpenseSummaryDetailDto } from '@/expenses/dto/expenses-summary.dto';
+import { DetailsSumQueryDto } from '@/expenses/dto/details-query.dto';
 import { ReportsService } from '@/reports/reports.service';
 
 @Injectable()
@@ -28,7 +28,7 @@ export class DetailsService extends Pageable<ExpenseDetail> {
     return await this.paginate(builder, query);
   }
 
-  async findSum(query: DetailsSumQueryDto, userId: string): Promise<string> {
+  async findDebts(query: DetailsSumQueryDto, userId: string): Promise<string> {
     const builder = this.repository
       .createQueryBuilder('detail')
       .select('COALESCE(SUM(detail.amount),0)', 'amount')

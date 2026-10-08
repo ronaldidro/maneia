@@ -11,7 +11,6 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { CreateDetailDto } from '@/details/dto/create-detail.dto';
 
 export class CreateExpenseDto {
   @IsNotEmpty()
@@ -39,4 +38,14 @@ export class CreateExpenseDto {
   @ValidateNested({ each: true })
   @Type(() => CreateDetailDto)
   details: CreateDetailDto[];
+}
+
+class CreateDetailDto {
+  @IsNotEmpty()
+  @IsUUID()
+  user: string;
+
+  @IsNumber()
+  @Min(0)
+  amount: number;
 }

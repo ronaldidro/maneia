@@ -9,9 +9,9 @@ import {
   ChartDto,
   DayExpenseDto,
   ExpenseSummaryDto,
-} from '@/expenses/dto/summary.dto';
+} from '@/expenses/dto/expenses-summary.dto';
 import { MembershipsService } from '@/memberships/memberships.service';
-import { DetailsService } from '@/details/details.service';
+import { DetailsService } from '@/expenses/details.service';
 
 @Injectable()
 export class SummariesService {

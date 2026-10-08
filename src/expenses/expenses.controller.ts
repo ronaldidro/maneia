@@ -11,9 +11,11 @@ import {
   StreamableFile,
 } from '@nestjs/common';
 import { ExpensesService } from '@/expenses/expenses.service';
+import { DetailsService } from '@/expenses/details.service';
 import { SummariesService } from '@/expenses/summaries.service';
 import { CreateExpenseDto } from '@/expenses/dto/create-expense.dto';
 import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
+import { DetailsSumQueryDto } from '@/expenses/dto/details-query.dto';
 import { QueryDto } from '@/common/dto/query.dto';
 import { User } from '@/users/entities/user.entity';
 import { CurrentUser } from '@/decorator/user.decorator';
@@ -24,6 +26,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 export class ExpensesController {
   constructor(
     private readonly service: ExpensesService,
+    private readonly detailsService: DetailsService,
     private readonly summariesService: SummariesService,
   ) {}
 
@@ -43,6 +46,14 @@ export class ExpensesController {
   @Get('summary')
   findSummary(@Query() queryDto: QueryDto, @CurrentUser() user: User) {
     return this.summariesService.findAll(queryDto, user);
+  }
+
+  @Get('debts')
+  findSum(
+    @Query() detailsSumQuery: DetailsSumQueryDto,
+    @CurrentUser() user: User,
+  ) {
+    return this.detailsService.findDebts(detailsSumQuery, user.id);
   }
 
   @Get('report')
