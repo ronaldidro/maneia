@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import {
@@ -37,7 +41,12 @@ export class AuthService {
     return { accessToken: await this.jwtService.signAsync({ sub: user.id }) };
   }
 
-  createAbility(user: User) {
+  checkAbility(user: User, action: Action, subject: Subjects): void {
+    const ability = this.createAbility(user);
+    if (ability.cannot(action, subject)) throw new ForbiddenException();
+  }
+
+  private createAbility(user: User) {
     const { can, build } = new AbilityBuilder<AppAbility>(createMongoAbility);
 
     if (user.isAdmin) can(Action.Manage, 'all');

@@ -1,8 +1,4 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateGroupDto } from '@/groups/dto/create-group.dto';
 import { UpdateGroupDto } from '@/groups/dto/update-group.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -101,7 +97,7 @@ export class GroupsService {
   ): Promise<Group> {
     const group = await this.findOne(id);
 
-    this.checkAbility(group, user, Action.Update);
+    this.authService.checkAbility(user, Action.Update, group);
 
     const { name, members } = updateGroupDto;
 
@@ -125,15 +121,8 @@ export class GroupsService {
   async remove(id: string, user: User): Promise<Group> {
     const group = await this.findOne(id);
 
-    this.checkAbility(group, user, Action.Delete);
+    this.authService.checkAbility(user, Action.Delete, group);
 
     return await this.repository.softRemove(group); // softRemove apply soft deletes to entity and relations
-  }
-
-  private checkAbility(group: Group, user: User, action: Action): void {
-    const ability = this.authService.createAbility(user);
-
-    if (ability.cannot(action, group))
-      throw new ForbiddenException('Forbidden group');
   }
 }
