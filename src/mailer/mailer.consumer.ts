@@ -5,6 +5,7 @@ import { CreateMailer } from '@/mailer/create-mailer';
 import { MailTemplate } from '@/mailer/interfaces';
 import { ExpensesService } from '@/expenses/expenses.service';
 import { PaymentsService } from '@/payments/payments.service';
+import { formatDate } from '@/common/helpers';
 
 @Processor('mailer')
 export class MailerConsumer {
@@ -25,7 +26,7 @@ export class MailerConsumer {
       mailer.currentUser!,
     );
 
-    const filename = `gastos-${mailer.data.createdAt}.pdf`;
+    const filename = `gastos-${this.getCurrentDate()}.pdf`;
 
     await this.sendMail({ ...mailer, attachments: [{ filename, content }] });
   }
@@ -43,7 +44,7 @@ export class MailerConsumer {
       withDeleted,
     );
 
-    const filename = `pago-${mailer.data.createdAt}.pdf`;
+    const filename = `pago-${this.getCurrentDate()}.pdf`;
 
     await this.sendMail({ ...mailer, attachments: [{ filename, content }] });
   }
@@ -53,6 +54,10 @@ export class MailerConsumer {
     job: Job<CreateMailer<'budget-exceeded' | 'budget-tight'>>,
   ) {
     await this.sendMail(job.data);
+  }
+
+  private getCurrentDate() {
+    return formatDate(new Date(), 'yyyy-MM-dd-hh:mm');
   }
 
   private async sendMail<T extends MailTemplate>(mailer: CreateMailer<T>) {
