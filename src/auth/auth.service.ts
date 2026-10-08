@@ -19,8 +19,11 @@ import { UsersService } from '@/users/users.service';
 import { User } from '@/users/entities/user.entity';
 import { Group } from '@/groups/entities/group.entity';
 import { Action } from '@/common/enum/action.enum';
+import { Expense } from '@/expenses/entities/expense.entity';
 
-type Subjects = InferSubjects<typeof Group | typeof User> | 'all';
+type Subjects =
+  | InferSubjects<typeof Group | typeof User | typeof Expense>
+  | 'all';
 
 export type AppAbility = MongoAbility<[Action, Subjects]>;
 
@@ -60,6 +63,8 @@ export class AuthService {
 
     can(Action.Update, Group, { 'user.id': user.id } as MongoQuery);
     can(Action.Delete, Group, { 'user.id': user.id } as MongoQuery);
+
+    can(Action.Delete, Expense, { 'user.id': user.id } as MongoQuery);
 
     return build({
       detectSubjectType: (item) =>

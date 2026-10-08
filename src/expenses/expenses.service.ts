@@ -1,8 +1,4 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -20,6 +16,8 @@ import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
 import { User } from '@/users/entities/user.entity';
 import { Pageable, PaginatedResponse } from '@/common/pageable';
 import { ReportsService } from '@/reports/reports.service';
+import { AuthService } from '@/auth/auth.service';
+import { Action } from '@/common/enum/action.enum';
 
 @Injectable()
 export class ExpensesService extends Pageable<Expense> {
@@ -31,7 +29,7 @@ export class ExpensesService extends Pageable<Expense> {
     private readonly detailRepository: Repository<ExpenseDetail>,
 
     private readonly reportsService: ReportsService,
-
+    private readonly authService: AuthService,
     private readonly eventEmitter: EventEmitter2,
   ) {
     super();
@@ -129,8 +127,7 @@ export class ExpensesService extends Pageable<Expense> {
   async remove(id: string, user: User): Promise<DeleteResult> {
     const expense = await this.findOne(id);
 
-    if (!user.isAdmin && expense.user.id !== user.id)
-      throw new ForbiddenException('Expense invalid');
+    this.authService.checkAbility(user, Action.Delete, expense);
 
     const result = await this.repository.delete(id);
 
