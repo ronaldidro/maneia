@@ -5,13 +5,16 @@ import { Membership } from '@/memberships/entities/membership.entity';
 import { UpdateMembershipDto } from '@/memberships/dto/update-membership.dto';
 import { MembershipSummaryDto } from '@/memberships/dto/membership-summary.dto';
 import { QueryDto } from '@/common/dto/query.dto';
+import { BaseService } from '@/common/base.service';
 
 @Injectable()
-export class MembershipsService {
+export class MembershipsService extends BaseService<Membership> {
   constructor(
     @InjectRepository(Membership)
     private readonly repository: Repository<Membership>,
-  ) {}
+  ) {
+    super(repository);
+  }
 
   async findOne(id: string): Promise<Membership> {
     const membership = await this.repository.findOne({
