@@ -1,10 +1,8 @@
 import pdfMake, { TCreatedPdf } from 'pdfmake';
 import { Injectable } from '@nestjs/common';
 import { Expense } from '@/expenses/entities/expense.entity';
-import { ExpenseDetail } from '@/expenses/entities/detail.entity';
 import { Payment } from '@/payments/entities/payment.entity';
 import { makeExpensesReport } from '@/reports/docs/expenses.report';
-import { makeDebtsReport } from '@/reports/docs/debts.report';
 import { makePaymentReport } from '@/reports/docs/payment.report';
 import { QueryDto } from '@/common/dto/query.dto';
 
@@ -25,11 +23,6 @@ export class ReportsService {
 
   createExpensesPdf(expenses: Expense[], query: QueryDto): TCreatedPdf {
     const document = makeExpensesReport(expenses, query);
-    return pdfMake.createPdf(document);
-  }
-
-  createDetailsPdf(details: ExpenseDetail[], query: QueryDto): TCreatedPdf {
-    const document = makeDebtsReport(details, query);
     return pdfMake.createPdf(document);
   }
 

@@ -111,5 +111,4 @@ export const getPaymentContentColumns = (payment: Payment): ContentColumns => ({
 });
 
 export * from '@/reports/utils/expenses.rows';
-export * from '@/reports/utils/debts.rows';
 export * from '@/reports/utils/payment-expenses.rows';
