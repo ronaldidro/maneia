@@ -21,9 +21,16 @@ import { User } from '@/users/entities/user.entity';
 import { Group } from '@/groups/entities/group.entity';
 import { Expense } from '@/expenses/entities/expense.entity';
 import { Payment } from '@/payments/entities/payment.entity';
+import { Notification } from '@/notifications/entities/notification.entity';
 
 type Subjects =
-  | InferSubjects<typeof Group | typeof User | typeof Expense | typeof Payment>
+  | InferSubjects<
+      | typeof Group
+      | typeof User
+      | typeof Expense
+      | typeof Payment
+      | typeof Notification
+    >
   | 'all';
 
 export type AppAbility = MongoAbility<[Action, Subjects]>;
@@ -68,6 +75,9 @@ export class AuthService {
     can(Action.Delete, Expense, { 'user.id': user.id } as MongoQuery);
 
     can(Action.Delete, Payment, { 'user.id': user.id } as MongoQuery);
+
+    can(Action.Update, Notification, { 'user.id': user.id } as MongoQuery);
+    can(Action.Delete, Notification, { 'user.id': user.id } as MongoQuery);
 
     return build({
       detectSubjectType: (item) =>

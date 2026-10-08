@@ -29,6 +29,7 @@ export class PaymentsService extends Pageable<Payment> {
   constructor(
     @InjectRepository(Payment)
     private readonly repository: Repository<Payment>,
+
     private readonly reportsService: ReportsService,
     private readonly authService: AuthService,
     private readonly eventEmitter: EventEmitter2,

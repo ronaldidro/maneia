@@ -1,9 +1,4 @@
-import {
-  ForbiddenException,
-  Injectable,
-  MessageEvent,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, MessageEvent, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { filter, map, Observable, Subject } from 'rxjs';
@@ -17,6 +12,8 @@ import {
   NotificationStatus,
 } from '@/notifications/enum/notification.enum';
 import { Pageable, PaginatedResponse } from '@/common/pageable';
+import { AuthService } from '@/auth/auth.service';
+import { Action } from '@/common/enum/action.enum';
 
 @Injectable()
 export class NotificationsService extends Pageable<Notification> {
@@ -28,6 +25,8 @@ export class NotificationsService extends Pageable<Notification> {
   constructor(
     @InjectRepository(Notification)
     private readonly repository: Repository<Notification>,
+
+    private readonly authService: AuthService,
   ) {
     super();
   }
@@ -110,7 +109,7 @@ export class NotificationsService extends Pageable<Notification> {
   ): Promise<UpdateResult> {
     const notification = await this.findOne(id);
 
-    this.checkOwner(notification, user);
+    this.authService.checkAbility(user, Action.Update, notification);
 
     return await this.repository.update({ id }, updateNotificationDto);
   }
@@ -118,13 +117,8 @@ export class NotificationsService extends Pageable<Notification> {
   async remove(id: string, user: User): Promise<DeleteResult> {
     const notification = await this.findOne(id);
 
-    this.checkOwner(notification, user);
+    this.authService.checkAbility(user, Action.Delete, notification);
 
     return await this.repository.delete(id);
-  }
-
-  private checkOwner(notification: Notification, user: User): void {
-    if (notification.user.id !== user.id)
-      throw new ForbiddenException('Notification invalid');
   }
 }
