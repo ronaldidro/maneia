@@ -15,14 +15,15 @@ import {
   MongoAbility,
   MongoQuery,
 } from '@casl/ability';
+import { Action } from '@/common/enum/action.enum';
 import { UsersService } from '@/users/users.service';
 import { User } from '@/users/entities/user.entity';
 import { Group } from '@/groups/entities/group.entity';
-import { Action } from '@/common/enum/action.enum';
 import { Expense } from '@/expenses/entities/expense.entity';
+import { Payment } from '@/payments/entities/payment.entity';
 
 type Subjects =
-  | InferSubjects<typeof Group | typeof User | typeof Expense>
+  | InferSubjects<typeof Group | typeof User | typeof Expense | typeof Payment>
   | 'all';
 
 export type AppAbility = MongoAbility<[Action, Subjects]>;
@@ -65,6 +66,8 @@ export class AuthService {
     can(Action.Delete, Group, { 'user.id': user.id } as MongoQuery);
 
     can(Action.Delete, Expense, { 'user.id': user.id } as MongoQuery);
+
+    can(Action.Delete, Payment, { 'user.id': user.id } as MongoQuery);
 
     return build({
       detectSubjectType: (item) =>

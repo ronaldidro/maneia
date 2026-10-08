@@ -1,8 +1,4 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   Brackets,
@@ -25,6 +21,8 @@ import { Pageable, PaginatedResponse } from '@/common/pageable';
 import { PAY_DESCRIPTION } from '@/common/constants';
 import { formatDate } from '@/common/helpers';
 import { ReportsService } from '@/reports/reports.service';
+import { AuthService } from '@/auth/auth.service';
+import { Action } from '@/common/enum/action.enum';
 
 @Injectable()
 export class PaymentsService extends Pageable<Payment> {
@@ -32,6 +30,7 @@ export class PaymentsService extends Pageable<Payment> {
     @InjectRepository(Payment)
     private readonly repository: Repository<Payment>,
     private readonly reportsService: ReportsService,
+    private readonly authService: AuthService,
     private readonly eventEmitter: EventEmitter2,
     private readonly dataSource: DataSource,
   ) {
@@ -168,8 +167,7 @@ export class PaymentsService extends Pageable<Payment> {
   async remove(id: string, user: User): Promise<DeleteResult> {
     const payment = await this.findOne(id);
 
-    if (!user.isAdmin && payment.user.id !== user.id)
-      throw new ForbiddenException('Payment invalid');
+    this.authService.checkAbility(user, Action.Delete, payment);
 
     const result = await this.dataSource.transaction(async (manager) => {
       await this.saveExpense(manager, {
