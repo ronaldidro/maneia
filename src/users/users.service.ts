@@ -1,26 +1,34 @@
 import {
-  ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { DeleteResult, Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from '@/users/dto/create-user.dto';
 import { UpdateUserDto } from '@/users/dto/update-user.dto';
 import { UsersQueryDto } from '@/users/dto/users-query.dto';
 import { UpdatePasswordDto } from '@/users/dto/update-password.dto';
 import { User } from '@/users/entities/user.entity';
-import { DeleteResult, Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
+import { AuthService } from '@/auth/auth.service';
+import { Action } from '@/common/enum/action.enum';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private repository: Repository<User>,
+
+    @Inject(forwardRef(() => AuthService))
+    private readonly authService: AuthService,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto, currentUser: User): Promise<User> {
+    this.authService.checkAbility(currentUser, Action.Create, User);
+
     const user = this.repository.create(createUserDto);
 
     user.password = await this.hashedPassword(createUserDto.password);
@@ -79,12 +87,11 @@ export class UsersService {
     updateUserDto: UpdateUserDto,
     currentUser: User,
   ): Promise<User> {
-    if (!currentUser.isAdmin && id !== currentUser.id)
-      throw new ForbiddenException('Account invalid');
-
     const user = await this.repository.preload({ id, ...updateUserDto });
 
     if (!user) throw new NotFoundException('User not found');
+
+    this.authService.checkAbility(currentUser, Action.Update, user);
 
     if (updateUserDto.password)
       user.password = await this.hashedPassword(updateUserDto.password);
@@ -108,7 +115,13 @@ export class UsersService {
     return await this.repository.save(currentUser);
   }
 
-  async remove(id: string): Promise<DeleteResult> {
+  async remove(id: string, currentUser: User): Promise<DeleteResult> {
+    const user = await this.findOne(id);
+
+    if (!user) throw new NotFoundException('User not found');
+
+    this.authService.checkAbility(currentUser, Action.Delete, user);
+
     return await this.repository.softDelete(id);
   }
 

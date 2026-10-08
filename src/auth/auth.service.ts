@@ -1,5 +1,7 @@
 import {
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -18,13 +20,14 @@ import { User } from '@/users/entities/user.entity';
 import { Group } from '@/groups/entities/group.entity';
 import { Action } from '@/common/enum/action.enum';
 
-type Subjects = InferSubjects<typeof Group> | 'all';
+type Subjects = InferSubjects<typeof Group | typeof User> | 'all';
 
 export type AppAbility = MongoAbility<[Action, Subjects]>;
 
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
   ) {}
@@ -51,6 +54,9 @@ export class AuthService {
 
     if (user.isAdmin) can(Action.Manage, 'all');
     else can(Action.Read, 'all');
+
+    can(Action.Update, User, { id: user.id });
+    can(Action.Delete, User, { id: user.id });
 
     can(Action.Update, Group, { 'user.id': user.id } as MongoQuery);
     can(Action.Delete, Group, { 'user.id': user.id } as MongoQuery);

@@ -27,8 +27,11 @@ export class UsersController {
 
   @Roles(Role.Admin)
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  create(
+    @Body() createUserDto: CreateUserDto,
+    @CurrentUser() currentUser: User,
+  ) {
+    return this.usersService.create(createUserDto, currentUser);
   }
 
   @Get()
@@ -60,7 +63,10 @@ export class UsersController {
 
   @Roles(Role.Admin)
   @Delete(':id')
-  remove(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.usersService.remove(id);
+  remove(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @CurrentUser() currentUser: User,
+  ) {
+    return this.usersService.remove(id, currentUser);
   }
 }

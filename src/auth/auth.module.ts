@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { AuthService } from '@/auth/auth.service';
 import { AuthController } from '@/auth/auth.controller';
 import { UsersModule } from '@/users/users.module';
@@ -9,7 +9,6 @@ import { AuthGuard } from '@/guard/auth.guard';
 import { RolesGuard } from '@/guard/roles.guard';
 @Module({
   imports: [
-    UsersModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
@@ -18,6 +17,7 @@ import { RolesGuard } from '@/guard/roles.guard';
         signOptions: { expiresIn: '7d' },
       }),
     }),
+    forwardRef(() => UsersModule),
   ],
   controllers: [AuthController],
   providers: [
