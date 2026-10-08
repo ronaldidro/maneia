@@ -5,7 +5,7 @@ import { ExpenseDetail } from '@/expenses/entities/detail.entity';
 import { Pageable } from '@/common/pageable';
 import { QueryDto } from '@/common/dto/query.dto';
 import { ExpenseSummaryDetailDto } from '@/expenses/dto/expenses-summary.dto';
-import { DetailsSumQueryDto } from '@/expenses/dto/details-query.dto';
+import { DetailsQueryDto } from '@/expenses/dto/details-query.dto';
 
 @Injectable()
 export class DetailsService extends Pageable<ExpenseDetail> {
@@ -16,12 +16,12 @@ export class DetailsService extends Pageable<ExpenseDetail> {
     super();
   }
 
-  async findDebts(query: DetailsSumQueryDto, userId: string): Promise<string> {
+  async findDebts(query: DetailsQueryDto, userId: string): Promise<string> {
     const builder = this.repository
       .createQueryBuilder('detail')
       .select('COALESCE(SUM(detail.amount),0)', 'amount')
       .leftJoin('detail.expense', 'expense')
-      .where('detail.user_id = :debtorId', { debtorId: query.debtor })
+      .where('detail.user_id = :debtorId', { debtorId: query.user })
       .andWhere('expense.user_id = :userId', { userId })
       .andWhere('expense.group_id = :groupId', { groupId: query.group })
       .andWhere('DATE(expense.expensed_at) <= DATE(:closedAt)', {

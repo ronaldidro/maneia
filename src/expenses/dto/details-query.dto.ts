@@ -1,17 +1,7 @@
-import { PaginatedQueryDto } from '@/common/dto/pagination.dto';
-import { IsDateString, IsNotEmpty, IsUUID } from 'class-validator';
+import { QueryDto } from '@/common/dto/query.dto';
+import { IsDateString, IsNotEmpty } from 'class-validator';
 
-export class DetailsQueryDto extends PaginatedQueryDto {}
-
-export class DetailsSumQueryDto {
-  @IsNotEmpty()
-  @IsUUID()
-  debtor: string;
-
-  @IsNotEmpty()
-  @IsUUID()
-  group: string;
-
+export class DetailsQueryDto extends QueryDto {
   @IsNotEmpty()
   @IsDateString()
   closedAt: string;

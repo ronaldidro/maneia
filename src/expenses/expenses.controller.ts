@@ -15,7 +15,7 @@ import { DetailsService } from '@/expenses/details.service';
 import { SummariesService } from '@/expenses/summaries.service';
 import { CreateExpenseDto } from '@/expenses/dto/create-expense.dto';
 import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
-import { DetailsSumQueryDto } from '@/expenses/dto/details-query.dto';
+import { DetailsQueryDto } from '@/expenses/dto/details-query.dto';
 import { QueryDto } from '@/common/dto/query.dto';
 import { User } from '@/users/entities/user.entity';
 import { CurrentUser } from '@/decorator/user.decorator';
@@ -50,7 +50,7 @@ export class ExpensesController {
 
   @Get('debts')
   findSum(
-    @Query() detailsSumQuery: DetailsSumQueryDto,
+    @Query() detailsSumQuery: DetailsQueryDto,
     @CurrentUser() user: User,
   ) {
     return this.detailsService.findDebts(detailsSumQuery, user.id);
