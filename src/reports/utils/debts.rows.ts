@@ -1,5 +1,5 @@
 import { TableCell } from 'pdfmake';
-import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
+import { ExpenseDetail } from '@/expenses/entities/detail.entity';
 import { parseToDate } from '@/reports/utils';
 
 export const getDebtsRows = (debts: ExpenseDetail[]): TableCell[][] =>

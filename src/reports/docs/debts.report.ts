@@ -1,6 +1,6 @@
 import { TDocumentDefinitions } from 'pdfmake/interfaces';
 import { QueryDto } from '@/common/dto/query.dto';
-import { ExpenseDetail } from '@/details/entities/expense-detail.entity';
+import { ExpenseDetail } from '@/expenses/entities/detail.entity';
 import {
   baseDefinitions,
   getContentColumns,
