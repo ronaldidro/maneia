@@ -1,13 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateGroupDto } from '@/groups/dto/create-group.dto';
 import { UpdateGroupDto } from '@/groups/dto/update-group.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Group } from '@/groups/entities/group.entity';
-import { Membership } from '@/memberships/entities/membership.entity';
-import { Repository } from 'typeorm';
-import { User } from '@/users/entities/user.entity';
 import { QueryDto } from '@/common/dto/query.dto';
+import { Group } from '@/groups/entities/group.entity';
+import { User } from '@/users/entities/user.entity';
 import { Action } from '@/common/enum/action.enum';
+import { MembershipsService } from '@/memberships/memberships.service';
 import { AuthService } from '@/auth/auth.service';
 
 @Injectable()
@@ -15,17 +15,14 @@ export class GroupsService {
   constructor(
     @InjectRepository(Group)
     private readonly repository: Repository<Group>,
-
-    @InjectRepository(Membership)
-    private readonly membershipRepository: Repository<Membership>,
-
+    private readonly membershipService: MembershipsService,
     private readonly authService: AuthService,
   ) {}
 
   async create(createGroupDto: CreateGroupDto, userId: string): Promise<Group> {
     const { name, members } = createGroupDto;
 
-    const memberships = this.membershipRepository.create(
+    const memberships = this.membershipService.createEntities(
       members.concat(userId).map((id) => ({ user: { id } })),
     );
 
@@ -111,7 +108,7 @@ export class GroupsService {
 
         if (membership) return membership;
 
-        return this.membershipRepository.create({ user: { id: userId } });
+        return this.membershipService.createEntity({ user: { id: userId } });
       });
     }
 
