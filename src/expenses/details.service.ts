@@ -2,18 +2,18 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ExpenseDetail } from '@/expenses/entities/detail.entity';
-import { Pageable } from '@/common/pageable';
 import { QueryDto } from '@/common/dto/query.dto';
 import { ExpenseSummaryDetailDto } from '@/expenses/dto/expenses-summary.dto';
 import { DetailsQueryDto } from '@/expenses/dto/details-query.dto';
+import { BaseService } from '@/common/base.service';
 
 @Injectable()
-export class DetailsService extends Pageable<ExpenseDetail> {
+export class DetailsService extends BaseService<ExpenseDetail> {
   constructor(
     @InjectRepository(ExpenseDetail)
     private readonly repository: Repository<ExpenseDetail>,
   ) {
-    super();
+    super(repository);
   }
 
   async findDebts(query: DetailsQueryDto, userId: string): Promise<string> {

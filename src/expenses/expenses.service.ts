@@ -15,6 +15,7 @@ import { Expense } from '@/expenses/entities/expense.entity';
 import { ExpenseDetail } from '@/expenses/entities/detail.entity';
 import { User } from '@/users/entities/user.entity';
 import { Pageable, PaginatedResponse } from '@/common/pageable';
+import { DetailsService } from '@/expenses/details.service';
 import { ReportsService } from '@/reports/reports.service';
 import { AuthService } from '@/auth/auth.service';
 import { Action } from '@/common/enum/action.enum';
@@ -24,10 +25,7 @@ export class ExpensesService extends Pageable<Expense> {
   constructor(
     @InjectRepository(Expense)
     private readonly repository: Repository<Expense>,
-
-    @InjectRepository(ExpenseDetail)
-    private readonly detailRepository: Repository<ExpenseDetail>,
-
+    private readonly detailsService: DetailsService,
     private readonly reportsService: ReportsService,
     private readonly authService: AuthService,
     private readonly eventEmitter: EventEmitter2,
@@ -46,7 +44,7 @@ export class ExpensesService extends Pageable<Expense> {
       });
     }
 
-    const details = this.detailRepository.create(
+    const details = this.detailsService.createEntities(
       createExpenseDto.details.map((detail) => ({
         amount: detail.amount.toString(),
         user: { id: detail.user },
@@ -178,7 +176,7 @@ export class ExpensesService extends Pageable<Expense> {
 
     await Promise.all([
       detailsToRemove.length
-        ? this.detailRepository.remove(detailsToRemove)
+        ? this.detailsService.removeEntities(detailsToRemove)
         : Promise.resolve(),
       expensesToRemove.length
         ? this.repository.remove(expensesToRemove)
