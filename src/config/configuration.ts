@@ -34,4 +34,8 @@ export default () => ({
     user: process.env.BOARD_USER,
     pass: process.env.BOARD_PASS,
   },
+  gemini: {
+    api_key: process.env.GEMINI_API_KEY,
+    model: process.env.GEMINI_MODEL,
+  },
 });

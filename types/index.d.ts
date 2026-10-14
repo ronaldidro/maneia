@@ -22,5 +22,8 @@ declare namespace NodeJS {
     BOARD_USER: string;
     BOARD_PASS: string;
     TZ: string;
+    RENDER_SERVICE_ID: string;
+    GEMINI_API_KEY: string;
+    GEMINI_MODEL: string;
   }
 }

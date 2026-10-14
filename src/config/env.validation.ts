@@ -104,6 +104,14 @@ class EnvironmentVariables {
 
   @IsNotEmpty()
   @IsString()
+  GEMINI_API_KEY: string;
+
+  @IsNotEmpty()
+  @IsString()
+  GEMINI_MODEL: string;
+
+  @IsNotEmpty()
+  @IsString()
   TZ: string;
 }
 
