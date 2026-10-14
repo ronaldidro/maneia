@@ -9,6 +9,7 @@ import { ExpenseDetail } from '@/expenses/entities/detail.entity';
 import { ReportsModule } from '@/reports/reports.module';
 import { MembershipsModule } from '@/memberships/memberships.module';
 import { AuthModule } from '@/auth/auth.module';
+import { AiModule } from '@/ai/ai.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AuthModule } from '@/auth/auth.module';
     ReportsModule,
     MembershipsModule,
     AuthModule,
+    AiModule,
   ],
   controllers: [ExpensesController],
   providers: [ExpensesService, SummariesService, DetailsService],

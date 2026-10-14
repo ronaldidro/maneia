@@ -27,3 +27,8 @@ export interface ExpenseSummaryDto {
   chart: ChartDto;
   budget: number;
 }
+
+export interface ExpenseProcessed {
+  description: string;
+  amount: number;
+}

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -10,6 +14,7 @@ import {
 import { ExpenseEvent } from '@/events/expenses/expense.event';
 import { CreateExpenseDto } from '@/expenses/dto/create-expense.dto';
 import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
+import { ExpenseProcessed } from '@/expenses/dto/expenses-summary.dto';
 import { QueryDto } from '@/common/dto/query.dto';
 import { Expense } from '@/expenses/entities/expense.entity';
 import { ExpenseDetail } from '@/expenses/entities/detail.entity';
@@ -17,6 +22,7 @@ import { User } from '@/users/entities/user.entity';
 import { Pageable, PaginatedResponse } from '@/common/pageable';
 import { DetailsService } from '@/expenses/details.service';
 import { ReportsService } from '@/reports/reports.service';
+import { AiService } from '@/ai/ai.service';
 import { AuthService } from '@/auth/auth.service';
 import { Action } from '@/common/enum/action.enum';
 
@@ -27,6 +33,7 @@ export class ExpensesService extends Pageable<Expense> {
     private readonly repository: Repository<Expense>,
     private readonly detailsService: DetailsService,
     private readonly reportsService: ReportsService,
+    private readonly aiService: AiService,
     private readonly authService: AuthService,
     private readonly eventEmitter: EventEmitter2,
   ) {
@@ -66,6 +73,34 @@ export class ExpensesService extends Pageable<Expense> {
     this.emitEvent('expense.created', expenseCreated, user);
 
     return expenseCreated;
+  }
+
+  async transform(file: Express.Multer.File) {
+    const prompt = `
+      Act as an expert in accounting and receipt auditing.
+      Visually analyze this image of the attached receipt or expense note.
+      You must strictly identify each individual item, service, or expense description along with its respective assigned monetary amount.
+
+      Mandatory rules:
+      - If the document is handwritten, make your best effort to transcribe it logically.
+      - Extract amounts as clean numerical values, without currency symbols (e.g., 15.50 instead of $15.50).
+      - Return exclusively the requested JSON schema, without explanations or surrounding markdown.
+      - The returned JSON structure must be in the format: [{ description: string; amount: numeric }]
+    `;
+
+    const result = await this.aiService.processFile(prompt, file);
+
+    const items = JSON.parse(result) as ExpenseProcessed[];
+
+    if (!items.length)
+      throw new UnprocessableEntityException('File could not be processed');
+
+    return {
+      description: items
+        .map((item) => item.description.toLowerCase())
+        .join(', '),
+      amount: items.reduce((total, item) => total + item.amount, 0),
+    };
   }
 
   async findAll(

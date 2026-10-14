@@ -9,17 +9,22 @@ import {
   ParseUUIDPipe,
   Header,
   StreamableFile,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipeBuilder,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { ExpensesService } from '@/expenses/expenses.service';
 import { DetailsService } from '@/expenses/details.service';
 import { SummariesService } from '@/expenses/summaries.service';
 import { CreateExpenseDto } from '@/expenses/dto/create-expense.dto';
 import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
 import { DetailsQueryDto } from '@/expenses/dto/details-query.dto';
+import { UploadFileDto } from '@/expenses/dto/upload-file.dto';
 import { QueryDto } from '@/common/dto/query.dto';
 import { User } from '@/users/entities/user.entity';
 import { CurrentUser } from '@/decorator/user.decorator';
-import { ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiBearerAuth()
 @Controller('expenses')
@@ -36,6 +41,22 @@ export class ExpensesController {
     @CurrentUser() user: User,
   ) {
     return this.service.create(createExpenseDto, user);
+  }
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: UploadFileDto })
+  upload(
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({ fileType: '.(png|jpeg|jpg|webp)' })
+        .addMaxSizeValidator({ maxSize: 5 * 1024 * 1024 })
+        .build(),
+    )
+    file: Express.Multer.File,
+  ) {
+    return this.service.transform(file);
   }
 
   @Get()
