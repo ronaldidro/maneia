@@ -18,19 +18,19 @@ export class SchedulesService {
   async checkBudgetLimit() {
     this.logger.debug('*** Initializing Check Budget Limit Cron ***');
 
-    const results = await this.membershipsService.summary();
+    const summaries = await this.membershipsService.summaries();
 
-    for (const result of results) {
-      const budget = Number(result.budget);
-      const total = Number(result.total);
+    for (const summary of summaries) {
+      const budget = Number(summary.budget);
+      const total = Number(summary.total);
       const remaining = budget - total;
       const limit = budget * 0.1;
 
       if (remaining < 0) {
-        this.logger.debug(`Budget exceeded to ${result.firstName}`);
+        this.logger.debug(`Budget exceeded to ${summary.firstName}`);
 
         this.emitBudgetEvent('budget.exceeded', {
-          ...result,
+          ...summary,
           exceeded: (remaining * -1).toFixed(2),
         });
 
@@ -38,10 +38,10 @@ export class SchedulesService {
       }
 
       if (remaining <= limit) {
-        this.logger.debug(`Budget tight to limit for ${result.firstName}`);
+        this.logger.debug(`Budget tight to limit for ${summary.firstName}`);
 
         this.emitBudgetEvent('budget.tight', {
-          ...result,
+          ...summary,
           remaining: remaining.toFixed(2),
         });
       }
