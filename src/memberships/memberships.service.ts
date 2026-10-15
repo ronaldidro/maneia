@@ -37,17 +37,11 @@ export class MembershipsService extends BaseService<Membership> {
     });
   }
 
-  builder(query: QueryDto): Promise<{ budget: string } | undefined> {
-    return this.repository
-      .createQueryBuilder('membership')
-      .select('membership.budget', 'budget')
-      .where('membership.user_id = :userId', { userId: query.user })
-      .andWhere('membership.group_id = :groupId', { groupId: query.group })
-      .getRawOne<{ budget: string }>();
-  }
-
-  summary() {
-    return this.repository
+  summaries(
+    query?: QueryDto,
+    withBudget: boolean = true,
+  ): Promise<MembershipSummaryDto[]> {
+    const builder = this.repository
       .createQueryBuilder('membership')
       .select(['membership.id AS id', 'membership.budget AS budget'])
       .leftJoin('membership.user', 'member')
@@ -60,10 +54,40 @@ export class MembershipsService extends BaseService<Membership> {
       .addSelect(['group.id AS "groupId"', 'group.name AS "groupName"'])
       .leftJoin('member.expenses', 'expense', 'expense.group_id = group.id')
       .addSelect('COALESCE(SUM(expense.amount), 0)', 'total')
-      .where('membership.budget IS NOT NULL')
       .groupBy('membership.id')
       .addGroupBy('member.id')
-      .addGroupBy('group.id')
-      .getRawMany<MembershipSummaryDto>();
+      .addGroupBy('group.id');
+
+    if (withBudget) builder.where('membership.budget IS NOT NULL');
+
+    if (query?.user)
+      builder.andWhere('membership.user_id = :userId', {
+        userId: query.user,
+      });
+
+    if (query?.group)
+      builder.andWhere('membership.group_id = :groupId', {
+        groupId: query.group,
+      });
+
+    return builder.getRawMany<MembershipSummaryDto>();
+  }
+
+  async summary(
+    query: QueryDto,
+  ): Promise<{ budget: number; total: number; percent: number }> {
+    const summaries = await this.summaries(query, false);
+    const summary = summaries[0];
+    const response = { budget: 0, total: 0, percent: 0 };
+
+    if (!summary) return response;
+
+    response.budget = Number(summary.budget);
+    response.total = Number(summary.total);
+    response.percent = Number(
+      ((response.total / response.budget) * 100).toFixed(2),
+    );
+
+    return response;
   }
 }
