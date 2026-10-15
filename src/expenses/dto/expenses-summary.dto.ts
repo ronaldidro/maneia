@@ -18,7 +18,7 @@ export interface ExpenseSummaryDetailDto {
 }
 
 export interface ExpenseSummaryDto {
-  user: string;
+  firstName: string;
   expenses: number;
   amount: number;
   debts: number;
@@ -26,6 +26,8 @@ export interface ExpenseSummaryDto {
   creditors: ExpenseSummaryDetailDto[];
   chart: ChartDto;
   budget: number;
+  total: number;
+  percent: number;
 }
 
 export interface ExpenseProcessed {

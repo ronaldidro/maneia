@@ -38,7 +38,7 @@ export class SummariesService {
 
     const dayExpensesBuilder = this.getDayExpensesBuilder(summaryQuery);
 
-    const membershipBuilder = this.membershipsService.builder(summaryQuery);
+    const membershipSummary = this.membershipsService.summary(summaryQuery);
 
     const [
       totalExpenses,
@@ -55,18 +55,20 @@ export class SummariesService {
       creditorsBuilder,
       userExpensesBuilder,
       dayExpensesBuilder,
-      membershipBuilder,
+      membershipSummary,
     ]);
 
     return {
-      user: user.firstName,
+      firstName: user.firstName,
       expenses: Number(totalExpenses?.amount),
       amount: Number(userExpenses?.amount),
       debts: Number(totalDebts?.amount),
       debtors,
       creditors,
       chart: this.getChartData(dayExpenses),
-      budget: Number(membership?.budget),
+      budget: membership.budget,
+      total: membership.total,
+      percent: membership.percent,
     };
   }
 
