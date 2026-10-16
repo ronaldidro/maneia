@@ -84,9 +84,9 @@ export class MembershipsService extends BaseService<Membership> {
 
     response.budget = Number(summary.budget);
     response.total = Number(summary.total);
-    response.percent = Number(
-      ((response.total / response.budget) * 100).toFixed(2),
-    );
+    response.percent = response.budget
+      ? (response.total / response.budget) * 100
+      : 0;
 
     return response;
   }
