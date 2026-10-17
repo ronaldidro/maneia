@@ -87,7 +87,7 @@ export class PaymentsService extends Pageable<Payment> {
     query: PaymentsQueryDto,
     user: User,
   ): Promise<PaginatedResponse<Payment>> {
-    const { search, startDate, endDate } = query;
+    const { search, group, user: payer, startDate, endDate } = query;
 
     const builder = this.repository
       .createQueryBuilder('payment')
@@ -117,6 +117,12 @@ export class PaymentsService extends Pageable<Payment> {
       builder.andWhere('payment.description ILIKE :search', {
         search: `%${search.trim()}%`,
       });
+
+    if (group)
+      builder.andWhere('payment.group_id = :groupId', { groupId: group });
+
+    if (payer)
+      builder.andWhere('payment.payer_id = :payerId', { payerId: payer });
 
     if (startDate)
       builder.andWhere('payment.createdAt >= :startDate', { startDate });
