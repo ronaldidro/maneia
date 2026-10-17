@@ -114,6 +114,16 @@ export class NotificationsService extends Pageable<Notification> {
     return await this.repository.update({ id }, updateNotificationDto);
   }
 
+  async updateAll(
+    user: User,
+    updateNotificationDto: UpdateNotificationDto,
+  ): Promise<UpdateResult> {
+    return await this.repository.update(
+      { user: { id: user.id } },
+      updateNotificationDto,
+    );
+  }
+
   async remove(id: string, user: User): Promise<DeleteResult> {
     const notification = await this.findOne(id);
 

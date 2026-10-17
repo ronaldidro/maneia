@@ -34,6 +34,14 @@ export class NotificationsController {
     return this.notificationsService.findAll(notificationsQuery, user);
   }
 
+  @Patch()
+  updateAll(
+    @CurrentUser() user: User,
+    @Body() updateNotificationDto: UpdateNotificationDto,
+  ) {
+    return this.notificationsService.updateAll(user, updateNotificationDto);
+  }
+
   @Patch(':id')
   update(
     @Param('id', new ParseUUIDPipe()) id: string,
