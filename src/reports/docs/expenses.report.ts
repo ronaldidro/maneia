@@ -51,7 +51,7 @@ export const makeExpensesReport = (
               { text: 'Descripción', bold: true, alignment: 'center' },
               { text: 'Grupo', bold: true, alignment: 'center' },
               { text: 'Miembro', bold: true, alignment: 'center' },
-              { text: 'Monto', bold: true, alignment: 'center' },
+              { text: 'Asignado', bold: true, alignment: 'center' },
               { text: 'Total', bold: true, alignment: 'center' },
             ],
             ...getExpensesRows(expenses),

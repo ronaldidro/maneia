@@ -109,7 +109,7 @@ export class ExpensesService extends Pageable<Expense> {
   ): Promise<PaginatedResponse<Expense>> {
     const builder = this.buildQuery(query, user);
 
-    if (query.user) this.filterByDebtor(builder, query.user);
+    if (query.user) this.filterByDebtor(builder, query.user, user.id);
 
     return await this.paginate(builder, query);
   }
@@ -145,8 +145,7 @@ export class ExpensesService extends Pageable<Expense> {
   ): Promise<Buffer<ArrayBufferLike>> {
     const builder = this.buildQuery(query, user);
 
-    if (query.user)
-      builder.andWhere('detail.user_id = :debtorId', { debtorId: query.user });
+    if (query.user) this.filterByDebtor(builder, query.user, user.id);
 
     const expenses = await builder.getMany();
 
@@ -176,23 +175,23 @@ export class ExpensesService extends Pageable<Expense> {
 
     const builder = this.buildQuery(query, user, 'destroy');
 
-    if (debtor) this.filterByDebtor(builder, debtor);
+    if (debtor) this.filterByDebtor(builder, debtor, user.id);
 
     const expenses = await builder.getMany();
 
     if (!expenses.length) throw new NotFoundException('Expenses not found');
 
-    if (debtor && debtor !== user.id) {
-      await this.removeDebtorExpenses(expenses, debtor);
+    if (debtor) {
+      await this.removeUserExpenses(expenses, debtor);
       return expenses;
     }
 
     return await this.repository.remove(expenses);
   }
 
-  private async removeDebtorExpenses(
+  private async removeUserExpenses(
     expenses: Expense[],
-    debtor: string,
+    user: string,
   ): Promise<void> {
     const expensesToRemove: Expense[] = [];
     const detailsToRemove: ExpenseDetail[] = [];
@@ -202,7 +201,7 @@ export class ExpensesService extends Pageable<Expense> {
         expensesToRemove.push(expense);
       } else {
         const detail = expense.details.find(
-          (detail) => detail.user.id === debtor,
+          (detail) => detail.user.id === user,
         );
 
         if (detail) detailsToRemove.push(detail);
@@ -221,19 +220,16 @@ export class ExpensesService extends Pageable<Expense> {
 
   private filterByDebtor(
     builder: SelectQueryBuilder<Expense>,
-    debtor: string,
+    debtorId: string,
+    userId: string,
   ): SelectQueryBuilder<Expense> {
-    return builder
-      .andWhere((qb) => {
-        const sq = qb
-          .subQuery()
-          .select('detail.expense_id')
-          .from('expense-details', 'detail')
-          .where('detail.user_id = :debtorId')
-          .getQuery();
-        return `expense.id IN ${sq}`;
-      })
-      .setParameter('debtorId', debtor);
+    if (debtorId !== userId) {
+      return builder
+        .andWhere('payer.id = :userId', { userId })
+        .andWhere('debtor.id = :debtorId', { debtorId });
+    } else {
+      return builder.andWhere('debtor.id = :debtorId', { debtorId: userId });
+    }
   }
 
   private buildQuery(
