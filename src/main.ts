@@ -6,9 +6,13 @@ import helmet from 'helmet';
 import { AppModule } from '@/app.module';
 import { ErrorsInterceptor } from '@/interceptor/errors.interceptor';
 import { registerBullBoard } from '@/bull-board';
+import { ObserveInstrument } from '@/observer/observer.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    instrument: ObserveInstrument,
+  });
+
   const configService = app.get(ConfigService);
 
   const isDevEnv = configService.get<boolean>('env.is_dev');
