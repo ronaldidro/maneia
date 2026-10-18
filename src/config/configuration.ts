@@ -2,6 +2,7 @@ export default () => ({
   port: process.env.PORT,
   secret: process.env.SECRET,
   env: {
+    name: process.env.NODE_ENV,
     is_dev: process.env.NODE_ENV === 'dev',
     is_prd: process.env.NODE_ENV === 'prd',
   },
@@ -37,5 +38,10 @@ export default () => ({
   gemini: {
     api_key: process.env.GEMINI_API_KEY,
     model: process.env.GEMINI_MODEL,
+  },
+  observe: {
+    app_key: process.env.OBSERVE_APP_KEY,
+    app_secret: process.env.OBSERVE_APP_SECRET,
+    service_id: process.env.OBSERVE_SERVICE_ID,
   },
 });

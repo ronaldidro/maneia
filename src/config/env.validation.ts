@@ -112,6 +112,18 @@ class EnvironmentVariables {
 
   @IsNotEmpty()
   @IsString()
+  OBSERVE_APP_KEY: string;
+
+  @IsNotEmpty()
+  @IsString()
+  OBSERVE_APP_SECRET: string;
+
+  @IsNotEmpty()
+  @IsString()
+  OBSERVE_SERVICE_ID: string;
+
+  @IsNotEmpty()
+  @IsString()
   TZ: string;
 }
 

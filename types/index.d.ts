@@ -25,5 +25,8 @@ declare namespace NodeJS {
     RENDER_SERVICE_ID: string;
     GEMINI_API_KEY: string;
     GEMINI_MODEL: string;
+    OBSERVE_APP_KEY: string;
+    OBSERVE_APP_SECRET: string;
+    OBSERVE_SERVICE_ID: string;
   }
 }
