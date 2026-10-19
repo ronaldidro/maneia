@@ -1,7 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { ConditionalModule } from '@nestjs/config';
 import { LoggerMiddleware } from '@/middleware/logger.middleware';
-import { AppController } from '@/app.controller';
 import { UsersModule } from '@/users/users.module';
 import { AuthModule } from '@/auth/auth.module';
 import { GroupsModule } from '@/groups/groups.module';
@@ -15,15 +13,14 @@ import { EventsModule } from '@/events/events.module';
 import { NotificationsModule } from '@/notifications/notifications.module';
 import { SchedulesModule } from '@/schedules/schedules.module';
 import { ObserverModule } from '@/observer/observer.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
     ConfigurationModule,
-    ConditionalModule.registerWhen(
-      ObserverModule,
-      (env: NodeJS.ProcessEnv) => env.NODE_ENV === 'prd',
-    ),
+    ObserverModule,
     DatabaseModule,
+    HealthModule,
     EventsModule,
     AuthModule,
     UsersModule,
@@ -35,7 +32,6 @@ import { ObserverModule } from '@/observer/observer.module';
     NotificationsModule,
     SchedulesModule,
   ],
-  controllers: [AppController],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
