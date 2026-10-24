@@ -65,6 +65,8 @@ export class GroupsService {
         search: `%${queryDto.search.trim()}%`,
       });
 
+    builder.orderBy('group.createdAt', 'DESC');
+
     return await builder.getMany();
   }
 
