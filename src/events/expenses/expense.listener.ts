@@ -14,7 +14,7 @@ import {
   NotificationEntityType,
   NotificationSeverity,
 } from '@/notifications/enum/notification.enum';
-import { formatDate } from '@/common/helpers';
+import { formatCurrency, formatDate } from '@/common/helpers';
 
 @Injectable()
 export class ExpenseListener {
@@ -42,7 +42,7 @@ export class ExpenseListener {
 
       await this.sendNotification({
         title: ExpenseListener.TYPE_LABEL.created,
-        description: `${expense.payer.firstName} registró un gasto de S/${expense.amount} en ${expense.group.name}`,
+        description: `${expense.payer.firstName} registró un gasto de ${formatCurrency(expense.amount)} en ${expense.group.name}`,
         type: NotificationType.ExpenseCreated,
         entityId: expense.id,
         user: detail.user,
@@ -68,7 +68,7 @@ export class ExpenseListener {
 
       await this.sendNotification({
         title: ExpenseListener.TYPE_LABEL.deleted,
-        description: `${expense.payer.firstName} eliminó un gasto de S/${expense.amount} en ${expense.group.name}`,
+        description: `${expense.payer.firstName} eliminó un gasto de ${formatCurrency(expense.amount)} en ${expense.group.name}`,
         type: NotificationType.ExpenseDeleted,
         entityId: expense.id,
         user: detail.user,

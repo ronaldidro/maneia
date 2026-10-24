@@ -9,7 +9,7 @@ import {
   NotificationSeverity,
 } from '@/notifications/enum/notification.enum';
 import { CreateMailer } from '@/mailer/create-mailer';
-import { formatDate } from '@/common/helpers';
+import { formatCurrency, formatDate } from '@/common/helpers';
 
 @Injectable()
 export class PaymentListener {
@@ -32,7 +32,7 @@ export class PaymentListener {
 
     await this.sendNotification({
       title: PaymentListener.TYPE_LABEL.created,
-      description: `${payment.creditor.firstName} registró un pago de S/${payment.amount} en ${payment.group.name}`,
+      description: `${payment.creditor.firstName} registró un pago de ${formatCurrency(payment.amount)} en ${payment.group.name}`,
       type: NotificationType.PaymentCreated,
       entityId: payment.id,
       user: payment.payer,
@@ -52,7 +52,7 @@ export class PaymentListener {
 
     await this.sendNotification({
       title: PaymentListener.TYPE_LABEL.deleted,
-      description: `${payment.creditor.firstName} eliminó un pago de S/${payment.amount} en ${payment.group.name}`,
+      description: `${payment.creditor.firstName} eliminó un pago de ${formatCurrency(payment.amount)} en ${payment.group.name}`,
       type: NotificationType.PaymentDeleted,
       entityId: payment.id,
       user: payment.payer,

@@ -12,6 +12,7 @@ import {
   NotificationSeverity,
   NotificationType,
 } from '@/notifications/enum/notification.enum';
+import { formatCurrency } from '@/common/helpers';
 
 @Injectable()
 export class MembershipListener {
@@ -34,7 +35,7 @@ export class MembershipListener {
 
     await this.sendNotification({
       title: MembershipListener.TYPE_LABEL.exceeded,
-      description: `Has excedido el presupuesto de S/${data.membership.budget} en ${data.membership.group.name}`,
+      description: `Has excedido el presupuesto de ${formatCurrency(data.membership.budget)} en ${data.membership.group.name}`,
       type: NotificationType.BudgetExceeded,
       entityId: data.membership.id,
       user: data.membership.member,
@@ -54,7 +55,7 @@ export class MembershipListener {
 
     await this.sendNotification({
       title: MembershipListener.TYPE_LABEL.tight,
-      description: `Te queda solo S/${data.remaining} del presupuesto de S/${data.membership.budget} en ${data.membership.group.name}`,
+      description: `Te queda solo ${formatCurrency(data.remaining!)} del presupuesto de ${formatCurrency(data.membership.budget)} en ${data.membership.group.name}`,
       type: NotificationType.BudgetTight,
       entityId: data.membership.id,
       user: data.membership.member,
