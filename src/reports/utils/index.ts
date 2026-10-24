@@ -4,7 +4,7 @@ import {
   TableLayout,
   TDocumentDefinitions,
 } from 'pdfmake/interfaces';
-import { formatDate } from '@/common/helpers';
+import { formatCurrency, formatDate } from '@/common/helpers';
 import { QueryDto } from '@/common/dto/query.dto';
 import { PAY_DESCRIPTION } from '@/common/constants';
 import { Payment } from '@/payments/entities/payment.entity';
@@ -69,7 +69,9 @@ export const getPaymentContentColumns = (payment: Payment): ContentColumns => ({
         '',
         { text: [{ text: 'Recibe: ', bold: true }, payment.user.firstName] },
         '',
-        { text: [{ text: 'Deuda: ', bold: true }, `S/${payment.debt}`] },
+        {
+          text: [{ text: 'Deuda: ', bold: true }, formatCurrency(payment.debt)],
+        },
       ],
     },
     {
@@ -83,7 +85,12 @@ export const getPaymentContentColumns = (payment: Payment): ContentColumns => ({
         '',
         { text: [{ text: 'Paga: ', bold: true }, payment.payer.firstName] },
         '',
-        { text: [{ text: 'Pago: ', bold: true }, `S/${payment.amount}`] },
+        {
+          text: [
+            { text: 'Pago: ', bold: true },
+            formatCurrency(payment.amount),
+          ],
+        },
       ],
     },
     {
@@ -103,7 +110,10 @@ export const getPaymentContentColumns = (payment: Payment): ContentColumns => ({
         },
         '',
         {
-          text: [{ text: 'Pendiente: ', bold: true }, `S/${payment.remaining}`],
+          text: [
+            { text: 'Pendiente: ', bold: true },
+            formatCurrency(payment.remaining),
+          ],
         },
       ],
     },

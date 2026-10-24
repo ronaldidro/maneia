@@ -7,6 +7,7 @@ import {
   tableLayout,
   getContentColumns,
 } from '@/reports/utils';
+import { formatCurrency } from '@/common/helpers';
 
 export const makeExpensesReport = (
   expenses: Expense[],
@@ -61,11 +62,11 @@ export const makeExpensesReport = (
               {},
               {},
               query.user
-                ? { text: `S/${totalDetails.toFixed(2)}`, style: 'totals' }
+                ? { text: formatCurrency(totalDetails), style: 'totals' }
                 : {},
               query.user
                 ? {}
-                : { text: `S/${total.toFixed(2)}`, style: 'totals' },
+                : { text: formatCurrency(total), style: 'totals' },
             ],
           ],
         },

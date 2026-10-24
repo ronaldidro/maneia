@@ -6,6 +6,7 @@ import {
   getPaymentExpensesRows,
   tableLayout,
 } from '@/reports/utils';
+import { formatCurrency } from '@/common/helpers';
 
 export const makePaymentReport = (payment: Payment): TDocumentDefinitions => {
   const total = payment.expenses.reduce(
@@ -49,7 +50,7 @@ export const makePaymentReport = (payment: Payment): TDocumentDefinitions => {
             [
               { text: 'Total', colSpan: 2, style: 'totals' },
               {},
-              { text: `S/${total.toFixed(2)}`, style: 'totals' },
+              { text: formatCurrency(total), style: 'totals' },
             ],
           ],
         },
@@ -63,8 +64,8 @@ export const makePaymentReport = (payment: Payment): TDocumentDefinitions => {
               { text: 'Se registró un nuevo gasto con descripción ' },
               { text: 'Saldo pendiente de pago ', bold: true },
               { text: 'con el monto ' },
-              { text: `S/${payment.remaining} `, bold: true },
-              { text: `para el miembro ${payment.payer.firstName}.` },
+              { text: formatCurrency(payment.remaining), bold: true },
+              { text: ` para el miembro ${payment.payer.firstName}.` },
             ],
           }
         : '',

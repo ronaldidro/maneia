@@ -1,6 +1,7 @@
 import { TableCell } from 'pdfmake';
 import { Expense } from '@/expenses/entities/expense.entity';
 import { parseToDate } from '@/reports/utils';
+import { formatCurrency } from '@/common/helpers';
 
 export const getExpensesRows = (expenses: Expense[]): TableCell[][] =>
   expenses.flatMap((expense) =>
@@ -26,12 +27,12 @@ export const getExpensesRows = (expenses: Expense[]): TableCell[][] =>
           },
           { text: detail.user.firstName, verticalAlignment: 'middle' },
           {
-            text: `S/${detail.amount}`,
+            text: formatCurrency(detail.amount),
             alignment: 'right',
             verticalAlignment: 'middle',
           },
           {
-            text: `S/${expense.amount}`,
+            text: formatCurrency(expense.amount),
             rowSpan: expense.details.length,
             verticalAlignment: 'middle',
             alignment: 'right',
@@ -45,7 +46,7 @@ export const getExpensesRows = (expenses: Expense[]): TableCell[][] =>
         { text: '' },
         { text: detail.user.firstName, verticalAlignment: 'middle' },
         {
-          text: `S/${detail.amount}`,
+          text: formatCurrency(detail.amount),
           alignment: 'right',
           verticalAlignment: 'middle',
         },

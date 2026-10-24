@@ -1,5 +1,6 @@
-import { PaymentExpense } from '@/payments/interfaces';
 import { TableCell } from 'pdfmake';
+import { formatCurrency } from '@/common/helpers';
+import { PaymentExpense } from '@/payments/interfaces';
 
 export const getPaymentExpensesRows = (
   expenses: PaymentExpense[],
@@ -12,7 +13,7 @@ export const getPaymentExpensesRows = (
     },
     { text: expense.description },
     {
-      text: `S/${expense.details[0].amount}`,
+      text: formatCurrency(expense.details[0].amount),
       alignment: 'right',
       verticalAlignment: 'middle',
     },
