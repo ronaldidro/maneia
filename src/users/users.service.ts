@@ -48,8 +48,10 @@ export class UsersService {
         lastName: true,
         email: true,
         role: true,
+        createdAt: true,
       },
       where,
+      order: { createdAt: 'DESC' },
     });
   }
 
