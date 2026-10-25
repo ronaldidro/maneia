@@ -11,7 +11,7 @@ import {
   ExpenseSummaryDto,
 } from '@/expenses/dto/expenses-summary.dto';
 import { MembershipsService } from '@/memberships/memberships.service';
-import { DetailsService } from '@/expenses/details.service';
+import { DetailsService } from '@/expenses/services/details.service';
 
 @Injectable()
 export class SummariesService {

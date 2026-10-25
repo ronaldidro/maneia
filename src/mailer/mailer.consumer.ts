@@ -3,7 +3,7 @@ import { Process, Processor } from '@nestjs/bull';
 import { MailerService } from '@/mailer/mailer.service';
 import { CreateMailer } from '@/mailer/create-mailer';
 import { MailTemplate } from '@/mailer/interfaces';
-import { ExpensesService } from '@/expenses/expenses.service';
+import { ExpensesService } from '@/expenses/services/expenses.service';
 import { PaymentsService } from '@/payments/payments.service';
 import { formatDate } from '@/common/helpers';
 
