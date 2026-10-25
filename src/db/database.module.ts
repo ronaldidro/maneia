@@ -15,7 +15,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
         password: config.get<string>('database.pass'),
         database: config.get<string>('database.name'),
         entities: ['dist/**/*.entity{.ts,.js}'],
-        logging: config.get<boolean>('env.is_dev'),
+        logging: config.get<boolean>('env.is_dev') ? 'all' : ['warn', 'error'],
         ssl: { rejectUnauthorized: false },
         namingStrategy: new SnakeNamingStrategy(),
       }),
