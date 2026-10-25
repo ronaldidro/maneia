@@ -31,8 +31,6 @@ export class UsersService {
 
     const user = this.repository.create(createUserDto);
 
-    user.password = await this.hashedPassword(createUserDto.password);
-
     return await this.repository.save(user);
   }
 
@@ -95,9 +93,6 @@ export class UsersService {
 
     this.authService.checkAbility(currentUser, Action.Update, user);
 
-    if (updateUserDto.password)
-      user.password = await this.hashedPassword(updateUserDto.password);
-
     return await this.repository.save(user);
   }
 
@@ -112,7 +107,7 @@ export class UsersService {
 
     if (!isMatch) throw new UnprocessableEntityException('Incorrect password');
 
-    currentUser.password = await this.hashedPassword(updatePasswordDto.renewed);
+    currentUser.password = updatePasswordDto.renewed;
 
     return await this.repository.save(currentUser);
   }
@@ -125,10 +120,5 @@ export class UsersService {
     this.authService.checkAbility(currentUser, Action.Delete, user);
 
     return await this.repository.softDelete(id);
-  }
-
-  private async hashedPassword(password: string): Promise<string> {
-    const salt = await bcrypt.genSalt();
-    return await bcrypt.hash(password, salt);
   }
 }
