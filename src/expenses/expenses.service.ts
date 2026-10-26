@@ -3,7 +3,6 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   Brackets,
@@ -11,7 +10,6 @@ import {
   Repository,
   SelectQueryBuilder,
 } from 'typeorm';
-import { ExpenseEvent } from '@/events/expenses/expense.event';
 import { CreateExpenseDto } from '@/expenses/dto/create-expense.dto';
 import { ExpensesQueryDto } from '@/expenses/dto/expenses-query.dto';
 import { ExpenseProcessed } from '@/expenses/dto/expenses-summary.dto';
@@ -35,7 +33,6 @@ export class ExpensesService extends Pageable<Expense> {
     private readonly reportsService: ReportsService,
     private readonly aiService: AiService,
     private readonly authService: AuthService,
-    private readonly eventEmitter: EventEmitter2,
   ) {
     super();
   }
@@ -66,13 +63,7 @@ export class ExpensesService extends Pageable<Expense> {
       details,
     });
 
-    const saved = await this.repository.save(expense);
-
-    const expenseCreated = await this.findOne(saved.id);
-
-    this.emitEvent('expense.created', expenseCreated, user);
-
-    return expenseCreated;
+    return await this.repository.save(expense);
   }
 
   async transform(file: Express.Multer.File) {
@@ -156,21 +147,15 @@ export class ExpensesService extends Pageable<Expense> {
     return await pdf.getBuffer();
   }
 
-  async remove(id: string, user: User): Promise<DeleteResult> {
+  async remove(id: string, user: User): Promise<Expense> {
     const expense = await this.findOne(id);
 
     this.authService.checkAbility(user, Action.Delete, expense);
 
-    const result = await this.repository.delete(id);
-
-    const expenseDeleted = { ...expense, deletedAt: new Date() };
-
-    this.emitEvent('expense.deleted', expenseDeleted, user);
-
-    return result;
+    return await this.repository.remove(expense);
   }
 
-  async removeAll(query: QueryDto, user: User): Promise<Expense[]> {
+  async removeAll(query: QueryDto, user: User): Promise<DeleteResult> {
     const { user: debtor } = query;
 
     const builder = this.buildQuery(query, user, 'destroy');
@@ -183,10 +168,12 @@ export class ExpensesService extends Pageable<Expense> {
 
     if (debtor) {
       await this.removeUserExpenses(expenses, debtor);
-      return expenses;
+      return new DeleteResult();
     }
 
-    return await this.repository.remove(expenses);
+    const ids = expenses.map((expense) => expense.id);
+
+    return await this.repository.delete(ids); // delete -> skip subscriber
   }
 
   private async removeUserExpenses(
@@ -208,13 +195,13 @@ export class ExpensesService extends Pageable<Expense> {
       }
     }
 
+    const ids = expensesToRemove.map((expense) => expense.id);
+
     await Promise.all([
       detailsToRemove.length
         ? this.detailsService.removeEntities(detailsToRemove)
         : Promise.resolve(),
-      expensesToRemove.length
-        ? this.repository.remove(expensesToRemove)
-        : Promise.resolve(),
+      expensesToRemove.length ? this.repository.delete(ids) : Promise.resolve(),
     ]);
   }
 
@@ -296,24 +283,5 @@ export class ExpensesService extends Pageable<Expense> {
     builder.orderBy('expense.expensedAt', 'DESC');
 
     return builder;
-  }
-
-  private emitEvent(event: string, expense: Expense, user: User) {
-    this.eventEmitter.emit(
-      event,
-      new ExpenseEvent(user, {
-        id: expense.id,
-        description: expense.description,
-        group: { id: expense.group.id, name: expense.group.name },
-        payer: { firstName: expense.user.firstName },
-        createdAt: expense.expensedAt,
-        deletedAt: expense.deletedAt,
-        amount: expense.amount,
-        details: expense.details.map(({ user, amount }) => ({
-          user: { id: user.id, firstName: user.firstName, email: user.email },
-          amount: amount,
-        })),
-      }),
-    );
   }
 }

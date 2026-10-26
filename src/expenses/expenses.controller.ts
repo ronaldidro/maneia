@@ -15,7 +15,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
-import { ExpensesService } from '@/expenses/services/expenses.service';
+import { ExpensesService } from '@/expenses/expenses.service';
 import { DetailsService } from '@/expenses/services/details.service';
 import { SummariesService } from '@/expenses/services/summaries.service';
 import { CreateExpenseDto } from '@/expenses/dto/create-expense.dto';

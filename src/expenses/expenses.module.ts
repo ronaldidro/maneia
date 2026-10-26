@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ExpensesService } from '@/expenses/services/expenses.service';
+import { ExpenseSubscriber } from '@/expenses/expense.subscriber';
+import { ExpensesService } from '@/expenses/expenses.service';
 import { DetailsService } from '@/expenses/services/details.service';
 import { SummariesService } from '@/expenses/services/summaries.service';
 import { ExpensesController } from '@/expenses/expenses.controller';
@@ -20,7 +21,12 @@ import { AiModule } from '@/ai/ai.module';
     AiModule,
   ],
   controllers: [ExpensesController],
-  providers: [ExpensesService, SummariesService, DetailsService],
+  providers: [
+    ExpenseSubscriber,
+    ExpensesService,
+    SummariesService,
+    DetailsService,
+  ],
   exports: [ExpensesService],
 })
 export class ExpensesModule {}
