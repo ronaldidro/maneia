@@ -34,6 +34,7 @@ export class ExpenseSubscriber implements EntitySubscriberInterface<Expense> {
         group: { id: true, name: true },
         user: { id: true, firstName: true },
         details: {
+          id: true,
           amount: true,
           user: { id: true, firstName: true, email: true },
         },
