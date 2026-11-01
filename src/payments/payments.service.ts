@@ -246,12 +246,14 @@ export class PaymentsService extends Pageable<Payment> {
       paymentExpenses.push(this.mapToPaymentExpense(expense, detail));
     }
 
+    const ids = expensesToRemove.map((expense) => expense.id);
+
     await Promise.all([
       detailsToRemove.length
         ? manager.remove(detailsToRemove)
         : Promise.resolve(),
       expensesToRemove.length
-        ? manager.remove(expensesToRemove)
+        ? manager.delete(Expense, ids)
         : Promise.resolve(),
     ]);
 
