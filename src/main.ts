@@ -5,8 +5,8 @@ import { ConfigService } from '@nestjs/config';
 import { I18nValidationPipe } from '@nestjs/i18n';
 import helmet from 'helmet';
 import { AppModule } from '@/app.module';
-import { ErrorsInterceptor } from '@/interceptor/errors.interceptor';
 import { registerBullBoard } from '@/bull-board';
+import { HttpExceptionFilter } from '@/filter/http-exception.filter';
 import { ObserveInstrument } from '@/observer/observer.module';
 
 async function bootstrap() {
@@ -47,10 +47,9 @@ async function bootstrap() {
     swaggerOptions: { persistAuthorization: true },
   });
 
-  app.useGlobalInterceptors(
-    new ErrorsInterceptor(),
-    new ClassSerializerInterceptor(app.get(Reflector)),
-  );
+  app.useGlobalFilters(new HttpExceptionFilter());
+
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   app.setGlobalPrefix('api');
 
