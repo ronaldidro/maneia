@@ -9,7 +9,7 @@ import {
   Query,
   Sse,
 } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiExcludeEndpoint } from '@nestjs/swagger';
 import { NotificationsService } from '@/notifications/notifications.service';
 import { UpdateNotificationDto } from '@/notifications/dto/update-notification.dto';
 import { NotificationsQueryDto } from '@/notifications/dto/notifications-query.dto';
@@ -21,6 +21,7 @@ import { User } from '@/users/entities/user.entity';
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
+  @ApiExcludeEndpoint()
   @Sse('stream')
   stream(@CurrentUser() user: User) {
     return this.notificationsService.stream(user.id);
