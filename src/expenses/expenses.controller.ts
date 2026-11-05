@@ -6,7 +6,6 @@ import {
   Param,
   Delete,
   Query,
-  ParseUUIDPipe,
   Header,
   StreamableFile,
   UseInterceptors,
@@ -25,6 +24,7 @@ import { UploadFileDto } from '@/expenses/dto/upload-file.dto';
 import { QueryDto } from '@/common/dto/query.dto';
 import { User } from '@/users/entities/user.entity';
 import { CurrentUser } from '@/decorator/user.decorator';
+import { I18nUuidPipe } from '@/pipes/i18n-uuid.pipe';
 
 @ApiBearerAuth()
 @Controller('expenses')
@@ -86,7 +86,7 @@ export class ExpensesController {
   }
 
   @Get(':id')
-  findOne(@Param('id', new ParseUUIDPipe()) id: string) {
+  findOne(@Param('id', I18nUuidPipe) id: string) {
     return this.service.findOne(id);
   }
 
@@ -96,10 +96,7 @@ export class ExpensesController {
   }
 
   @Delete(':id')
-  remove(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @CurrentUser() user: User,
-  ) {
+  remove(@Param('id', I18nUuidPipe) id: string, @CurrentUser() user: User) {
     return this.service.remove(id, user);
   }
 }

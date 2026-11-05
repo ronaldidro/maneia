@@ -3,6 +3,7 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { I18nService } from '@nestjs/i18n';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   Brackets,
@@ -33,6 +34,7 @@ export class ExpensesService extends Pageable<Expense> {
     private readonly reportsService: ReportsService,
     private readonly aiService: AiService,
     private readonly authService: AuthService,
+    private readonly i18nService: I18nService,
   ) {
     super();
   }
@@ -84,7 +86,9 @@ export class ExpensesService extends Pageable<Expense> {
     const items = JSON.parse(result) as ExpenseProcessed[];
 
     if (!items.length)
-      throw new UnprocessableEntityException('File could not be processed');
+      throw new UnprocessableEntityException(
+        this.i18nService.t('expenses.unprocessableFile'),
+      );
 
     return {
       description: items
@@ -125,7 +129,8 @@ export class ExpensesService extends Pageable<Expense> {
       relations: { details: { user: true }, group: true, user: true },
     });
 
-    if (!expense) throw new NotFoundException('Expense not found');
+    if (!expense)
+      throw new NotFoundException(this.i18nService.t('expenses.notFound.one'));
 
     return expense;
   }
@@ -140,7 +145,8 @@ export class ExpensesService extends Pageable<Expense> {
 
     const expenses = await builder.getMany();
 
-    if (!expenses.length) throw new NotFoundException('Expenses not found');
+    if (!expenses.length)
+      throw new NotFoundException(this.i18nService.t('expenses.notFound.all'));
 
     const pdf = this.reportsService.createExpensesPdf(expenses, query);
 
@@ -164,7 +170,8 @@ export class ExpensesService extends Pageable<Expense> {
 
     const expenses = await builder.getMany();
 
-    if (!expenses.length) throw new NotFoundException('Expenses not found');
+    if (!expenses.length)
+      throw new NotFoundException(this.i18nService.t('expenses.notFound.all'));
 
     if (debtor) {
       await this.removeUserExpenses(expenses, debtor);
