@@ -13,7 +13,8 @@ import { EventsModule } from '@/events/events.module';
 import { NotificationsModule } from '@/notifications/notifications.module';
 import { SchedulesModule } from '@/schedules/schedules.module';
 import { ObserverModule } from '@/observer/observer.module';
-import { HealthModule } from './health/health.module';
+import { HealthModule } from '@/health/health.module';
+import { TranslationModule } from '@/translation/translation.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { HealthModule } from './health/health.module';
     ReportsModule,
     NotificationsModule,
     SchedulesModule,
+    TranslationModule,
   ],
 })
 export class AppModule implements NestModule {

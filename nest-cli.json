@@ -6,10 +6,8 @@
     "deleteOutDir": true,
     "plugins": ["@nestjs/swagger"],
     "assets": [
-      {
-        "include": "**/*.html",
-        "watchAssets": true
-      }
+      { "include": "**/*.html", "watchAssets": true },
+      { "include": "translation/**/*.json", "watchAssets": true }
     ]
   }
 }

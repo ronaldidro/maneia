@@ -1,0 +1,7 @@
+{
+  "notFound": {
+    "all": "No se encontraron gastos",
+    "one": "No se encontró gasto"
+  },
+  "unprocessableFile": "No se pudo procesar el archivo"
+}

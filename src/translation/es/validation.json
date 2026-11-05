@@ -1,0 +1,14 @@
+{
+  "invalidId": "El identificador debe ser un UUID",
+  "whitelistValidation": "{path} no permitido",
+  "isNotEmpty": "{path} no debe ser vacío",
+  "isDateString": "{path} debe ser una cadena de fecha ISO 8601",
+  "isNumber": "{path} debe ser numérico",
+  "isString": "{path} debe ser texto",
+  "isUuid": "{path} debe ser un UUID",
+  "isBoolean": "{path} debe ser booleano",
+  "isArray": "{path} debe ser un arreglo",
+  "isInt": "{path} debe ser un número entero",
+  "arrayNotEmpty": "{path} debe contener al menos un elemento",
+  "min": "{path} no debe ser menor a {constraint1}"
+}

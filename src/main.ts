@@ -1,7 +1,8 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import { ClassSerializerInterceptor } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { I18nValidationPipe } from '@nestjs/i18n';
 import helmet from 'helmet';
 import { AppModule } from '@/app.module';
 import { ErrorsInterceptor } from '@/interceptor/errors.interceptor';
@@ -24,7 +25,7 @@ async function bootstrap() {
   app.use(helmet());
 
   app.useGlobalPipes(
-    new ValidationPipe({
+    new I18nValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
       transformOptions: {
