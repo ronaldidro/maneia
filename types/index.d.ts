@@ -28,5 +28,6 @@ declare namespace NodeJS {
     OBSERVE_APP_KEY: string;
     OBSERVE_APP_SECRET: string;
     OBSERVE_SERVICE_ID: string;
+    NOTIFIER_DISCORD_WEBHOOK: string;
   }
 }

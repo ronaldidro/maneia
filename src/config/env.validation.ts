@@ -124,6 +124,10 @@ class EnvironmentVariables {
 
   @IsNotEmpty()
   @IsString()
+  NOTIFIER_DISCORD_WEBHOOK: string;
+
+  @IsNotEmpty()
+  @IsString()
   TZ: string;
 }
 

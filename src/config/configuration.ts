@@ -44,4 +44,7 @@ export default () => ({
     app_secret: process.env.OBSERVE_APP_SECRET,
     service_id: process.env.OBSERVE_SERVICE_ID,
   },
+  notifier: {
+    discord_webhook: process.env.NOTIFIER_DISCORD_WEBHOOK,
+  },
 });
