@@ -1,6 +1,4 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { APP_FILTER } from '@nestjs/core';
-import { HttpExceptionFilter } from '@/filter/http-exception.filter';
 import { LoggerMiddleware } from '@/middleware/logger.middleware';
 import { UsersModule } from '@/users/users.module';
 import { AuthModule } from '@/auth/auth.module';
@@ -19,6 +17,7 @@ import { HealthModule } from '@/health/health.module';
 import { TranslationModule } from '@/translation/translation.module';
 import { QueueModule } from '@/queue/queue.module';
 import { NotifierModule } from '@/notifier/notifier.module';
+import { FiltersModule } from '@/filters/filters.module';
 
 @Module({
   imports: [
@@ -28,6 +27,8 @@ import { NotifierModule } from '@/notifier/notifier.module';
     HealthModule,
     QueueModule,
     TranslationModule,
+    NotifierModule,
+    FiltersModule,
     EventsModule,
     AuthModule,
     UsersModule,
@@ -38,9 +39,7 @@ import { NotifierModule } from '@/notifier/notifier.module';
     ReportsModule,
     NotificationsModule,
     SchedulesModule,
-    NotifierModule,
   ],
-  providers: [{ provide: APP_FILTER, useClass: HttpExceptionFilter }],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
