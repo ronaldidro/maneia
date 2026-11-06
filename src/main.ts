@@ -5,8 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { I18nValidationPipe } from '@nestjs/i18n';
 import helmet from 'helmet';
 import { AppModule } from '@/app.module';
-import { registerBullBoard } from '@/bull-board';
-import { HttpExceptionFilter } from '@/filter/http-exception.filter';
+import { registerBullBoard } from '@/queue/bull-board';
 import { ObserveInstrument } from '@/observer/observer.module';
 
 async function bootstrap() {
@@ -47,13 +46,11 @@ async function bootstrap() {
     swaggerOptions: { persistAuthorization: true },
   });
 
-  app.useGlobalFilters(new HttpExceptionFilter());
-
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   app.setGlobalPrefix('api');
 
-  registerBullBoard(app, ['mailer'], configService);
+  registerBullBoard(app, ['mailer', 'notifier'], configService);
 
   await app.listen(configService.get<number>('port') ?? 3000);
 }

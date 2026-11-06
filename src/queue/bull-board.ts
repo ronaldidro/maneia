@@ -1,11 +1,11 @@
-import { Queue } from 'bull';
+import { INestApplication } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { getQueueToken } from '@nestjs/bull';
+import { Queue } from 'bull';
 import { ExpressAdapter } from '@bull-board/express';
 import { createBullBoard } from '@bull-board/api';
 import { BullAdapter } from '@bull-board/api/bullAdapter';
-import { INestApplication } from '@nestjs/common';
 import basicAuth from 'express-basic-auth';
-import { ConfigService } from '@nestjs/config';
 
 export function registerBullBoard(
   app: INestApplication,
