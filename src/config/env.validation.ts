@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import {
   IsEnum,
@@ -29,6 +30,10 @@ class EnvironmentVariables {
   @IsNotEmpty()
   @IsString()
   SECRET: string;
+
+  @IsNotEmpty()
+  @IsString()
+  ENCRYPTION_KEY: string;
 
   @IsNotEmpty()
   @IsString()
@@ -67,8 +72,8 @@ class EnvironmentVariables {
   QUEUE_HOST: string;
 
   @IsNotEmpty()
-  @IsString()
-  QUEUE_PORT: string;
+  @IsNumber()
+  QUEUE_PORT: number;
 
   @IsOptional()
   @IsString()
@@ -141,7 +146,9 @@ export function validate(config: Record<string, unknown>) {
   });
 
   if (errors.length > 0) {
-    throw new Error(errors.toString());
+    const logger = new Logger('EnvValidation');
+    logger.error(errors.toString());
+    process.exit(1);
   }
 
   return validatedConfig;

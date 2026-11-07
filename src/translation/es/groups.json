@@ -1,0 +1,6 @@
+{
+  "notFound": {
+    "all": "No se encontraron grupos",
+    "one": "No se encontró grupo"
+  }
+}

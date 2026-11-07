@@ -10,5 +10,7 @@
   "isArray": "{path} debe ser un arreglo",
   "isInt": "{path} debe ser un número entero",
   "arrayNotEmpty": "{path} debe contener al menos un elemento",
-  "min": "{path} no debe ser menor a {constraint1}"
+  "min": "{path} no debe ser menor a {constraint1}",
+  "isUrl": "{path} debe ser una dirección URL válida",
+  "matches": "{path} debe coincidir con {constraint1}"
 }

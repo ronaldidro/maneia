@@ -1,6 +1,7 @@
 export default () => ({
   port: process.env.PORT,
   secret: process.env.SECRET,
+  encryption_key: process.env.ENCRYPTION_KEY,
   env: {
     name: process.env.NODE_ENV,
     is_dev: process.env.NODE_ENV === 'dev',

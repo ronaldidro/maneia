@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { I18nService } from '@nestjs/i18n';
 import { Repository } from 'typeorm';
 import { CreateGroupDto } from '@/groups/dto/create-group.dto';
 import { UpdateGroupDto } from '@/groups/dto/update-group.dto';
@@ -17,17 +18,18 @@ export class GroupsService {
     private readonly repository: Repository<Group>,
     private readonly membershipService: MembershipsService,
     private readonly authService: AuthService,
+    private readonly i18nService: I18nService,
   ) {}
 
   async create(createGroupDto: CreateGroupDto, userId: string): Promise<Group> {
-    const { name, members } = createGroupDto;
+    const { members } = createGroupDto;
 
     const memberships = this.membershipService.createEntities(
       members.concat(userId).map((id) => ({ user: { id } })),
     );
 
     const group = this.repository.create({
-      name,
+      ...createGroupDto,
       user: { id: userId },
       memberships,
     });
@@ -38,7 +40,12 @@ export class GroupsService {
   async findAll(queryDto: QueryDto, user: User): Promise<Group[]> {
     const builder = this.repository
       .createQueryBuilder('group')
-      .select(['group.id', 'group.name', 'group.createdAt'])
+      .select([
+        'group.id',
+        'group.name',
+        'group.discordWebhook',
+        'group.createdAt',
+      ])
       .leftJoin('group.user', 'owner')
       .addSelect(['owner.id', 'owner.firstName', 'owner.lastName'])
       .leftJoin('group.memberships', 'membership')
@@ -73,7 +80,7 @@ export class GroupsService {
   async findOne(id: string): Promise<Group> {
     const builder = this.repository
       .createQueryBuilder('group')
-      .select(['group.id', 'group.name'])
+      .select(['group.id', 'group.name', 'group.discordWebhook'])
       .leftJoin('group.user', 'owner')
       .addSelect(['owner.id', 'owner.firstName', 'owner.lastName'])
       .leftJoin('group.memberships', 'membership')
@@ -84,7 +91,8 @@ export class GroupsService {
 
     const group = await builder.getOne();
 
-    if (!group) throw new NotFoundException('Group not found');
+    if (!group)
+      throw new NotFoundException(this.i18nService.t('groups.notFound.one'));
 
     return group;
   }
@@ -98,9 +106,11 @@ export class GroupsService {
 
     this.authService.checkAbility(user, Action.Update, group);
 
-    const { name, members } = updateGroupDto;
+    const { name, discordWebhook, members } = updateGroupDto;
 
     if (name) group.name = name;
+
+    group.discordWebhook = discordWebhook;
 
     if (members) {
       group.memberships = members.concat(user.id).map((userId) => {

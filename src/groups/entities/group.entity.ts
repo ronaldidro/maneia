@@ -4,11 +4,13 @@ import { Expense } from '@/expenses/entities/expense.entity';
 import { Membership } from '@/memberships/entities/membership.entity';
 import { Payment } from '@/payments/entities/payment.entity';
 import { User } from '@/users/entities/user.entity';
-
 @Entity({ name: 'groups' })
 export class Group extends BaseEntity {
   @Column()
   name: string;
+
+  @Column({ nullable: true })
+  discordWebhook?: string;
 
   @ManyToOne(() => User, (user) => user.groups)
   user: User;
