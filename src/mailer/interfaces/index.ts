@@ -43,3 +43,5 @@ export type MailTemplates = Record<
   Record<'budget-exceeded' | 'budget-tight', BudgetTemplateData>;
 
 export type MailTemplate = keyof MailTemplates;
+
+export type MailProcess = 'expense-mail' | 'payment-mail' | 'budget-mail';

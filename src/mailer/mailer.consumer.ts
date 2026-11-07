@@ -1,6 +1,6 @@
 import type { Job } from 'bull';
 import { Process, Processor } from '@nestjs/bull';
-import { MailerService } from '@/mailer/mailer.service';
+import { GmailService } from '@/mailer/gmail.service';
 import { CreateMailer } from '@/mailer/create-mailer';
 import { MailTemplate } from '@/mailer/interfaces';
 import { ExpensesService } from '@/expenses/expenses.service';
@@ -10,7 +10,7 @@ import { formatDate } from '@/common/helpers';
 @Processor('mailer')
 export class MailerConsumer {
   constructor(
-    private readonly mailerService: MailerService,
+    private readonly gmailService: GmailService,
     private readonly expensesService: ExpensesService,
     private readonly paymentsService: PaymentsService,
   ) {}
@@ -61,6 +61,6 @@ export class MailerConsumer {
   }
 
   private async sendMail<T extends MailTemplate>(mailer: CreateMailer<T>) {
-    await this.mailerService.send(mailer);
+    await this.gmailService.send(mailer);
   }
 }
