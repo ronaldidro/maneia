@@ -117,7 +117,7 @@ export class ExpensesService extends Pageable<Expense> {
         amount: true,
         splitted: true,
         expensedAt: true,
-        group: { id: true, name: true },
+        group: { id: true, name: true, discordWebhook: true },
         user: { id: true, firstName: true, lastName: true },
         details: {
           id: true,

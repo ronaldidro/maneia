@@ -31,7 +31,7 @@ export class ExpenseSubscriber implements EntitySubscriberInterface<Expense> {
         amount: true,
         createdAt: true,
         expensedAt: true,
-        group: { id: true, name: true },
+        group: { id: true, name: true, discordWebhook: true },
         user: { id: true, firstName: true },
         details: {
           id: true,
@@ -62,7 +62,11 @@ export class ExpenseSubscriber implements EntitySubscriberInterface<Expense> {
       new ExpenseEvent(user, {
         id: expense.id,
         description: expense.description,
-        group: { id: expense.group.id, name: expense.group.name },
+        group: {
+          id: expense.group.id,
+          name: expense.group.name,
+          discordWebhook: expense.group.discordWebhook,
+        },
         payer: { firstName: expense.user.firstName },
         createdAt: expense.expensedAt,
         deletedAt: expense.deletedAt,
