@@ -8,7 +8,7 @@ import { User } from '@/users/entities/user.entity';
 export interface ExpenseData {
   id: string;
   description: string;
-  group: { id: string; name: string };
+  group: { id: string; name: string; discordWebhook?: string };
   payer: { firstName: string };
   createdAt: Date;
   deletedAt?: Date;
@@ -16,7 +16,7 @@ export interface ExpenseData {
   details: ExpenseDetailData[];
 }
 
-interface ExpenseDetailData {
+export interface ExpenseDetailData {
   user: ExpenseDetailUser;
   amount: string;
 }
@@ -42,4 +42,13 @@ export interface ExpenseNotification {
   entityId: string;
   user: ExpenseDetailUser;
   severity: NotificationSeverity;
+}
+
+export interface ExpenseDiscordNotification {
+  type: NotificationType.ExpenseCreated | NotificationType.ExpenseDeleted;
+  webhookUrl: string;
+  title: string;
+  color: number;
+  expense: ExpenseData;
+  members: string;
 }

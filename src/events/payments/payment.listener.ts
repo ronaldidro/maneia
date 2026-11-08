@@ -24,13 +24,13 @@ export class PaymentListener {
   async handlePaymentCreated(payload: PaymentEvent) {
     const { data: payment } = payload;
 
-    await this.sendMail({
+    await this.buildMail({
       subject: PaymentListener.TYPE_LABEL.created,
       template: 'payment-created',
       payment,
     });
 
-    await this.sendNotification({
+    await this.makeNotification({
       title: PaymentListener.TYPE_LABEL.created,
       description: `${payment.creditor.firstName} registró un pago de ${formatCurrency(payment.amount)} en ${payment.group.name}`,
       type: NotificationType.PaymentCreated,
@@ -44,13 +44,13 @@ export class PaymentListener {
   async handlePaymentDeleted(payload: PaymentEvent) {
     const { data: payment } = payload;
 
-    await this.sendMail({
+    await this.buildMail({
       subject: PaymentListener.TYPE_LABEL.deleted,
       template: 'payment-deleted',
       payment,
     });
 
-    await this.sendNotification({
+    await this.makeNotification({
       title: PaymentListener.TYPE_LABEL.deleted,
       description: `${payment.creditor.firstName} eliminó un pago de ${formatCurrency(payment.amount)} en ${payment.group.name}`,
       type: NotificationType.PaymentDeleted,
@@ -60,8 +60,8 @@ export class PaymentListener {
     });
   }
 
-  private async sendMail({ subject, template, payment }: PaymentMail) {
-    await this.eventService.addMailJob(
+  private async buildMail({ subject, template, payment }: PaymentMail) {
+    await this.eventService.sendMail(
       'payment-mail',
       new CreateMailer(payment.payer.email, subject, template, {
         paymentId: payment.id,
@@ -79,7 +79,7 @@ export class PaymentListener {
     );
   }
 
-  private async sendNotification({
+  private async makeNotification({
     title,
     description,
     type,

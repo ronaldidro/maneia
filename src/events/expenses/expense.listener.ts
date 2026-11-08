@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
+import { ConfigService } from '@nestjs/config';
 import { ExpenseEvent } from '@/events/expenses/expense.event';
 import { EventService } from '@/events/event.service';
 import {
   ExpenseData,
+  ExpenseDiscordNotification,
   ExpenseMail,
   ExpenseNotification,
 } from '@/events/expenses/interfaces';
@@ -18,7 +20,10 @@ import { formatCurrency, formatDate } from '@/common/helpers';
 
 @Injectable()
 export class ExpenseListener {
-  constructor(private readonly eventService: EventService) {}
+  constructor(
+    private readonly eventService: EventService,
+    private readonly configService: ConfigService,
+  ) {}
 
   private static readonly TYPE_LABEL = {
     created: 'Gasto registrado',
@@ -32,7 +37,7 @@ export class ExpenseListener {
     const details = this.filterDebtorsDetail(expense, currentUser);
 
     for (const detail of details) {
-      await this.sendMail({
+      await this.buildMail({
         subject: ExpenseListener.TYPE_LABEL.created,
         template: 'expense-created',
         expense,
@@ -40,7 +45,7 @@ export class ExpenseListener {
         currentUser,
       });
 
-      await this.sendNotification({
+      await this.makeNotification({
         title: ExpenseListener.TYPE_LABEL.created,
         description: `${expense.payer.firstName} registró un gasto de ${formatCurrency(expense.amount)} en ${expense.group.name}`,
         type: NotificationType.ExpenseCreated,
@@ -49,6 +54,18 @@ export class ExpenseListener {
         severity: NotificationSeverity.Info,
       });
     }
+
+    if (expense.group.discordWebhook)
+      await this.buildNotification({
+        type: NotificationType.ExpenseCreated,
+        webhookUrl: expense.group.discordWebhook,
+        title: ExpenseListener.TYPE_LABEL.created,
+        color: 3900150,
+        expense,
+        members: expense.details
+          .map((detail) => detail.user.firstName)
+          .join(', '),
+      });
   }
 
   @OnEvent('expense.deleted')
@@ -58,7 +75,7 @@ export class ExpenseListener {
     const details = this.filterDebtorsDetail(expense, currentUser);
 
     for (const detail of details) {
-      await this.sendMail({
+      await this.buildMail({
         subject: ExpenseListener.TYPE_LABEL.deleted,
         template: 'expense-deleted',
         expense,
@@ -66,7 +83,7 @@ export class ExpenseListener {
         currentUser,
       });
 
-      await this.sendNotification({
+      await this.makeNotification({
         title: ExpenseListener.TYPE_LABEL.deleted,
         description: `${expense.payer.firstName} eliminó un gasto de ${formatCurrency(expense.amount)} en ${expense.group.name}`,
         type: NotificationType.ExpenseDeleted,
@@ -75,16 +92,28 @@ export class ExpenseListener {
         severity: NotificationSeverity.Error,
       });
     }
+
+    if (expense.group.discordWebhook)
+      await this.buildNotification({
+        type: NotificationType.ExpenseDeleted,
+        webhookUrl: expense.group.discordWebhook,
+        title: ExpenseListener.TYPE_LABEL.deleted,
+        color: 7041664,
+        expense,
+        members: expense.details
+          .map((detail) => detail.user.firstName)
+          .join(', '),
+      });
   }
 
-  private async sendMail({
+  private async buildMail({
     subject,
     template,
     expense,
     detail,
     currentUser,
   }: ExpenseMail) {
-    await this.eventService.addMailJob(
+    await this.eventService.sendMail(
       'expense-mail',
       new CreateMailer(
         detail.user.email,
@@ -108,7 +137,7 @@ export class ExpenseListener {
     );
   }
 
-  private async sendNotification({
+  private async makeNotification({
     title,
     description,
     type,
@@ -129,13 +158,66 @@ export class ExpenseListener {
     );
   }
 
+  private async buildNotification({
+    type,
+    webhookUrl,
+    title,
+    color,
+    expense,
+    members,
+  }: ExpenseDiscordNotification) {
+    const clientUrl = this.configService.get<string>('client.url');
+    const baseUrl = `${clientUrl}/expenses`;
+    const url =
+      type === NotificationType.ExpenseCreated
+        ? `${baseUrl}/${expense.id}`
+        : baseUrl;
+
+    const fields = this.buildFields(type, expense, members);
+
+    await this.eventService.sendNotification(webhookUrl, {
+      embeds: [{ title, url, color, fields }],
+    });
+  }
+
+  private buildFields(
+    type: NotificationType,
+    expense: ExpenseData,
+    members: string,
+  ) {
+    const dateFormat = 'dd MMMM yyyy hh:mm aaa';
+    const amount = formatCurrency(expense.amount);
+    const createdAt = this.parseToDate(expense.createdAt, dateFormat);
+
+    const common = [
+      { name: '📋 Descripción', value: `${expense.description}` },
+      { name: '👥 Grupo', value: `${expense.group.name}` },
+      { name: '🤝 Miembros', value: members },
+      { name: '💰 Monto', value: `${amount}` },
+    ];
+
+    if (type === NotificationType.ExpenseCreated)
+      return [
+        { name: '📅 Fecha registro', value: `${createdAt}` },
+        { name: '👤 Registrado por', value: `${expense.payer.firstName}` },
+      ].concat(common);
+
+    const deletedAt = this.parseToDate(expense.deletedAt, dateFormat);
+
+    return [
+      { name: '📅 Fecha registro', value: `${createdAt}` },
+      { name: '👤 Eliminado por', value: `${expense.payer.firstName}` },
+      { name: '📅 Fecha anulación', value: `${deletedAt}` },
+    ].concat(common);
+  }
+
   private filterDebtorsDetail(expense: ExpenseData, currentUser: User) {
     return expense.details.filter(
       (detail) => detail.user.id !== currentUser.id,
     );
   }
 
-  private parseToDate(date?: Date) {
-    return date ? formatDate(date, 'dd MMMM yyyy') : undefined;
+  private parseToDate(date?: Date, formatStr: string = 'dd MMMM yyyy') {
+    return date ? formatDate(date, formatStr) : undefined;
   }
 }

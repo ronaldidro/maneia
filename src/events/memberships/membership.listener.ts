@@ -27,13 +27,13 @@ export class MembershipListener {
   async handleBudgetExceeded(payload: BudgetEvent) {
     const { data } = payload;
 
-    await this.sendMail({
+    await this.buildMail({
       subject: MembershipListener.TYPE_LABEL.exceeded,
       template: 'budget-exceeded',
       data,
     });
 
-    await this.sendNotification({
+    await this.makeNotification({
       title: MembershipListener.TYPE_LABEL.exceeded,
       description: `Has excedido el presupuesto de ${formatCurrency(data.membership.budget)} en ${data.membership.group.name}`,
       type: NotificationType.BudgetExceeded,
@@ -47,13 +47,13 @@ export class MembershipListener {
   async handleBudgetTight(payload: BudgetEvent) {
     const { data } = payload;
 
-    await this.sendMail({
+    await this.buildMail({
       subject: MembershipListener.TYPE_LABEL.tight,
       template: 'budget-tight',
       data,
     });
 
-    await this.sendNotification({
+    await this.makeNotification({
       title: MembershipListener.TYPE_LABEL.tight,
       description: `Te queda solo ${formatCurrency(data.remaining!)} del presupuesto de ${formatCurrency(data.membership.budget)} en ${data.membership.group.name}`,
       type: NotificationType.BudgetTight,
@@ -63,8 +63,8 @@ export class MembershipListener {
     });
   }
 
-  private async sendMail({ subject, template, data }: BudgetMail) {
-    await this.eventService.addMailJob(
+  private async buildMail({ subject, template, data }: BudgetMail) {
+    await this.eventService.sendMail(
       'budget-mail',
       new CreateMailer(data.membership.member.email, subject, template, {
         user: data.membership.member.firstName,
@@ -77,7 +77,7 @@ export class MembershipListener {
     );
   }
 
-  private async sendNotification({
+  private async makeNotification({
     title,
     description,
     type,
