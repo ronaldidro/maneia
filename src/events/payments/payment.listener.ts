@@ -71,6 +71,7 @@ export class PaymentListener {
         creditor: payment.creditor.firstName,
         method: payment.method,
         createdAt: this.parseToDate(payment.createdAt)!,
+        closedAt: this.parseToDate(payment.closedAt)!,
         deletedAt: this.parseToDate(payment.deletedAt),
         debt: payment.debt,
         amount: payment.amount,

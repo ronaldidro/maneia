@@ -20,6 +20,7 @@ export interface PaymentTemplateData {
   creditor: string;
   method?: string;
   createdAt: string;
+  closedAt: string;
   deletedAt?: string;
   debt?: string;
   amount: string;

@@ -12,6 +12,7 @@ export interface PaymentData {
   creditor: { firstName: string };
   method: string;
   createdAt: Date;
+  closedAt: Date;
   deletedAt?: Date;
   debt: string;
   amount: string;

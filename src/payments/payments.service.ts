@@ -1,10 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   Brackets,
   DataSource,
   DeepPartial,
-  DeleteResult,
   EntityManager,
   Repository,
 } from 'typeorm';
@@ -16,9 +14,7 @@ import { PaymentExpense } from '@/payments/interfaces';
 import { Expense } from '@/expenses/entities/expense.entity';
 import { ExpenseDetail } from '@/expenses/entities/detail.entity';
 import { User } from '@/users/entities/user.entity';
-import { PaymentEvent } from '@/events/payments/payment.event';
 import { Pageable, PaginatedResponse } from '@/common/pageable';
-import { PAY_DESCRIPTION } from '@/common/constants';
 import { formatDate } from '@/common/helpers';
 import { ReportsService } from '@/reports/reports.service';
 import { AuthService } from '@/auth/auth.service';
@@ -29,10 +25,8 @@ export class PaymentsService extends Pageable<Payment> {
   constructor(
     @InjectRepository(Payment)
     private readonly repository: Repository<Payment>,
-
     private readonly reportsService: ReportsService,
     private readonly authService: AuthService,
-    private readonly eventEmitter: EventEmitter2,
     private readonly dataSource: DataSource,
   ) {
     super();
@@ -44,7 +38,7 @@ export class PaymentsService extends Pageable<Payment> {
   ): Promise<Payment> {
     const { group, payer, remaining, closedAt } = createPaymentDto;
 
-    const saved = await this.dataSource.transaction(async (manager) => {
+    return await this.dataSource.transaction(async (manager) => {
       const paymentExpenses = await this.settleExpenses(
         manager,
         group,
@@ -75,12 +69,6 @@ export class PaymentsService extends Pageable<Payment> {
         user: { id: user.id },
       });
     });
-
-    const paymentCreated = await this.findOne(saved.id);
-
-    this.emitEvent('payment.created', paymentCreated);
-
-    return paymentCreated;
   }
 
   async findAll(
@@ -171,12 +159,12 @@ export class PaymentsService extends Pageable<Payment> {
     return await pdf.getBuffer();
   }
 
-  async remove(id: string, user: User): Promise<DeleteResult> {
+  async remove(id: string, user: User): Promise<Payment> {
     const payment = await this.findOne(id);
 
     this.authService.checkAbility(user, Action.Delete, payment);
 
-    const result = await this.dataSource.transaction(async (manager) => {
+    return await this.dataSource.transaction(async (manager) => {
       await this.saveExpense(manager, {
         description: 'Reversión de pago',
         amount: payment.amount,
@@ -187,14 +175,8 @@ export class PaymentsService extends Pageable<Payment> {
         details: [{ user: payment.payer, amount: payment.amount }],
       });
 
-      return await manager.softDelete(Payment, id);
+      return await manager.softRemove(payment);
     });
-
-    const paymentDeleted = { ...payment, deletedAt: new Date() };
-
-    this.emitEvent('payment.deleted', paymentDeleted);
-
-    return result;
   }
 
   private async settleExpenses(
@@ -298,28 +280,5 @@ export class PaymentsService extends Pageable<Payment> {
   ): Promise<void> {
     const created = manager.create(Expense, expense);
     await manager.save(Expense, created);
-  }
-
-  private emitEvent(event: string, payment: Payment) {
-    this.eventEmitter.emit(
-      event,
-      new PaymentEvent({
-        id: payment.id,
-        payer: {
-          id: payment.payer.id,
-          firstName: payment.payer.firstName,
-          email: payment.payer.email,
-        },
-        description: payment.description,
-        group: { name: payment.group.name },
-        creditor: { firstName: payment.user.firstName },
-        method: PAY_DESCRIPTION[payment.method],
-        createdAt: payment.createdAt,
-        deletedAt: payment.deletedAt,
-        debt: payment.debt,
-        amount: payment.amount,
-        remaining: payment.remaining,
-      }),
-    );
   }
 }
