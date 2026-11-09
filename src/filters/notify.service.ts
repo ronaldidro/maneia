@@ -36,7 +36,7 @@ export class NotifyService {
     exception: Error | HttpException,
   ) {
     const formattedError = JSON.stringify(response, null, 2).substring(0, 1000);
-    const formattedBody = JSON.stringify(request.body, null, 2).substring(
+    const formattedBody = JSON.stringify(request.body, null, 2)?.substring(
       0,
       1000,
     );
