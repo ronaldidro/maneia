@@ -1,5 +1,6 @@
 import { Injectable, MessageEvent, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { I18nService } from '@nestjs/i18n';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { filter, map, Observable, Subject } from 'rxjs';
 import { User } from '@/users/entities/user.entity';
@@ -25,8 +26,8 @@ export class NotificationsService extends Pageable<Notification> {
   constructor(
     @InjectRepository(Notification)
     private readonly repository: Repository<Notification>,
-
     private readonly authService: AuthService,
+    private readonly i18nService: I18nService,
   ) {
     super();
   }
@@ -97,7 +98,8 @@ export class NotificationsService extends Pageable<Notification> {
       relations: { user: true },
     });
 
-    if (!notification) throw new NotFoundException('Notification not found');
+    if (!notification)
+      throw new NotFoundException(this.i18nService.t('notifications.notFound'));
 
     return notification;
   }
