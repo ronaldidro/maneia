@@ -34,6 +34,7 @@ export class EventService {
   }
 
   async sendNotification(webhookUrl: string, payload: DiscordWebhookPayload) {
-    await this.notifierService.sendDiscord(webhookUrl, payload);
+    const isPrdEnv = this.configService.get<boolean>('env.is_prd');
+    if (isPrdEnv) await this.notifierService.sendDiscord(webhookUrl, payload);
   }
 }
